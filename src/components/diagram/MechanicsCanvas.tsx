@@ -1,15 +1,17 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Stage } from "react-konva";
+import type { DiagramContent } from "../../content/problems/types";
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
 import type { SolverResult } from "../../mechanics/solvers/equilibrium2D/types";
-import { BeamDiagramLayer } from "./BeamDiagramLayer";
 import { CoordinateSystemLayer } from "./CoordinateSystemLayer";
+import { getDiagramAdapter } from "./diagramRegistry";
 import { DottedGridLayer } from "./DottedGridLayer";
 import type { CanvasPoint, DiagramMode, WorldToCanvas } from "./types";
 
 type MechanicsCanvasProps = Readonly<{
   problem: ProblemDefinition;
   solverResult: SolverResult;
+  diagram: DiagramContent;
   mode: DiagramMode;
   stageLabel?: string;
 }>;
@@ -19,18 +21,14 @@ const fallbackSize = {
   height: 520,
 };
 
-const getBeamLength = (problem: ProblemDefinition): number => {
-  const beamLength = problem.parameters.find((parameter) => parameter.id === "beamLength")?.value;
-  if (beamLength === undefined) {
-    throw new Error("MechanicsCanvas requires a beamLength parameter for the current beam renderer.");
-  }
-  return beamLength;
-};
-
-export const MechanicsCanvas = ({ problem, solverResult, mode, stageLabel }: MechanicsCanvasProps) => {
+export const MechanicsCanvas = ({ problem, solverResult, diagram, mode, stageLabel }: MechanicsCanvasProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState(fallbackSize);
-  const beamLength = getBeamLength(problem);
+  const diagramAdapter = getDiagramAdapter(diagram.diagramKey);
+  const worldBounds = useMemo(
+    () => diagramAdapter.getWorldBounds(problem, diagram),
+    [diagram, diagramAdapter, problem],
+  );
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -57,17 +55,19 @@ export const MechanicsCanvas = ({ problem, solverResult, mode, stageLabel }: Mec
   const worldToCanvas = useMemo<WorldToCanvas>(() => {
     const marginX = 150;
     const availableWidth = Math.max(320, size.width - marginX * 2);
-    const scale = Math.min(96, availableWidth / beamLength);
+    const worldWidth = Math.max(1, worldBounds.maxX - worldBounds.minX);
+    const worldCenterY = (worldBounds.minY + worldBounds.maxY) / 2;
+    const scale = Math.min(96, availableWidth / worldWidth);
     const origin: CanvasPoint = {
-      x: (size.width - beamLength * scale) / 2,
-      y: size.height * 0.5,
+      x: (size.width - worldWidth * scale) / 2 - worldBounds.minX * scale,
+      y: size.height * 0.5 + worldCenterY * scale,
     };
 
     return (point) => ({
       x: origin.x + point.x * scale,
       y: origin.y - point.y * scale,
     });
-  }, [beamLength, size.height, size.width]);
+  }, [size.height, size.width, worldBounds.maxX, worldBounds.maxY, worldBounds.minX, worldBounds.minY]);
 
   return (
     <section className="flex h-full flex-col border-r border-ink/15 bg-white">
@@ -79,7 +79,7 @@ export const MechanicsCanvas = ({ problem, solverResult, mode, stageLabel }: Mec
         <Stage width={size.width} height={size.height}>
           <DottedGridLayer width={size.width} height={size.height} />
           <CoordinateSystemLayer />
-          <BeamDiagramLayer problem={problem} solverResult={solverResult} mode={mode} worldToCanvas={worldToCanvas} />
+          {diagramAdapter.renderLayer({ problem, solverResult, diagram, mode, worldToCanvas })}
         </Stage>
       </div>
     </section>

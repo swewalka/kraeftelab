@@ -1,4 +1,4 @@
-import type { EquilibriumEquation } from "../../model/types";
+import type { SolverEquation } from "../../model/types";
 
 export type ReactionResult = Readonly<{
   id: string;
@@ -10,6 +10,5 @@ export type ReactionResult = Readonly<{
 export type SolverResult = Readonly<{
   problemId: string;
   reactions: readonly ReactionResult[];
-  equations: readonly EquilibriumEquation[];
-  assumptions: readonly string[];
+  equations: readonly SolverEquation[];
 }>;

@@ -1,0 +1,69 @@
+{
+  "id": "simple-supported-beam-center-load",
+  "title": "Simply Supported Beam with Center Load",
+  "topic": "statics.equilibrium",
+  "problemType": "supported-beam",
+  "solverKey": "simply-supported-beam-reactions",
+  "diagramKey": "beam-diagram",
+  "statement": "A horizontal rigid beam is supported by a pin at A and a roller at B. A single vertical downward force acts at midspan. Calculate the support reactions.",
+  "parameters": [
+    { "id": "beamLength", "label": "L", "value": 6, "unit": "m", "displayValue": "6 m" },
+    { "id": "loadMagnitude", "label": "F", "value": 12000, "unit": "N", "displayValue": "12 kN" },
+    { "id": "loadPosition", "label": "x_F", "value": 3, "unit": "m", "displayValue": "3 m" }
+  ],
+  "points": [
+    { "id": "pointA", "label": "A", "x": 0, "y": 0 },
+    { "id": "pointB", "label": "B", "x": 6, "y": 0 },
+    { "id": "pointLoad", "label": "F", "x": 3, "y": 0 }
+  ],
+  "bodies": [
+    {
+      "id": "beam",
+      "label": "Rigid beam",
+      "kind": "rigidBeam",
+      "startPointId": "pointA",
+      "endPointId": "pointB"
+    }
+  ],
+  "supports": [
+    { "id": "supportA", "label": "A", "kind": "pin", "pointId": "pointA", "bodyId": "beam" },
+    { "id": "supportB", "label": "B", "kind": "roller", "pointId": "pointB", "bodyId": "beam" }
+  ],
+  "loads": [
+    {
+      "id": "centerLoad",
+      "label": "F",
+      "kind": "pointForce",
+      "bodyId": "beam",
+      "positionPointId": "pointLoad",
+      "vector": { "x": 0, "y": -12000 },
+      "displayMagnitude": "12 kN"
+    }
+  ],
+  "unknownReactions": [
+    { "id": "reactionAx", "label": "A_x", "supportId": "supportA", "component": "x", "direction": { "x": 1, "y": 0 } },
+    { "id": "reactionAy", "label": "A_y", "supportId": "supportA", "component": "y", "direction": { "x": 0, "y": 1 } },
+    { "id": "reactionBy", "label": "B_y", "supportId": "supportB", "component": "y", "direction": { "x": 0, "y": 1 } }
+  ],
+  "solverConfig": {
+    "beamLengthParameterId": "beamLength",
+    "loadMagnitudeParameterId": "loadMagnitude",
+    "loadPositionParameterId": "loadPosition",
+    "horizontalReactionId": "reactionAx",
+    "leftVerticalReactionId": "reactionAy",
+    "rightVerticalReactionId": "reactionBy",
+    "equationIds": {
+      "sumForceX": "sum-force-x",
+      "sumMomentAboutLeftSupport": "sum-moment-a",
+      "sumForceY": "sum-force-y"
+    }
+  },
+  "explore": {
+    "noticeTitle": "What to notice",
+    "notices": [
+      "The pin at A can resist horizontal and vertical motion.",
+      "The roller at B resists only vertical motion.",
+      "The center load is symmetric, so the final vertical reactions should be equal."
+    ]
+  }
+}

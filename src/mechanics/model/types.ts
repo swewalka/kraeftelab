@@ -51,6 +51,13 @@ export type ParameterDefinition = Readonly<{
   displayValue: string;
 }>;
 
+export type SolverEquation = Readonly<{
+  id: string;
+  symbolic: string;
+  substituted: string;
+  solved?: string;
+}>;
+
 export type EquilibriumEquation = Readonly<{
   id: string;
   title: string;

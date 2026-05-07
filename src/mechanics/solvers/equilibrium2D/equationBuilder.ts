@@ -1,21 +1,60 @@
 import type { ProblemDefinition } from "../../model/problemDefinition";
-import type { EquilibriumEquation } from "../../model/types";
+import type { SolverEquation } from "../../model/types";
 
-type BeamEquationInput = Readonly<{
+export type BeamReactionEquationIds = Readonly<{
+  sumForceX: string;
+  sumMomentAboutLeftSupport: string;
+  sumForceY: string;
+}>;
+
+export type BeamEquationInput = Readonly<{
   beamLength: number;
   loadMagnitude: number;
   loadPosition: number;
+  horizontalReactionLabel: string;
+  leftVerticalReactionLabel: string;
+  rightVerticalReactionLabel: string;
   reactionBy: number;
   reactionAy: number;
+  equationIds: BeamReactionEquationIds;
 }>;
 
-export const getBeamEquationValues = (problem: ProblemDefinition): BeamEquationInput => {
-  const beamLength = problem.parameters.find((parameter) => parameter.id === "beamLength")?.value;
-  const loadMagnitude = problem.parameters.find((parameter) => parameter.id === "loadMagnitude")?.value;
-  const loadPosition = problem.parameters.find((parameter) => parameter.id === "loadPosition")?.value;
+type BeamEquationValueConfig = Readonly<{
+  beamLengthParameterId: string;
+  loadMagnitudeParameterId: string;
+  loadPositionParameterId: string;
+  horizontalReactionId: string;
+  leftVerticalReactionId: string;
+  rightVerticalReactionId: string;
+  equationIds: BeamReactionEquationIds;
+}>;
 
-  if (beamLength === undefined || loadMagnitude === undefined || loadPosition === undefined) {
-    throw new Error("Beam reaction solver requires beamLength, loadMagnitude, and loadPosition parameters.");
+const getParameterValue = (problem: ProblemDefinition, parameterId: string): number => {
+  const value = problem.parameters.find((parameter) => parameter.id === parameterId)?.value;
+  if (value === undefined) {
+    throw new Error(`Beam reaction solver requires parameter "${parameterId}".`);
+  }
+  return value;
+};
+
+const getReactionLabel = (problem: ProblemDefinition, reactionId: string): string => {
+  const reaction = problem.unknownReactions.find((unknownReaction) => unknownReaction.id === reactionId);
+  if (!reaction) {
+    throw new Error(`Beam reaction solver requires unknown reaction "${reactionId}".`);
+  }
+  return reaction.label;
+};
+
+export const getBeamEquationValues = (
+  problem: ProblemDefinition,
+  config: BeamEquationValueConfig,
+): BeamEquationInput => {
+  const beamLength = getParameterValue(problem, config.beamLengthParameterId);
+  const loadMagnitude = getParameterValue(problem, config.loadMagnitudeParameterId);
+  const loadPosition = getParameterValue(problem, config.loadPositionParameterId);
+
+  if (beamLength <= 0) {
+    throw new Error("Beam reaction solver requires a positive beam length.");
   }
 
   const reactionBy = (loadMagnitude * loadPosition) / beamLength;
@@ -25,35 +64,32 @@ export const getBeamEquationValues = (problem: ProblemDefinition): BeamEquationI
     beamLength,
     loadMagnitude,
     loadPosition,
+    horizontalReactionLabel: getReactionLabel(problem, config.horizontalReactionId),
+    leftVerticalReactionLabel: getReactionLabel(problem, config.leftVerticalReactionId),
+    rightVerticalReactionLabel: getReactionLabel(problem, config.rightVerticalReactionId),
     reactionBy,
     reactionAy,
+    equationIds: config.equationIds,
   };
 };
 
-export const buildBeamReactionEquations = (input: BeamEquationInput): readonly EquilibriumEquation[] => [
+export const buildBeamReactionEquations = (input: BeamEquationInput): readonly SolverEquation[] => [
   {
-    id: "sum-force-x",
-    title: "Horizontal force equilibrium",
+    id: input.equationIds.sumForceX,
     symbolic: "ΣF_x = 0",
-    substituted: "A_x = 0",
-    solved: "A_x = 0 N",
-    explanation: "No external horizontal load is applied, so the horizontal pin reaction is zero.",
+    substituted: `${input.horizontalReactionLabel} = 0`,
+    solved: `${input.horizontalReactionLabel} = 0 N`,
   },
   {
-    id: "sum-moment-a",
-    title: "Moment equilibrium about A",
+    id: input.equationIds.sumMomentAboutLeftSupport,
     symbolic: "ΣM_A = 0",
-    substituted: `B_y · ${input.beamLength} m - ${input.loadMagnitude} N · ${input.loadPosition} m = 0`,
-    solved: `B_y = (${input.loadMagnitude} N · ${input.loadPosition} m) / ${input.beamLength} m = ${input.reactionBy} N`,
-    explanation:
-      "Taking moments about A eliminates A_x and A_y, because their lines of action pass through point A.",
+    substituted: `${input.rightVerticalReactionLabel} · ${input.beamLength} m - ${input.loadMagnitude} N · ${input.loadPosition} m = 0`,
+    solved: `${input.rightVerticalReactionLabel} = (${input.loadMagnitude} N · ${input.loadPosition} m) / ${input.beamLength} m = ${input.reactionBy} N`,
   },
   {
-    id: "sum-force-y",
-    title: "Vertical force equilibrium",
+    id: input.equationIds.sumForceY,
     symbolic: "ΣF_y = 0",
-    substituted: `A_y + ${input.reactionBy} N - ${input.loadMagnitude} N = 0`,
-    solved: `A_y = ${input.loadMagnitude} N - ${input.reactionBy} N = ${input.reactionAy} N`,
-    explanation: "After B_y is known, vertical force equilibrium gives the remaining vertical reaction at A.",
+    substituted: `${input.leftVerticalReactionLabel} + ${input.reactionBy} N - ${input.loadMagnitude} N = 0`,
+    solved: `${input.leftVerticalReactionLabel} = ${input.loadMagnitude} N - ${input.reactionBy} N = ${input.reactionAy} N`,
   },
 ];

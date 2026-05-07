@@ -11,6 +11,9 @@ export type ProblemDefinition = Readonly<{
   id: string;
   title: string;
   topic: "statics.equilibrium";
+  problemType: string;
+  solverKey: string;
+  diagramKey: string;
   statement: string;
   parameters: readonly ParameterDefinition[];
   points: readonly PointDefinition[];
@@ -18,4 +21,5 @@ export type ProblemDefinition = Readonly<{
   supports: readonly SupportDefinition[];
   loads: readonly LoadDefinition[];
   unknownReactions: readonly UnknownReaction[];
+  solverConfig?: unknown;
 }>;

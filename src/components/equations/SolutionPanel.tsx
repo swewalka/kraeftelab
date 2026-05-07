@@ -1,17 +1,19 @@
 import type { SolutionStep } from "../../mechanics/model/types";
 import type { SolverResult } from "../../mechanics/solvers/equilibrium2D/types";
+import type { SolutionContent } from "../../mechanics/explanation/types";
 import { EquationBlock } from "./EquationBlock";
 import { ArrowLeft, ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { ResultSummary } from "../results/ResultSummary";
 
 type SolutionPanelProps = Readonly<{
+  solution: SolutionContent;
   steps: readonly SolutionStep[];
   solverResult: SolverResult;
   activeStepIndex: number;
   onStepChange: (stepIndex: number) => void;
 }>;
 
-export const SolutionPanel = ({ steps, solverResult, activeStepIndex, onStepChange }: SolutionPanelProps) => {
+export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, onStepChange }: SolutionPanelProps) => {
   const activeStep = steps[activeStepIndex];
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
@@ -23,9 +25,13 @@ export const SolutionPanel = ({ steps, solverResult, activeStepIndex, onStepChan
   return (
     <section className="flex h-full flex-col bg-paper">
       <div className="border-b border-ink/15 bg-white px-5 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-signal">Guided explanation</p>
-        <h2 className="mt-1 text-xl font-semibold">Support reactions</h2>
-        <div className="mt-4 grid grid-cols-6 gap-1" aria-label="Solution progress">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-signal">{solution.eyebrow}</p>
+        <h2 className="mt-1 text-xl font-semibold">{solution.title}</h2>
+        <div
+          className="mt-4 grid gap-1"
+          style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}
+          aria-label="Solution progress"
+        >
           {steps.map((step, index) => (
             <button
               key={step.id}
@@ -64,14 +70,14 @@ export const SolutionPanel = ({ steps, solverResult, activeStepIndex, onStepChan
 
         {isLastStep ? (
           <div className="mt-5">
-            <ResultSummary result={solverResult} />
+            <ResultSummary result={solverResult} title={solution.resultSummaryTitle} />
           </div>
         ) : null}
 
         <section className="mt-5 rounded-md border border-ink/15 bg-white p-4 shadow-sm">
           <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-steel">Assumptions</h3>
           <ul className="mt-3 space-y-2 text-sm leading-6 text-steel">
-            {solverResult.assumptions.map((assumption) => (
+            {solution.assumptions.map((assumption) => (
               <li key={assumption}>{assumption}</li>
             ))}
           </ul>

@@ -38,38 +38,58 @@ Do not add these until the underlying architecture needs them:
 
 ## Architecture
 
-Problem data must be separated from app logic. React components render structured problem data and solver output; they must not contain mechanics calculations.
+Problem-specific data and teaching flow belong under `src/content/problems`. Shared app, mechanics, solver, rendering, and UI layers must not hide one-off example content.
 
 The core flow is:
 
-1. a `ProblemDefinition` describes geometry, supports, loads, parameters, and unknowns,
-2. a solver reads the problem definition and returns a typed `SolverResult`,
-3. the explanation layer turns problem data and solver output into `SolutionStep` objects,
-4. React components render diagrams, equations, results, and learning modes.
+1. a content folder provides JSON for mechanics data, solution flow, diagram annotations, and practice copy,
+2. a thin TypeScript loader validates JSON and converts it into typed domain objects,
+3. `ProblemDefinition` metadata selects a solver by `solverKey`,
+4. the solver computes numeric results and equation lines,
+5. the explanation builder combines solver output with curated solution content,
+6. the canvas chooses a renderer by `diagramKey` and renders configured diagram annotations.
+
+Content owns problem-specific items such as title, statement, parameter values, points, bodies, supports, loads, unknowns, solver configuration, explanation text, step order, equation display copy, assumptions, result headings, diagram annotations, hints, and practice prompts.
+
+Mechanics owns reusable concepts and computations such as points, vectors, forces, supports, unknown reactions, equilibrium equations, solver results, unit formatting, coordinate conventions, linear equation utilities, and validation helpers.
 
 ## Main Folders
 
 - `src/app`: application composition and top-level mode state.
 - `src/components/layout`: shell, header, tabs, and page layout components.
 - `src/components/problem`: problem statement and parameter display.
-- `src/components/diagram`: Konva canvas rendering. Keep props data-oriented so future interaction layers can be added without changing mechanics solvers.
+- `src/components/diagram`: Konva canvas rendering, renderer registry, and canvas primitives.
 - `src/components/equations`: equation and solution step rendering.
 - `src/components/results`: final reaction/result summaries.
-- `src/content/problems`: structured problem definitions. Treat these as JSON-like data even when written as TypeScript.
+- `src/content/problems`: discoverable problem content folders, JSON files, catalog registration, and JSON parsing.
 - `src/mechanics/core`: math, vectors, units, and low-level numerical utilities.
 - `src/mechanics/model`: shared domain types and problem definition contracts.
-- `src/mechanics/solvers`: solver implementations grouped by topic.
-- `src/mechanics/explanation`: educational solution step builders.
+- `src/mechanics/solvers`: solver implementations and solver registry.
+- `src/mechanics/explanation`: generic assembly of curated solution content with solver output.
 - `src/styles`: global Tailwind/CSS entry points.
+
+## Content Folders
+
+Each problem should be discoverable in one folder under `src/content/problems`. The current pattern is:
+
+- `problem.json`: metadata, `problemType`, `solverKey`, `diagramKey`, mechanics definition, parameters, and solver config.
+- `solution.json`: curated guided solution flow, equation titles/explanations, assumptions, and result panel title.
+- `diagram.json`: problem-specific renderer annotations and ids consumed by the selected diagram adapter.
+- `practice.json`: practice-mode copy and future prompts.
+- `index.ts`: thin loader only; avoid mechanics calculations or educational copy here.
+
+Prefer real JSON for content. If TypeScript is needed, keep it as a parser, adapter, or registration layer. Invalid content should fail with clear errors instead of silently rendering partial diagrams or incomplete solutions.
+
+To add a new problem, create a content folder, add it to `src/content/problems/catalog.ts`, and reuse an existing `solverKey`/`diagramKey` when the mechanics and rendering contracts match. Add a new solver or renderer only when the new problem type actually needs one.
 
 ## Coding Conventions
 
 - Use strict TypeScript and explicit domain types.
 - Keep mechanics calculations outside JSX.
-- Prefer clear names such as `supportA`, `supportB`, `reactionAx`, `reactionAy`, `reactionBy`, `beamLength`, `loadMagnitude`, and `loadPosition`.
+- Keep problem-specific ids and values in content unless they are part of an explicitly specialized solver or renderer adapter.
 - Avoid vague names such as `item`, `obj`, `value1`, or `forceThing`.
 - Keep files small and focused.
-- Add comments only when they clarify non-obvious mechanics or numerical logic.
+- Add comments only when they clarify non-obvious mechanics, numerical logic, or architecture boundaries.
 - Do not introduce dependencies unless they remove real complexity.
 - Keep rendering components mostly presentational.
 
@@ -95,49 +115,29 @@ Internal calculations use SI units:
 
 Display formatting may convert to student-friendly units such as `kN` or `kN m`, but the stored problem data and solver calculations should remain SI.
 
-## Problem Definitions
-
-Problem definitions should be structured data under `src/content/problems`.
-
-A problem should define:
-
-- stable `id`,
-- `title`,
-- topic identifier,
-- concise statement,
-- parameters with internal numeric values and display strings,
-- points,
-- bodies,
-- supports,
-- loads,
-- unknown reactions.
-
-Keep definitions JSON-compatible where practical. Avoid functions inside problem definitions unless there is a compelling reason.
-
 ## Solver Guidelines
 
 Solvers should:
 
-- accept typed problem data,
-- validate the parameters they require,
+- be selected through `solverKey`,
+- accept typed problem data and solver config,
+- validate required parameters, reactions, and equation ids,
 - return typed `SolverResult` data,
+- compute values and equation lines without embedding curated teaching paragraphs,
 - keep formulas transparent,
 - avoid fake symbolic manipulation,
 - use numerical utilities from `src/mechanics/core` when useful,
 - avoid React imports.
 
-For this MVP, direct equilibrium equations are acceptable. Future general solvers can introduce matrix assembly and a broader linear system solver while preserving the existing result shape.
+For this MVP, the current `simply-supported-beam-reactions` solver is intentionally specialized. Future general solvers can introduce matrix assembly and broader linear system support while preserving the existing result shape.
 
 ## Diagram And Canvas Rendering
 
-The main mechanics diagram uses `react-konva` and `konva`, not SVG. The current renderer is intentionally beam-specific, but it is split into small canvas components:
+The main mechanics diagram uses `react-konva` and `konva`, not SVG. `MechanicsCanvas` owns the responsive `Stage`, dotted paper background, container measurement, and world-to-canvas transform. It chooses a diagram adapter by `diagramKey`.
 
-- `MechanicsCanvas` owns the responsive `Stage`, container measurement, and world-to-canvas transform.
-- `DottedGridLayer` renders the technical dotted-paper background as a Konva layer.
-- `BeamDiagramLayer` renders the current beam problem from `ProblemDefinition` and `SolverResult`.
-- `ForceArrow`, `SupportSymbol`, `DimensionLine`, and `Label` are reusable canvas primitives.
+The current `beam-diagram` renderer is intentionally beam-specific, but it should consume ids and annotations from `diagram.json` instead of hardcoded example constants. Keep `ForceArrow`, `SupportSymbol`, `DimensionLine`, and `Label` reusable.
 
-Mechanics coordinates and canvas coordinates must stay separated. Mechanics data uses `x` positive right and `y` positive upward. Browser canvas coordinates use `y` positive downward, so the renderer must convert through a clear `worldToCanvas(point)` function. Do not put canvas coordinates into problem definitions or solver output.
+Mechanics coordinates and canvas coordinates must stay separated. Mechanics data uses `x` positive right and `y` positive upward. Browser canvas coordinates use `y` positive downward, so renderers must convert through `worldToCanvas(point)`. Do not put canvas coordinates into problem definitions or solver output; renderer annotation offsets belong in diagram content.
 
 Future interactive features should be implemented in the canvas layer. Dragging should update controlled problem parameters or draft problem state, then solvers should recompute from that state. Do not mutate solver results directly, and do not make render components the source of mechanics truth.
 
@@ -146,12 +146,20 @@ Future interactive features should be implemented in the canvas layer. Dragging 
 When adding new mechanics features:
 
 - extend domain types first,
-- add problem data second,
+- add problem content second,
 - add or update solvers third,
 - generate explanation data fourth,
 - render the new output last.
 
-Prefer new focused solver modules over making the first beam solver generic too early. Future additions should preserve compatibility with:
+Future agents should avoid reintroducing hardcoded example logic into shared layers. Problem-specific educational text, step labels, equation ordering, final summaries, diagram annotations, hints, and practice prompts should stay in content.
+
+Current limitations:
+
+- only one specialized beam reaction solver is registered,
+- only one beam-oriented Konva renderer is registered,
+- no dragging, full editor, generated exercises, backend, student accounts, or broad symbolic/general statics solver exists yet.
+
+Future additions should preserve compatibility with:
 
 - multi-body rigid systems,
 - internal hinges,

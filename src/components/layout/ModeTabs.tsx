@@ -4,7 +4,7 @@ export type AppMode = "explore" | "explain" | "practice";
 
 const modes: readonly { id: AppMode; label: string; icon: typeof BookOpen }[] = [
   { id: "explore", label: "Explore", icon: BookOpen },
-  { id: "explain", label: "Explain", icon: PencilRuler },
+  { id: "explain", label: "Solve", icon: PencilRuler },
   { id: "practice", label: "Practice", icon: Target },
 ];
 
