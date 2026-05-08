@@ -7,6 +7,7 @@ import { CoordinateSystemLayer } from "./CoordinateSystemLayer";
 import { getDiagramAdapter } from "./diagramRegistry";
 import { DottedGridLayer } from "./DottedGridLayer";
 import type { CanvasPoint, DiagramMode, WorldToCanvas } from "./types";
+import { useI18n } from "../../i18n/I18nProvider";
 
 type MechanicsCanvasProps = Readonly<{
   problem: ProblemDefinition;
@@ -22,6 +23,7 @@ const fallbackSize = {
 };
 
 export const MechanicsCanvas = ({ problem, solverResult, diagram, mode, stageLabel }: MechanicsCanvasProps) => {
+  const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState(fallbackSize);
   const diagramAdapter = getDiagramAdapter(diagram.diagramKey);
@@ -72,8 +74,8 @@ export const MechanicsCanvas = ({ problem, solverResult, diagram, mode, stageLab
   return (
     <section className="flex h-full flex-col border-r border-ink/15 bg-white">
       <div className="flex items-center justify-between gap-3 border-b border-ink/10 px-5 py-3">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-steel">{stageLabel ?? "Mechanics canvas"}</h3>
-        <span className="rounded border border-ink/15 px-2 py-1 font-mono text-xs text-steel">konva canvas</span>
+        <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-steel">{stageLabel ?? t("canvas.defaultLabel")}</h3>
+        <span className="rounded border border-ink/15 px-2 py-1 font-mono text-xs text-steel">{t("canvas.engineLabel")}</span>
       </div>
       <div ref={containerRef} className="min-h-0 flex-1">
         <Stage width={size.width} height={size.height}>

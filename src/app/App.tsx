@@ -4,14 +4,16 @@ import { ModeTabs, type AppMode } from "../components/layout/ModeTabs";
 import { MechanicsCanvas } from "../components/diagram/MechanicsCanvas";
 import { ProblemOverview } from "../components/problem/ProblemOverview";
 import { SolutionPanel } from "../components/equations/SolutionPanel";
-import { defaultProblem } from "../content/problems/catalog";
+import { getDefaultProblem } from "../content/problems/catalog";
+import { useI18n } from "../i18n/I18nProvider";
 import { buildSolutionSteps } from "../mechanics/explanation/buildSolutionSteps";
 import { solveProblem } from "../mechanics/solvers/solverRegistry";
 
 export const App = () => {
+  const { locale } = useI18n();
   const [activeMode, setActiveMode] = useState<AppMode>("explain");
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const problemContent = defaultProblem;
+  const problemContent = getDefaultProblem(locale);
   const { diagram, explore, practice, problem, solution } = problemContent;
   const solverResult = useMemo(() => solveProblem(problem), [problem]);
   const solutionSteps = useMemo(() => buildSolutionSteps(solution, solverResult), [solution, solverResult]);

@@ -1,0 +1,69 @@
+{
+  "id": "simple-supported-beam-center-load",
+  "title": "Einfach gelagerter Balken mit mittiger Einzellast",
+  "topic": "statics.equilibrium",
+  "problemType": "supported-beam",
+  "solverKey": "simply-supported-beam-reactions",
+  "diagramKey": "beam-diagram",
+  "statement": "Ein horizontaler starrer Balken ist bei A durch ein Festlager und bei B durch ein Loslager gelagert. In der Mitte wirkt eine einzelne vertikale Last nach unten. Berechne die Lagerreaktionen.",
+  "parameters": [
+    { "id": "beamLength", "label": "L", "value": 6, "unit": "m", "displayValue": "6 m" },
+    { "id": "loadMagnitude", "label": "F", "value": 12000, "unit": "N", "displayValue": "12 kN" },
+    { "id": "loadPosition", "label": "x_F", "value": 3, "unit": "m", "displayValue": "3 m" }
+  ],
+  "points": [
+    { "id": "pointA", "label": "A", "x": 0, "y": 0 },
+    { "id": "pointB", "label": "B", "x": 6, "y": 0 },
+    { "id": "pointLoad", "label": "F", "x": 3, "y": 0 }
+  ],
+  "bodies": [
+    {
+      "id": "beam",
+      "label": "Starrer Balken",
+      "kind": "rigidBeam",
+      "startPointId": "pointA",
+      "endPointId": "pointB"
+    }
+  ],
+  "supports": [
+    { "id": "supportA", "label": "A", "kind": "pin", "pointId": "pointA", "bodyId": "beam" },
+    { "id": "supportB", "label": "B", "kind": "roller", "pointId": "pointB", "bodyId": "beam" }
+  ],
+  "loads": [
+    {
+      "id": "centerLoad",
+      "label": "F",
+      "kind": "pointForce",
+      "bodyId": "beam",
+      "positionPointId": "pointLoad",
+      "vector": { "x": 0, "y": -12000 },
+      "displayMagnitude": "12 kN"
+    }
+  ],
+  "unknownReactions": [
+    { "id": "reactionAx", "label": "A_x", "supportId": "supportA", "component": "x", "direction": { "x": 1, "y": 0 } },
+    { "id": "reactionAy", "label": "A_y", "supportId": "supportA", "component": "y", "direction": { "x": 0, "y": 1 } },
+    { "id": "reactionBy", "label": "B_y", "supportId": "supportB", "component": "y", "direction": { "x": 0, "y": 1 } }
+  ],
+  "solverConfig": {
+    "beamLengthParameterId": "beamLength",
+    "loadMagnitudeParameterId": "loadMagnitude",
+    "loadPositionParameterId": "loadPosition",
+    "horizontalReactionId": "reactionAx",
+    "leftVerticalReactionId": "reactionAy",
+    "rightVerticalReactionId": "reactionBy",
+    "equationIds": {
+      "sumForceX": "sum-force-x",
+      "sumMomentAboutLeftSupport": "sum-moment-a",
+      "sumForceY": "sum-force-y"
+    }
+  },
+  "explore": {
+    "noticeTitle": "Worauf du achten solltest",
+    "notices": [
+      "Das Festlager bei A kann horizontale und vertikale Kräfte aufnehmen.",
+      "Das Loslager bei B nimmt nur vertikale Kräfte auf.",
+      "Die mittige Last ist symmetrisch, daher sollten die finalen vertikalen Lagerkräfte gleich groß sein."
+    ]
+  }
+}

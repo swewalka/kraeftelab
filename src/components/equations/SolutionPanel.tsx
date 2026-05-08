@@ -4,6 +4,7 @@ import type { SolutionContent } from "../../mechanics/explanation/types";
 import { EquationBlock } from "./EquationBlock";
 import { ArrowLeft, ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { ResultSummary } from "../results/ResultSummary";
+import { useI18n } from "../../i18n/I18nProvider";
 
 type SolutionPanelProps = Readonly<{
   solution: SolutionContent;
@@ -14,6 +15,7 @@ type SolutionPanelProps = Readonly<{
 }>;
 
 export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, onStepChange }: SolutionPanelProps) => {
+  const { t } = useI18n();
   const activeStep = steps[activeStepIndex];
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
@@ -30,13 +32,13 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
         <div
           className="mt-4 grid gap-1"
           style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}
-          aria-label="Solution progress"
+          aria-label={t("solution.progress")}
         >
           {steps.map((step, index) => (
             <button
               key={step.id}
               type="button"
-              aria-label={`Go to ${step.title}`}
+              aria-label={t("solution.goToStep", { title: step.title })}
               className={[
                 "h-2 rounded-full transition",
                 index <= activeStepIndex ? "bg-signal" : "bg-ink/15 hover:bg-ink/25",
@@ -52,7 +54,7 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="font-mono text-xs text-steel">
-                Step {activeStepIndex + 1} / {steps.length}
+                {t("solution.stepCounter", { current: activeStepIndex + 1, total: steps.length })}
               </p>
               <h3 className="mt-2 text-xl font-semibold">{activeStep.title}</h3>
             </div>
@@ -75,7 +77,7 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
         ) : null}
 
         <section className="mt-5 rounded-md border border-ink/15 bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-steel">Assumptions</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-steel">{t("solution.assumptions")}</h3>
           <ul className="mt-3 space-y-2 text-sm leading-6 text-steel">
             {solution.assumptions.map((assumption) => (
               <li key={assumption}>{assumption}</li>
@@ -92,7 +94,7 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
           onClick={() => onStepChange(activeStepIndex - 1)}
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back
+          {t("actions.back")}
         </button>
         <button
           type="button"
@@ -100,7 +102,7 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
           onClick={() => onStepChange(0)}
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
-          Restart
+          {t("actions.restart")}
         </button>
         <button
           type="button"
@@ -108,7 +110,7 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
           disabled={isLastStep}
           onClick={() => onStepChange(activeStepIndex + 1)}
         >
-          Next
+          {t("actions.next")}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
