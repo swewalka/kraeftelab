@@ -12,9 +12,19 @@ import type {
   DiagramContent,
   ExploreContent,
   LoadedProblemContent,
-  PracticeContent,
 } from "./types";
 import type { SolutionContent, SolutionStepContent } from "../../mechanics/explanation/types";
+import type {
+  CanvasClickInteraction,
+  EquationBuilderInteraction,
+  EquationTerm,
+  ExpectedEquation,
+  PracticeCanvasState,
+  PracticeContent,
+  PracticeHint,
+  PracticeInteraction,
+  PracticeStep,
+} from "../../mechanics/practice/types";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -64,6 +74,9 @@ const parseStringArray = (value: unknown, context: string): readonly string[] =>
     return item;
   });
 };
+
+const parseOptionalStringArray = (record: JsonRecord, key: string, context: string): readonly string[] | undefined =>
+  record[key] === undefined ? undefined : parseStringArray(record[key], `${context}.${key}`);
 
 const parseVector = (value: unknown, context: string): Vector2 => {
   const record = requireRecord(value, context);
@@ -332,12 +345,296 @@ const parseDiagram = (raw: unknown, problem: ProblemDefinition): DiagramContent 
   };
 };
 
+const parseInteractionOptions = (value: unknown, context: string) =>
+  requireArray({ options: value }, "options", context).map((item, index) => {
+    const record = requireRecord(item, `${context}[${index}]`);
+    return {
+      id: requireString(record, "id", `${context}[${index}]`),
+      label: requireString(record, "label", `${context}[${index}]`),
+    };
+  });
+
+const parseExpectedEquation = (value: unknown, context: string): ExpectedEquation => {
+  const record = requireRecord(value, context);
+  const rawEquationType = requireString(record, "equationType", context);
+  const equationType = rawEquationType;
+  if (equationType !== "sumFx" && equationType !== "sumFy" && equationType !== "sumMoment") {
+    throw new Error(`${context}.equationType must be "sumFx", "sumFy", or "sumMoment".`);
+  }
+  const rhs = requireString(record, "rhs", context);
+  if (rhs !== "0") {
+    throw new Error(`${context}.rhs must be "0".`);
+  }
+
+  const terms: ExpectedEquation["terms"] = requireArray(record, "terms", context).map((item, index) => {
+    const term = requireRecord(item, `${context}.terms[${index}]`);
+    const rawSign = requireString(term, "sign", `${context}.terms[${index}]`);
+    if (rawSign !== "+" && rawSign !== "-") {
+      throw new Error(`${context}.terms[${index}].sign must be "+" or "-".`);
+    }
+    const sign: "+" | "-" = rawSign;
+    const parsed = {
+      variable: requireString(term, "variable", `${context}.terms[${index}]`),
+      sign,
+    };
+    return term.factor === undefined
+      ? parsed
+      : { ...parsed, factor: requireString(term, "factor", `${context}.terms[${index}]`) };
+  });
+
+  return record.aboutPoint === undefined
+    ? { equationType, terms, rhs }
+    : { equationType, aboutPoint: requireString(record, "aboutPoint", context), terms, rhs };
+};
+
+const parseEquationTerm = (value: unknown, context: string): EquationTerm => {
+  const record = requireRecord(value, context);
+  const semantic = requireRecord(record.semantic, `${context}.semantic`);
+  const sign = requireString(semantic, "sign", `${context}.semantic`);
+  if (sign !== "+" && sign !== "-") {
+    throw new Error(`${context}.semantic.sign must be "+" or "-".`);
+  }
+  const direction = semantic.direction === undefined ? undefined : requireString(semantic, "direction", `${context}.semantic`);
+  if (direction !== undefined && direction !== "x" && direction !== "y") {
+    throw new Error(`${context}.semantic.direction must be "x" or "y".`);
+  }
+
+  return {
+    id: requireString(record, "id", context),
+    label: requireString(record, "label", context),
+    semantic: {
+      variable: requireString(semantic, "variable", `${context}.semantic`),
+      sign,
+      ...(direction === undefined ? {} : { direction }),
+      ...(semantic.factor === undefined ? {} : { factor: requireString(semantic, "factor", `${context}.semantic`) }),
+      ...(semantic.momentAbout === undefined
+        ? {}
+        : { momentAbout: requireString(semantic, "momentAbout", `${context}.semantic`) }),
+    },
+  };
+};
+
+const parsePracticeInteraction = (value: unknown, context: string): PracticeInteraction => {
+  const record = requireRecord(value, context);
+  const type = requireString(record, "type", context);
+
+  if (type === "checkbox") {
+    return {
+      type,
+      options: parseInteractionOptions(record.options, `${context}.options`),
+      correctOptionIds: parseStringArray(record.correctOptionIds, `${context}.correctOptionIds`),
+    };
+  }
+
+  if (type === "multiple-choice") {
+    return {
+      type,
+      options: parseInteractionOptions(record.options, `${context}.options`),
+      correctOptionId: requireString(record, "correctOptionId", context),
+    };
+  }
+
+  if (type === "canvas-click") {
+    const base: CanvasClickInteraction = {
+      type,
+      selectableIds: parseStringArray(record.selectableIds, `${context}.selectableIds`),
+      correctSelectableIds: parseStringArray(record.correctSelectableIds, `${context}.correctSelectableIds`),
+    };
+    return record.labels === undefined
+      ? base
+      : { ...base, labels: parseInteractionOptions(record.labels, `${context}.labels`) };
+  }
+
+  if (type === "matching") {
+    return {
+      type,
+      leftItems: parseInteractionOptions(record.leftItems, `${context}.leftItems`),
+      rightItems: parseInteractionOptions(record.rightItems, `${context}.rightItems`),
+      correctPairs: Object.fromEntries(
+        Object.entries(requireRecord(record.correctPairs, `${context}.correctPairs`)).map(([leftId, rightId]) => {
+          if (typeof rightId !== "string" || rightId.length === 0) {
+            throw new Error(`${context}.correctPairs.${leftId} must be a non-empty string.`);
+          }
+          return [leftId, rightId];
+        }),
+      ),
+    };
+  }
+
+  if (type === "equation-builder") {
+    const equationTarget = requireString(record, "equationTarget", context);
+    if (equationTarget !== "sumFx" && equationTarget !== "sumFy" && equationTarget !== "sumMoment") {
+      throw new Error(`${context}.equationTarget must be "sumFx", "sumFy", or "sumMoment".`);
+    }
+    const parsed: EquationBuilderInteraction = {
+      type,
+      equationTarget,
+      availableTerms: requireArray(record, "availableTerms", context).map((item, index) =>
+        parseEquationTerm(item, `${context}.availableTerms[${index}]`),
+      ),
+      expectedEquation: parseExpectedEquation(record.expectedEquation, `${context}.expectedEquation`),
+    };
+    return record.aboutPoint === undefined
+      ? parsed
+      : { ...parsed, aboutPoint: requireString(record, "aboutPoint", context) };
+  }
+
+  if (type === "expression-input") {
+    return {
+      type,
+      variable: requireString(record, "variable", context),
+      expectedExpression: requireString(record, "expectedExpression", context),
+      ...(record.acceptedExpressions === undefined
+        ? {}
+        : { acceptedExpressions: parseStringArray(record.acceptedExpressions, `${context}.acceptedExpressions`) }),
+    };
+  }
+
+  throw new Error(`${context}.type "${type}" is not a supported practice interaction.`);
+};
+
+const parsePracticeCanvasState = (value: unknown, context: string): PracticeCanvasState => {
+  const record = requireRecord(value, context);
+  const solvedValues =
+    record.solvedValues === undefined
+      ? undefined
+      : Object.fromEntries(
+          Object.entries(requireRecord(record.solvedValues, `${context}.solvedValues`)).map(([objectId, label]) => {
+            if (typeof label !== "string" || label.length === 0) {
+              throw new Error(`${context}.solvedValues.${objectId} must be a non-empty string.`);
+            }
+            return [objectId, label];
+          }),
+        );
+
+  const canvasState: {
+    visibleObjects?: readonly string[];
+    highlightedObjects?: readonly string[];
+    dimmedObjects?: readonly string[];
+    annotations?: readonly string[];
+    solvedValues?: Record<string, string>;
+    solvedObjects?: readonly string[];
+  } = {};
+  const visibleObjects = parseOptionalStringArray(record, "visibleObjects", context);
+  const highlightedObjects = parseOptionalStringArray(record, "highlightedObjects", context);
+  const dimmedObjects = parseOptionalStringArray(record, "dimmedObjects", context);
+  const annotations = parseOptionalStringArray(record, "annotations", context);
+  const solvedObjects = parseOptionalStringArray(record, "solvedObjects", context);
+
+  if (visibleObjects !== undefined) {
+    canvasState.visibleObjects = visibleObjects;
+  }
+  if (highlightedObjects !== undefined) {
+    canvasState.highlightedObjects = highlightedObjects;
+  }
+  if (dimmedObjects !== undefined) {
+    canvasState.dimmedObjects = dimmedObjects;
+  }
+  if (annotations !== undefined) {
+    canvasState.annotations = annotations;
+  }
+  if (solvedValues !== undefined) {
+    canvasState.solvedValues = solvedValues;
+  }
+  if (solvedObjects !== undefined) {
+    canvasState.solvedObjects = solvedObjects;
+  }
+
+  return canvasState;
+};
+
+const parsePracticeHints = (value: unknown, context: string): readonly PracticeHint[] =>
+  requireArray({ hints: value }, "hints", context).map((item, index) => {
+    const record = requireRecord(item, `${context}[${index}]`);
+    const level = requireNumber(record, "level", `${context}[${index}]`);
+    if (level !== 1 && level !== 2 && level !== 3) {
+      throw new Error(`${context}[${index}].level must be 1, 2, or 3.`);
+    }
+    return {
+      level,
+      text: requireString(record, "text", `${context}[${index}]`),
+      ...(record.highlightCanvasIds === undefined
+        ? {}
+        : { highlightCanvasIds: parseStringArray(record.highlightCanvasIds, `${context}[${index}].highlightCanvasIds`) }),
+    };
+  });
+
 const parsePractice = (raw: unknown): PracticeContent => {
   const record = requireRecord(raw, "practice");
+  const steps = requireArray(record, "steps", "practice").map((item, index): PracticeStep => {
+    const stepRecord = requireRecord(item, `practice.steps[${index}]`);
+    const feedback = requireRecord(stepRecord.feedback, `practice.steps[${index}].feedback`);
+    const mistakes =
+      feedback.mistakes === undefined
+        ? undefined
+        : requireArray(feedback, "mistakes", `practice.steps[${index}].feedback`).map((mistake, mistakeIndex) => {
+            const mistakeRecord = requireRecord(mistake, `practice.steps[${index}].feedback.mistakes[${mistakeIndex}]`);
+            return {
+              id: requireString(mistakeRecord, "id", `practice.steps[${index}].feedback.mistakes[${mistakeIndex}]`),
+              text: requireString(mistakeRecord, "text", `practice.steps[${index}].feedback.mistakes[${mistakeIndex}]`),
+            };
+          });
+    const successResult =
+      stepRecord.successResult === undefined
+        ? undefined
+        : requireRecord(stepRecord.successResult, `practice.steps[${index}].successResult`);
+    const solvedValues =
+      successResult?.solvedValues === undefined
+        ? undefined
+        : Object.fromEntries(
+            Object.entries(requireRecord(successResult.solvedValues, `practice.steps[${index}].successResult.solvedValues`)).map(
+              ([objectId, label]) => {
+                if (typeof label !== "string" || label.length === 0) {
+                  throw new Error(`practice.steps[${index}].successResult.solvedValues.${objectId} must be a non-empty string.`);
+                }
+                return [objectId, label];
+              },
+            ),
+          );
+
+    return {
+      id: requireString(stepRecord, "id", `practice.steps[${index}]`),
+      title: requireString(stepRecord, "title", `practice.steps[${index}]`),
+      goal: requireString(stepRecord, "goal", `practice.steps[${index}]`),
+      ...(stepRecord.instructions === undefined
+        ? {}
+        : { instructions: requireString(stepRecord, "instructions", `practice.steps[${index}]`) }),
+      ...(stepRecord.canvasState === undefined
+        ? {}
+        : { canvasState: parsePracticeCanvasState(stepRecord.canvasState, `practice.steps[${index}].canvasState`) }),
+      interaction: parsePracticeInteraction(stepRecord.interaction, `practice.steps[${index}].interaction`),
+      feedback: {
+        correct: requireString(feedback, "correct", `practice.steps[${index}].feedback`),
+        genericIncorrect: requireString(feedback, "genericIncorrect", `practice.steps[${index}].feedback`),
+        ...(mistakes === undefined ? {} : { mistakes }),
+      },
+      ...(stepRecord.hints === undefined ? {} : { hints: parsePracticeHints(stepRecord.hints, `practice.steps[${index}].hints`) }),
+      ...(successResult === undefined
+        ? {}
+        : {
+            successResult: {
+              ...(solvedValues === undefined ? {} : { solvedValues }),
+              ...(successResult.revealObjects === undefined
+                ? {}
+                : { revealObjects: parseStringArray(successResult.revealObjects, `practice.steps[${index}].successResult.revealObjects`) }),
+              ...(successResult.markObjectsSolved === undefined
+                ? {}
+                : {
+                    markObjectsSolved: parseStringArray(
+                      successResult.markObjectsSolved,
+                      `practice.steps[${index}].successResult.markObjectsSolved`,
+                    ),
+                  }),
+            },
+          }),
+    };
+  });
+  ensureUniqueIds(steps, "practice.steps");
+
   return {
     title: requireString(record, "title", "practice"),
     body: requireString(record, "body", "practice"),
-    prompts: parseStringArray(record.prompts ?? [], "practice.prompts"),
+    steps,
   };
 };
 

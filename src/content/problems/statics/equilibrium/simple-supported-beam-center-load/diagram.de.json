@@ -59,8 +59,8 @@
       { "pointId": "pointB", "text": "B", "offset": { "x": 20, "y": -10 }, "fontSize": 34 }
     ],
     "dimensions": [
-      { "startPointId": "pointA", "endPointId": "pointLoad", "label": "L/2" },
-      { "startPointId": "pointLoad", "endPointId": "pointB", "label": "L/2" }
+      { "id": "dimensionAtoLoad", "startPointId": "pointA", "endPointId": "pointLoad", "label": "L/2" },
+      { "id": "dimensionLoadToB", "startPointId": "pointLoad", "endPointId": "pointB", "label": "L/2" }
     ],
     "bounds": {
       "startPointId": "pointA",

@@ -6,7 +6,7 @@ import type { SolverResult } from "../../mechanics/solvers/equilibrium2D/types";
 import { CoordinateSystemLayer } from "./CoordinateSystemLayer";
 import { getDiagramAdapter } from "./diagramRegistry";
 import { DottedGridLayer } from "./DottedGridLayer";
-import type { CanvasPoint, DiagramMode, WorldToCanvas } from "./types";
+import type { CanvasPoint, DiagramInteractionState, DiagramMode, WorldToCanvas } from "./types";
 import { useI18n } from "../../i18n/I18nProvider";
 
 type MechanicsCanvasProps = Readonly<{
@@ -15,14 +15,24 @@ type MechanicsCanvasProps = Readonly<{
   diagram: DiagramContent;
   mode: DiagramMode;
   stageLabel?: string;
-}>;
+}> & DiagramInteractionState;
 
 const fallbackSize = {
   width: 760,
   height: 520,
 };
 
-export const MechanicsCanvas = ({ problem, solverResult, diagram, mode, stageLabel }: MechanicsCanvasProps) => {
+export const MechanicsCanvas = ({
+  problem,
+  solverResult,
+  diagram,
+  mode,
+  stageLabel,
+  canvasState,
+  selectableObjectIds,
+  selectedObjectIds,
+  onObjectSelect,
+}: MechanicsCanvasProps) => {
   const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState(fallbackSize);
@@ -81,7 +91,17 @@ export const MechanicsCanvas = ({ problem, solverResult, diagram, mode, stageLab
         <Stage width={size.width} height={size.height}>
           <DottedGridLayer width={size.width} height={size.height} />
           <CoordinateSystemLayer />
-          {diagramAdapter.renderLayer({ problem, solverResult, diagram, mode, worldToCanvas })}
+          {diagramAdapter.renderLayer({
+            problem,
+            solverResult,
+            diagram,
+            mode,
+            worldToCanvas,
+            canvasState,
+            selectableObjectIds,
+            selectedObjectIds,
+            onObjectSelect,
+          })}
         </Stage>
       </div>
     </section>

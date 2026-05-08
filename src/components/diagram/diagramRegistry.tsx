@@ -8,7 +8,7 @@ import {
   parseBeamDiagramConfig,
   type WorldBounds,
 } from "./BeamDiagramLayer";
-import type { DiagramMode, WorldToCanvas } from "./types";
+import type { DiagramInteractionState, DiagramMode, WorldToCanvas } from "./types";
 
 type DiagramRenderInput = Readonly<{
   problem: ProblemDefinition;
@@ -16,7 +16,7 @@ type DiagramRenderInput = Readonly<{
   diagram: DiagramContent;
   mode: DiagramMode;
   worldToCanvas: WorldToCanvas;
-}>;
+}> & DiagramInteractionState;
 
 export type DiagramAdapter = Readonly<{
   getWorldBounds: (problem: ProblemDefinition, diagram: DiagramContent) => WorldBounds;
@@ -25,13 +25,27 @@ export type DiagramAdapter = Readonly<{
 
 const beamDiagramAdapter: DiagramAdapter = {
   getWorldBounds: (problem, diagram) => getBeamDiagramWorldBounds(problem, parseBeamDiagramConfig(diagram.config)),
-  renderLayer: ({ problem, solverResult, diagram, mode, worldToCanvas }) => (
+  renderLayer: ({
+    problem,
+    solverResult,
+    diagram,
+    mode,
+    worldToCanvas,
+    canvasState,
+    selectableObjectIds,
+    selectedObjectIds,
+    onObjectSelect,
+  }) => (
     <BeamDiagramLayer
       problem={problem}
       solverResult={solverResult}
       diagramConfig={parseBeamDiagramConfig(diagram.config)}
       mode={mode}
       worldToCanvas={worldToCanvas}
+      canvasState={canvasState}
+      selectableObjectIds={selectableObjectIds}
+      selectedObjectIds={selectedObjectIds}
+      onObjectSelect={onObjectSelect}
     />
   ),
 };

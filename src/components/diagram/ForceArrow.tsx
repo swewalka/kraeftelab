@@ -10,14 +10,15 @@ type ForceArrowProps = Readonly<{
   labelOffset?: CanvasPoint;
   strokeWidth?: number;
   fontSize?: number;
+  opacity?: number;
 }>;
 
-export const ForceArrow = ({ start, end, label, color, labelOffset, strokeWidth = 3, fontSize = 20 }: ForceArrowProps) => {
+export const ForceArrow = ({ start, end, label, color, labelOffset, strokeWidth = 3, fontSize = 20, opacity = 1 }: ForceArrowProps) => {
   const labelX = end.x + (labelOffset?.x ?? 12);
   const labelY = end.y + (labelOffset?.y ?? -26);
 
   return (
-    <Group>
+    <Group opacity={opacity}>
       <Arrow
         points={[start.x, start.y, end.x, end.y]}
         stroke={color}

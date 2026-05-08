@@ -4,13 +4,14 @@ import type { CanvasPoint } from "./types";
 type SupportSymbolProps = Readonly<{
   kind: "pin" | "roller";
   point: CanvasPoint;
+  opacity?: number;
+  stroke?: string;
 }>;
 
-export const SupportSymbol = ({ kind, point }: SupportSymbolProps) => {
+export const SupportSymbol = ({ kind, point, opacity = 1, stroke = "#111111" }: SupportSymbolProps) => {
   const topY = point.y;
   const groundY = point.y + 48;
   const baseY = kind === "pin" ? groundY : groundY - 12;
-  const stroke = "#111111";
   const hatchStartX = point.x - 54;
   const hatchEndX = point.x + 54;
   const hatches = Array.from({ length: 8 }, (_, index) => {
@@ -26,7 +27,7 @@ export const SupportSymbol = ({ kind, point }: SupportSymbolProps) => {
 
   if (kind === "roller") {
     return (
-      <Group>
+      <Group opacity={opacity}>
         <Circle x={point.x} y={topY} radius={5} fill="#fbfaf5" stroke={stroke} strokeWidth={1.5} />
         <Line
           points={[point.x - 32, baseY, point.x, topY + 8, point.x + 32, baseY, point.x - 32, baseY]}
@@ -41,7 +42,7 @@ export const SupportSymbol = ({ kind, point }: SupportSymbolProps) => {
   }
 
   return (
-    <Group>
+    <Group opacity={opacity}>
       <Circle x={point.x} y={topY} radius={5} fill="#fbfaf5" stroke={stroke} strokeWidth={1.5} />
       <Line
         points={[point.x - 32, baseY, point.x, topY + 8, point.x + 32, baseY, point.x - 32, baseY]}

@@ -1,5 +1,6 @@
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
 import type { SolutionContent } from "../../mechanics/explanation/types";
+import type { PracticeContent } from "../../mechanics/practice/types";
 
 export type ExploreContent = Readonly<{
   noticeTitle?: string;
@@ -15,12 +16,6 @@ export type DiagramContent = Readonly<{
   diagramKey: string;
   stageLabels: DiagramStageLabels;
   config: unknown;
-}>;
-
-export type PracticeContent = Readonly<{
-  title: string;
-  body: string;
-  prompts: readonly string[];
 }>;
 
 export type LoadedProblemContent = Readonly<{

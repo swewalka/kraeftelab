@@ -7,14 +7,15 @@ type DimensionLineProps = Readonly<{
   end: CanvasPoint;
   label: string;
   yOffset?: number;
+  color?: string;
+  opacity?: number;
 }>;
 
-export const DimensionLine = ({ start, end, label, yOffset = 86 }: DimensionLineProps) => {
+export const DimensionLine = ({ start, end, label, yOffset = 86, color = "#111111", opacity = 1 }: DimensionLineProps) => {
   const y = start.y + yOffset;
-  const color = "#111111";
 
   return (
-    <Group>
+    <Group opacity={opacity}>
       <Line points={[start.x, start.y + 20, start.x, y + 8]} stroke={color} strokeWidth={1} opacity={0.8} />
       <Line points={[end.x, end.y + 20, end.x, y + 8]} stroke={color} strokeWidth={1} opacity={0.8} />
       <Arrow

@@ -1,5 +1,382 @@
 {
   "title": "Practice mode",
-  "body": "Practice mode will later ask you to identify supports, draw reactions, and set up equations yourself.",
-  "prompts": []
+  "body": "Solve the support reactions step by step.",
+  "steps": [
+    {
+      "id": "identify-reactions",
+      "title": "Identify support reactions",
+      "goal": "Select all unknown support reactions that belong in the free-body diagram.",
+      "canvasState": {
+        "highlightedObjects": ["supportA", "supportB"]
+      },
+      "interaction": {
+        "type": "checkbox",
+        "options": [
+          { "id": "reactionAx", "label": "A_x" },
+          { "id": "reactionAy", "label": "A_y" },
+          { "id": "momentA", "label": "M_A" },
+          { "id": "reactionBx", "label": "B_x" },
+          { "id": "reactionBy", "label": "B_y" },
+          { "id": "momentB", "label": "M_B" }
+        ],
+        "correctOptionIds": ["reactionAx", "reactionAy", "reactionBy"]
+      },
+      "feedback": {
+        "correct": "Correct. The pin at A gives A_x and A_y, and the roller at B gives B_y.",
+        "genericIncorrect": "Check which motions each support can prevent.",
+        "mistakes": [
+          { "id": "selected:momentA", "text": "A pin support cannot transmit a support moment." },
+          { "id": "selected:reactionBx", "text": "A roller support does not create a horizontal reaction." },
+          { "id": "selected:momentB", "text": "A roller support cannot transmit a moment." },
+          { "id": "missing:reactionAx", "text": "The pin support at A can prevent horizontal motion, so A_x is an unknown." },
+          { "id": "missing:reactionAy", "text": "The pin support at A can prevent vertical motion, so A_y is an unknown." },
+          { "id": "missing:reactionBy", "text": "The roller support at B creates a vertical reaction B_y." }
+        ]
+      },
+      "hints": [
+        { "level": 1, "text": "A pin support has two force components." },
+        { "level": 2, "text": "A roller support has one reaction normal to the surface." },
+        { "level": 3, "text": "Neither support in this problem is a fixed support, so no support moment appears." }
+      ],
+      "successResult": {
+        "revealObjects": ["reactionAx", "reactionAy", "reactionBy"]
+      }
+    },
+    {
+      "id": "choose-moment-point",
+      "title": "Choose a moment point",
+      "goal": "Click the point in the canvas that makes the moment equation solve B_y directly.",
+      "instructions": "Use the canvas selection marker, then check your choice.",
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["pointA", "pointLoad", "pointB"]
+      },
+      "interaction": {
+        "type": "canvas-click",
+        "selectableIds": ["pointA", "pointLoad", "pointB"],
+        "correctSelectableIds": ["pointA"],
+        "labels": [
+          { "id": "pointA", "label": "A" },
+          { "id": "pointLoad", "label": "midpoint" },
+          { "id": "pointB", "label": "B" }
+        ]
+      },
+      "feedback": {
+        "correct": "Correct. Around A, A_x and A_y have zero lever arm, so the equation solves B_y directly.",
+        "genericIncorrect": "Choose a point that removes as many unknown reactions as possible from the moment equation.",
+        "mistakes": [
+          { "id": "selected:pointLoad", "text": "The midpoint is possible, but not ideal: F would disappear and both support reactions remain." },
+          { "id": "selected:pointB", "text": "Point B is possible, but it solves A_y first. Point A solves B_y directly." },
+          { "id": "missing:pointA", "text": "Use point A so the reactions at A have zero lever arm." }
+        ]
+      },
+      "hints": [
+        { "level": 1, "text": "A force through the moment point creates no moment." },
+        { "level": 2, "text": "Taking moments about A removes both A_x and A_y." },
+        { "level": 3, "text": "With moments about A, only F and B_y remain in the equation." }
+      ]
+    },
+    {
+      "id": "match-lever-arms",
+      "title": "Match lever arms around A",
+      "goal": "Match each force to its perpendicular lever arm about point A.",
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["pointA", "centerLoad", "reactionBy", "dimensionAtoLoad", "dimensionLoadToB"],
+        "dimmedObjects": ["reactionAx", "reactionAy"]
+      },
+      "interaction": {
+        "type": "matching",
+        "leftItems": [
+          { "id": "reactionAx", "label": "A_x" },
+          { "id": "reactionAy", "label": "A_y" },
+          { "id": "centerLoad", "label": "F" },
+          { "id": "reactionBy", "label": "B_y" }
+        ],
+        "rightItems": [
+          { "id": "zero", "label": "0" },
+          { "id": "halfLength", "label": "L/2" },
+          { "id": "fullLength", "label": "L" }
+        ],
+        "correctPairs": {
+          "reactionAx": "zero",
+          "reactionAy": "zero",
+          "centerLoad": "halfLength",
+          "reactionBy": "fullLength"
+        }
+      },
+      "feedback": {
+        "correct": "Correct. The reactions at A have zero lever arm, F acts at L/2, and B_y acts at L.",
+        "genericIncorrect": "Measure every lever arm from point A to the force line of action.",
+        "mistakes": [
+          { "id": "wrong:reactionAx", "text": "A_x acts at A, so its lever arm around A is zero." },
+          { "id": "wrong:reactionAy", "text": "A_y acts at A, so its lever arm around A is zero." },
+          { "id": "wrong:centerLoad", "text": "F is applied at the middle, so its lever arm is L/2." },
+          { "id": "wrong:reactionBy", "text": "B_y acts at B, so its lever arm from A is L." },
+          { "id": "missing:reactionAx", "text": "A_x acts at A, so its lever arm around A is zero." },
+          { "id": "missing:reactionAy", "text": "A_y acts at A, so its lever arm around A is zero." },
+          { "id": "missing:centerLoad", "text": "F is applied at the middle, so its lever arm is L/2." },
+          { "id": "missing:reactionBy", "text": "B_y acts at B, so its lever arm from A is L." }
+        ]
+      },
+      "hints": [
+        { "level": 1, "text": "The lever arm is the distance from A to the force line of action." },
+        { "level": 2, "text": "Forces applied exactly at A have no moment about A." },
+        { "level": 3, "text": "The load is centered, while support B is one full span away from A." }
+      ]
+    },
+    {
+      "id": "determine-moment-signs",
+      "title": "Determine moment signs",
+      "goal": "Use counterclockwise positive and match each term to its sign.",
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["pointA", "centerLoad", "reactionBy"]
+      },
+      "interaction": {
+        "type": "matching",
+        "leftItems": [
+          { "id": "termByL", "label": "B_y · L" },
+          { "id": "termFL2", "label": "F · L/2" }
+        ],
+        "rightItems": [
+          { "id": "positive", "label": "+" },
+          { "id": "negative", "label": "-" }
+        ],
+        "correctPairs": {
+          "termByL": "positive",
+          "termFL2": "negative"
+        }
+      },
+      "feedback": {
+        "correct": "Correct. B_y rotates counterclockwise about A, while F rotates clockwise.",
+        "genericIncorrect": "Apply the sign convention: counterclockwise moments are positive.",
+        "mistakes": [
+          { "id": "wrong:termByL", "text": "B_y at B rotates counterclockwise around A, therefore it is positive." },
+          { "id": "wrong:termFL2", "text": "F in the middle rotates clockwise around A, therefore it is negative." },
+          { "id": "missing:termByL", "text": "B_y at B rotates counterclockwise around A, therefore it is positive." },
+          { "id": "missing:termFL2", "text": "F in the middle rotates clockwise around A, therefore it is negative." }
+        ]
+      },
+      "hints": [
+        { "level": 1, "text": "Imagine the beam rotating about A." },
+        { "level": 2, "text": "An upward force at B lifts the right end and turns the beam counterclockwise." },
+        { "level": 3, "text": "The downward load in the middle pushes the right side down and turns the beam clockwise." }
+      ]
+    },
+    {
+      "id": "build-moment-equation",
+      "title": "Build the moment equation",
+      "goal": "Choose the terms for the moment equilibrium equation about A.",
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["pointA", "centerLoad", "reactionBy", "dimensionAtoLoad", "dimensionLoadToB"],
+        "dimmedObjects": ["reactionAx", "reactionAy"]
+      },
+      "interaction": {
+        "type": "equation-builder",
+        "equationTarget": "sumMoment",
+        "aboutPoint": "A",
+        "availableTerms": [
+          { "id": "byLPositive", "label": "+ B_y · L", "semantic": { "variable": "B_y", "sign": "+", "factor": "L", "momentAbout": "A" } },
+          { "id": "byLNegative", "label": "- B_y · L", "semantic": { "variable": "B_y", "sign": "-", "factor": "L", "momentAbout": "A" } },
+          { "id": "fHalfPositive", "label": "+ F · L/2", "semantic": { "variable": "F", "sign": "+", "factor": "L/2", "momentAbout": "A" } },
+          { "id": "fHalfNegative", "label": "- F · L/2", "semantic": { "variable": "F", "sign": "-", "factor": "L/2", "momentAbout": "A" } },
+          { "id": "fFullNegative", "label": "- F · L", "semantic": { "variable": "F", "sign": "-", "factor": "L", "momentAbout": "A" } },
+          { "id": "ayZero", "label": "+ A_y · 0", "semantic": { "variable": "A_y", "sign": "+", "factor": "0", "momentAbout": "A" } },
+          { "id": "axZero", "label": "+ A_x · 0", "semantic": { "variable": "A_x", "sign": "+", "factor": "0", "momentAbout": "A" } }
+        ],
+        "expectedEquation": {
+          "equationType": "sumMoment",
+          "aboutPoint": "A",
+          "terms": [
+            { "variable": "B_y", "sign": "+", "factor": "L" },
+            { "variable": "F", "sign": "-", "factor": "L/2" }
+          ],
+          "rhs": "0"
+        }
+      },
+      "feedback": {
+        "correct": "Correct. The moment equation is B_y · L - F · L/2 = 0.",
+        "genericIncorrect": "Keep only the nonzero moment terms about A, with signs from the chosen convention.",
+        "mistakes": [
+          { "id": "missing:B_y:+:l", "text": "Missing B_y · L: B_y creates a moment around A." },
+          { "id": "missing:F:-:l/2", "text": "Missing -F · L/2: F creates a moment around A." },
+          { "id": "wrongSign:F", "text": "Wrong sign for F: F rotates clockwise around A and is negative." },
+          { "id": "wrongSign:B_y", "text": "Wrong sign for B_y: B_y rotates counterclockwise around A and is positive." },
+          { "id": "wrongFactor:F", "text": "Use F · L/2, not F · L, because the load is at the middle." },
+          { "id": "zeroTerm:A_y", "text": "A_y acts at point A, so its lever arm around A is zero and the term should be omitted." },
+          { "id": "zeroTerm:A_x", "text": "A_x acts at point A, so its lever arm around A is zero and the term should be omitted." }
+        ]
+      },
+      "hints": [
+        { "level": 1, "text": "Only F and B_y have nonzero lever arms about A." },
+        { "level": 2, "text": "B_y is positive and F is negative with counterclockwise positive." },
+        { "level": 3, "text": "The equation has the form B_y · L - F · L/2 = 0." }
+      ]
+    },
+    {
+      "id": "solve-by",
+      "title": "Solve for B_y",
+      "goal": "Solve the moment equation for B_y.",
+      "instructions": "Use the equilibrium equation from the previous step: ΣM_A = B_y · L - F · L/2 = 0.",
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["reactionBy"]
+      },
+      "interaction": {
+        "type": "expression-input",
+        "variable": "B_y",
+        "expectedExpression": "F/2",
+        "acceptedExpressions": ["F / 2", "0.5F", "0.5*F", "F*1/2", "B_y = F/2"]
+      },
+      "feedback": {
+        "correct": "Correct. B_y carries half of the centered load.",
+        "genericIncorrect": "Start from B_y · L - F · L/2 = 0 and isolate B_y.",
+        "mistakes": [
+          { "id": "expressionEquals:F", "text": "B_y = F means you forgot that the lever arm of F is L/2." },
+          { "id": "expressionContains:L", "text": "B_y is a force; after dividing the moment equation by L, no L remains." },
+          { "id": "negativeExpression", "text": "A negative result means one moment sign was reversed." },
+          { "id": "expressionIncorrect", "text": "Divide both sides by L after moving F · L/2 to the other side." }
+        ]
+      },
+      "hints": [
+        { "level": 1, "text": "Move F · L/2 to the right side." },
+        { "level": 2, "text": "Then divide the whole equation by L." },
+        { "level": 3, "text": "The L cancels, leaving B_y = F/2." }
+      ],
+      "successResult": {
+        "solvedValues": { "reactionBy": "B_y = F/2" },
+        "markObjectsSolved": ["reactionBy"]
+      }
+    },
+    {
+      "id": "build-vertical-equation",
+      "title": "Build the vertical force equation",
+      "goal": "Choose the terms for vertical force equilibrium.",
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["reactionAy", "reactionBy", "centerLoad"],
+        "dimmedObjects": ["reactionAx"]
+      },
+      "interaction": {
+        "type": "equation-builder",
+        "equationTarget": "sumFy",
+        "availableTerms": [
+          { "id": "ayPositive", "label": "+ A_y", "semantic": { "variable": "A_y", "direction": "y", "sign": "+" } },
+          { "id": "byPositive", "label": "+ B_y", "semantic": { "variable": "B_y", "direction": "y", "sign": "+" } },
+          { "id": "fPositive", "label": "+ F", "semantic": { "variable": "F", "direction": "y", "sign": "+" } },
+          { "id": "fNegative", "label": "- F", "semantic": { "variable": "F", "direction": "y", "sign": "-" } },
+          { "id": "axPositive", "label": "+ A_x", "semantic": { "variable": "A_x", "direction": "x", "sign": "+" } }
+        ],
+        "expectedEquation": {
+          "equationType": "sumFy",
+          "terms": [
+            { "variable": "A_y", "sign": "+" },
+            { "variable": "B_y", "sign": "+" },
+            { "variable": "F", "sign": "-" }
+          ],
+          "rhs": "0"
+        }
+      },
+      "feedback": {
+        "correct": "Correct. The vertical equilibrium equation is A_y + B_y - F = 0.",
+        "genericIncorrect": "Only vertical forces belong in ΣF_y, and upward is positive.",
+        "mistakes": [
+          { "id": "missing:A_y:+:", "text": "Missing A_y: the vertical reaction at A contributes to ΣF_y." },
+          { "id": "missing:B_y:+:", "text": "Missing B_y: the vertical reaction at B contributes to ΣF_y." },
+          { "id": "missing:F:-:", "text": "Missing -F: the external force points downward." },
+          { "id": "wrongSign:F", "text": "F points downward, so it enters the vertical equilibrium equation with a negative sign." },
+          { "id": "extra:A_x", "text": "A_x is horizontal and does not belong in vertical equilibrium." }
+        ]
+      },
+      "hints": [
+        { "level": 1, "text": "Use y positive upward." },
+        { "level": 2, "text": "Both support reactions point upward, while F points downward." },
+        { "level": 3, "text": "The equation should be A_y + B_y - F = 0." }
+      ]
+    },
+    {
+      "id": "solve-ay",
+      "title": "Solve for A_y",
+      "goal": "Use B_y = F/2 in vertical equilibrium and solve for A_y.",
+      "instructions": "Use the equilibrium equation from the previous step: ΣF_y = A_y + B_y - F = 0.",
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["reactionAy"],
+        "solvedValues": { "reactionBy": "B_y = F/2" },
+        "solvedObjects": ["reactionBy"]
+      },
+      "interaction": {
+        "type": "expression-input",
+        "variable": "A_y",
+        "expectedExpression": "F/2",
+        "acceptedExpressions": ["F / 2", "0.5F", "0.5*F", "F*1/2", "A_y = F/2"]
+      },
+      "feedback": {
+        "correct": "Correct. A_y also carries half of the load.",
+        "genericIncorrect": "Insert B_y = F/2 into A_y + B_y - F = 0.",
+        "mistakes": [
+          { "id": "expressionEquals:F", "text": "A_y = F ignores that B_y already carries half of the load." },
+          { "id": "expressionEquals:0", "text": "A_y cannot be zero; vertical equilibrium requires both supports to balance F." },
+          { "id": "negativeExpression", "text": "A_y points upward in the chosen direction, so it is positive." },
+          { "id": "expressionIncorrect", "text": "From A_y + F/2 - F = 0, the remaining reaction is F/2." }
+        ]
+      },
+      "hints": [
+        { "level": 1, "text": "Substitute B_y = F/2." },
+        { "level": 2, "text": "A_y + F/2 - F = 0." },
+        { "level": 3, "text": "Move F/2 to the right side to get A_y = F/2." }
+      ],
+      "successResult": {
+        "solvedValues": { "reactionAy": "A_y = F/2" },
+        "markObjectsSolved": ["reactionAy"]
+      }
+    },
+    {
+      "id": "final-check",
+      "title": "Final equilibrium check",
+      "goal": "Choose the statement that verifies all equilibrium equations.",
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["reactionAx", "reactionAy", "reactionBy", "centerLoad"],
+        "solvedValues": {
+          "reactionAx": "A_x = 0",
+          "reactionAy": "A_y = F/2",
+          "reactionBy": "B_y = F/2"
+        },
+        "solvedObjects": ["reactionAx", "reactionAy", "reactionBy"]
+      },
+      "interaction": {
+        "type": "multiple-choice",
+        "options": [
+          { "id": "all-equations", "label": "ΣF_x = 0, ΣF_y = F/2 + F/2 - F = 0, and ΣM_A = F/2 · L - F · L/2 = 0." },
+          { "id": "vertical-only", "label": "Only ΣF_y has to be checked because the beam is horizontal." },
+          { "id": "moment-only", "label": "Only ΣM_A has to be checked because it gave B_y." }
+        ],
+        "correctOptionId": "all-equations"
+      },
+      "feedback": {
+        "correct": "The solution satisfies all equilibrium equations. Because the problem is symmetric, both vertical support reactions carry half of the load.",
+        "genericIncorrect": "A statics solution must satisfy force equilibrium and moment equilibrium.",
+        "mistakes": [
+          { "id": "selected:vertical-only", "text": "Vertical force equilibrium is necessary, but moment equilibrium must also be satisfied." },
+          { "id": "selected:moment-only", "text": "Moment equilibrium is necessary, but force equilibrium must also be satisfied." }
+        ]
+      },
+      "hints": [
+        { "level": 1, "text": "Check every independent equilibrium equation." },
+        { "level": 2, "text": "There is no horizontal external load, so A_x = 0 satisfies ΣF_x." },
+        { "level": 3, "text": "The two vertical reactions add to F, and their moment about A balances the load moment." }
+      ],
+      "successResult": {
+        "solvedValues": {
+          "reactionAx": "A_x = 0",
+          "reactionAy": "A_y = F/2",
+          "reactionBy": "B_y = F/2"
+        },
+        "markObjectsSolved": ["reactionAx", "reactionAy", "reactionBy"]
+      }
+    }
+  ]
 }
