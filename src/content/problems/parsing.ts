@@ -1,13 +1,24 @@
 import { vector, type Vector2 } from "../../mechanics/core/vector";
+import type { ContentBlock } from "../../mechanics/content/types";
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
 import type {
   BodyDefinition,
+  ForceDecomposition,
+  ForceDecompositionComponent,
   LoadDefinition,
   ParameterDefinition,
   PointDefinition,
   SupportDefinition,
   UnknownReaction,
 } from "../../mechanics/model/types";
+import {
+  assertVectorMatchesForceDecomposition,
+  resolveForceDecomposition,
+} from "../../mechanics/core/forceDecomposition";
+import {
+  parseSolverConfig,
+  validateSolverConfigEquationIds,
+} from "../../mechanics/solvers/solverConfigRegistry";
 import type {
   DiagramContent,
   ExploreContent,
@@ -78,6 +89,42 @@ const parseStringArray = (value: unknown, context: string): readonly string[] =>
 const parseOptionalStringArray = (record: JsonRecord, key: string, context: string): readonly string[] | undefined =>
   record[key] === undefined ? undefined : parseStringArray(record[key], `${context}.${key}`);
 
+const parseContentBlock = (value: unknown, context: string): ContentBlock => {
+  const record = requireRecord(value, context);
+  const type = requireString(record, "type", context);
+
+  if (type === "paragraph") {
+    return { type, text: requireString(record, "text", context) };
+  }
+
+  if (type === "math") {
+    const display = record.display === undefined ? undefined : requireString(record, "display", context);
+    if (display !== undefined && display !== "block" && display !== "inline") {
+      throw new Error(`${context}.display must be "block" or "inline".`);
+    }
+    return {
+      type,
+      latex: requireString(record, "latex", context),
+      ...(display === undefined ? {} : { display }),
+    };
+  }
+
+  if (type === "list") {
+    return { type, items: parseStringArray(record.items, `${context}.items`) };
+  }
+
+  throw new Error(`${context}.type "${type}" is not a supported content block type.`);
+};
+
+const parseContentBlocks = (value: unknown, context: string): readonly ContentBlock[] => {
+  if (typeof value === "string") {
+    return [{ type: "paragraph", text: value }];
+  }
+  return requireArray({ content: value }, "content", context).map((item, index) =>
+    parseContentBlock(item, `${context}[${index}]`),
+  );
+};
+
 const parseVector = (value: unknown, context: string): Vector2 => {
   const record = requireRecord(value, context);
   return vector(requireNumber(record, "x", context), requireNumber(record, "y", context));
@@ -112,8 +159,8 @@ const parsePoint = (value: unknown, context: string): PointDefinition => {
 const parseParameter = (value: unknown, context: string): ParameterDefinition => {
   const record = requireRecord(value, context);
   const unit = requireString(record, "unit", context);
-  if (unit !== "m" && unit !== "N") {
-    throw new Error(`${context}.unit must be "m" or "N".`);
+  if (unit !== "m" && unit !== "N" && unit !== "deg") {
+    throw new Error(`${context}.unit must be "m", "N", or "deg".`);
   }
 
   return {
@@ -201,6 +248,52 @@ const parseUnknownReaction = (value: unknown, context: string): UnknownReaction 
   };
 };
 
+const parseForceDecompositionComponent = (
+  value: unknown,
+  axis: "x" | "y",
+  context: string,
+): ForceDecompositionComponent => {
+  const record = requireRecord(value, context);
+  const parsedAxis = requireString(record, "axis", context);
+  if (parsedAxis !== axis) {
+    throw new Error(`${context}.axis must be "${axis}".`);
+  }
+  const sign = requireString(record, "sign", context);
+  if (sign !== "+" && sign !== "-") {
+    throw new Error(`${context}.sign must be "+" or "-".`);
+  }
+
+  return {
+    id: requireString(record, "id", context),
+    axis,
+    sign,
+    factor: requireString(record, "factor", context),
+    expression: requireString(record, "expression", context),
+    latex: requireString(record, "latex", context),
+  };
+};
+
+const parseForceDecomposition = (value: unknown, context: string): ForceDecomposition => {
+  const record = requireRecord(value, context);
+  const angleReference = requireString(record, "angleReference", context);
+  if (angleReference !== "positive-x") {
+    throw new Error(`${context}.angleReference must be "positive-x".`);
+  }
+
+  const components = requireRecord(record.components, `${context}.components`);
+  return {
+    id: requireString(record, "id", context),
+    forceId: requireString(record, "forceId", context),
+    magnitudeParameterId: requireString(record, "magnitudeParameterId", context),
+    angleParameterId: requireString(record, "angleParameterId", context),
+    angleReference,
+    components: {
+      x: parseForceDecompositionComponent(components.x, "x", `${context}.components.x`),
+      y: parseForceDecompositionComponent(components.y, "y", `${context}.components.y`),
+    },
+  };
+};
+
 const parseExplore = (value: unknown): ExploreContent => {
   if (value === undefined) {
     return { notices: [] };
@@ -236,6 +329,12 @@ const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: Expl
   const loads = requireArray(record, "loads", "problem").map((item, index) =>
     parseLoad(item, `problem.loads[${index}]`, pointsById),
   );
+  const forceDecompositions =
+    record.forceDecompositions === undefined
+      ? []
+      : requireArray(record, "forceDecompositions", "problem").map((item, index) =>
+          parseForceDecomposition(item, `problem.forceDecompositions[${index}]`),
+        );
   const unknownReactions = requireArray(record, "unknownReactions", "problem").map((item, index) =>
     parseUnknownReaction(item, `problem.unknownReactions[${index}]`),
   );
@@ -245,11 +344,18 @@ const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: Expl
   ensureUniqueIds(bodies, "problem.bodies");
   ensureUniqueIds(supports, "problem.supports");
   ensureUniqueIds(loads, "problem.loads");
+  ensureUniqueIds(forceDecompositions, "problem.forceDecompositions");
+  ensureUniqueIds(
+    forceDecompositions.flatMap((decomposition) => [decomposition.components.x, decomposition.components.y]),
+    "problem.forceDecompositions.components",
+  );
   ensureUniqueIds(unknownReactions, "problem.unknownReactions");
 
   const pointIds = new Set(points.map((point) => point.id));
   const bodyIds = new Set(bodies.map((body) => body.id));
   const supportIds = new Set(supports.map((support) => support.id));
+  const loadIds = new Set(loads.map((load) => load.id));
+  const parameterIds = new Set(parameters.map((parameter) => parameter.id));
 
   bodies.forEach((body) => {
     requireId(pointIds, body.startPointId, `body "${body.id}"`);
@@ -260,6 +366,27 @@ const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: Expl
     requireId(bodyIds, support.bodyId, `support "${support.id}"`);
   });
   loads.forEach((load) => requireId(bodyIds, load.bodyId, `load "${load.id}"`));
+  forceDecompositions.forEach((decomposition) => {
+    requireId(loadIds, decomposition.forceId, `force decomposition "${decomposition.id}"`);
+    requireId(parameterIds, decomposition.magnitudeParameterId, `force decomposition "${decomposition.id}"`);
+    requireId(parameterIds, decomposition.angleParameterId, `force decomposition "${decomposition.id}"`);
+    const magnitudeParameter = parameters.find((parameter) => parameter.id === decomposition.magnitudeParameterId);
+    const angleParameter = parameters.find((parameter) => parameter.id === decomposition.angleParameterId);
+    if (magnitudeParameter?.unit !== "N") {
+      throw new Error(`force decomposition "${decomposition.id}" requires a magnitude parameter with unit "N".`);
+    }
+    if (angleParameter?.unit !== "deg") {
+      throw new Error(`force decomposition "${decomposition.id}" requires an angle parameter with unit "deg".`);
+    }
+    const load = loads.find((candidate) => candidate.id === decomposition.forceId);
+    if (load) {
+      assertVectorMatchesForceDecomposition(
+        load.vector,
+        resolveForceDecomposition(decomposition, parameters),
+        `load "${load.id}"`,
+      );
+    }
+  });
   unknownReactions.forEach((reaction) => requireId(supportIds, reaction.supportId, `reaction "${reaction.id}"`));
 
   const baseProblem = {
@@ -275,11 +402,14 @@ const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: Expl
     bodies,
     supports,
     loads,
+    forceDecompositions,
     unknownReactions,
   } satisfies Omit<ProblemDefinition, "solverConfig">;
 
-  const problem =
-    record.solverConfig === undefined ? baseProblem : { ...baseProblem, solverConfig: record.solverConfig };
+  const problem = {
+    ...baseProblem,
+    solverConfig: parseSolverConfig(record.solverConfig, baseProblem),
+  };
 
   return { problem, explore: parseExplore(record.explore) };
 };
@@ -291,7 +421,7 @@ const parseSolution = (raw: unknown): SolutionContent => {
     return {
       id: requireString(equationRecord, "id", `solution.equations[${index}]`),
       title: requireString(equationRecord, "title", `solution.equations[${index}]`),
-      explanation: requireString(equationRecord, "explanation", `solution.equations[${index}]`),
+      explanation: parseContentBlocks(equationRecord.explanation, `solution.equations[${index}].explanation`),
     };
   });
   ensureUniqueIds(equations, "solution.equations");
@@ -310,7 +440,7 @@ const parseSolution = (raw: unknown): SolutionContent => {
     const step = {
       id: requireString(stepRecord, "id", `solution.steps[${index}]`),
       title: requireString(stepRecord, "title", `solution.steps[${index}]`),
-      body: requireString(stepRecord, "body", `solution.steps[${index}]`),
+      body: parseContentBlocks(stepRecord.body, `solution.steps[${index}].body`),
     };
 
     return stepEquationIds === undefined ? step : { ...step, equationIds: stepEquationIds };
@@ -351,6 +481,8 @@ const parseInteractionOptions = (value: unknown, context: string) =>
     return {
       id: requireString(record, "id", `${context}[${index}]`),
       label: requireString(record, "label", `${context}[${index}]`),
+      ...(record.latex === undefined ? {} : { latex: requireString(record, "latex", `${context}[${index}]`) }),
+      ...(record.content === undefined ? {} : { content: parseContentBlocks(record.content, `${context}[${index}].content`) }),
     };
   });
 
@@ -377,9 +509,15 @@ const parseExpectedEquation = (value: unknown, context: string): ExpectedEquatio
       variable: requireString(term, "variable", `${context}.terms[${index}]`),
       sign,
     };
-    return term.factor === undefined
-      ? parsed
-      : { ...parsed, factor: requireString(term, "factor", `${context}.terms[${index}]`) };
+    return {
+      ...parsed,
+      ...(term.factor === undefined
+        ? {}
+        : { factor: requireString(term, "factor", `${context}.terms[${index}]`) }),
+      ...(term.componentId === undefined
+        ? {}
+        : { componentId: requireString(term, "componentId", `${context}.terms[${index}]`) }),
+    };
   });
 
   return record.aboutPoint === undefined
@@ -401,12 +539,15 @@ const parseEquationTerm = (value: unknown, context: string): EquationTerm => {
 
   return {
     id: requireString(record, "id", context),
-    label: requireString(record, "label", context),
+    latex: requireString(record, "latex", context),
     semantic: {
       variable: requireString(semantic, "variable", `${context}.semantic`),
       sign,
       ...(direction === undefined ? {} : { direction }),
       ...(semantic.factor === undefined ? {} : { factor: requireString(semantic, "factor", `${context}.semantic`) }),
+      ...(semantic.componentId === undefined
+        ? {}
+        : { componentId: requireString(semantic, "componentId", `${context}.semantic`) }),
       ...(semantic.momentAbout === undefined
         ? {}
         : { momentAbout: requireString(semantic, "momentAbout", `${context}.semantic`) }),
@@ -552,7 +693,7 @@ const parsePracticeHints = (value: unknown, context: string): readonly PracticeH
     }
     return {
       level,
-      text: requireString(record, "text", `${context}[${index}]`),
+      content: parseContentBlocks(record.content ?? record.text, `${context}[${index}].content`),
       ...(record.highlightCanvasIds === undefined
         ? {}
         : { highlightCanvasIds: parseStringArray(record.highlightCanvasIds, `${context}[${index}].highlightCanvasIds`) }),
@@ -571,7 +712,10 @@ const parsePractice = (raw: unknown): PracticeContent => {
             const mistakeRecord = requireRecord(mistake, `practice.steps[${index}].feedback.mistakes[${mistakeIndex}]`);
             return {
               id: requireString(mistakeRecord, "id", `practice.steps[${index}].feedback.mistakes[${mistakeIndex}]`),
-              text: requireString(mistakeRecord, "text", `practice.steps[${index}].feedback.mistakes[${mistakeIndex}]`),
+              content: parseContentBlocks(
+                mistakeRecord.content ?? mistakeRecord.text,
+                `practice.steps[${index}].feedback.mistakes[${mistakeIndex}].content`,
+              ),
             };
           });
     const successResult =
@@ -595,17 +739,17 @@ const parsePractice = (raw: unknown): PracticeContent => {
     return {
       id: requireString(stepRecord, "id", `practice.steps[${index}]`),
       title: requireString(stepRecord, "title", `practice.steps[${index}]`),
-      goal: requireString(stepRecord, "goal", `practice.steps[${index}]`),
+      goal: parseContentBlocks(stepRecord.goal, `practice.steps[${index}].goal`),
       ...(stepRecord.instructions === undefined
         ? {}
-        : { instructions: requireString(stepRecord, "instructions", `practice.steps[${index}]`) }),
+        : { instructions: parseContentBlocks(stepRecord.instructions, `practice.steps[${index}].instructions`) }),
       ...(stepRecord.canvasState === undefined
         ? {}
         : { canvasState: parsePracticeCanvasState(stepRecord.canvasState, `practice.steps[${index}].canvasState`) }),
       interaction: parsePracticeInteraction(stepRecord.interaction, `practice.steps[${index}].interaction`),
       feedback: {
-        correct: requireString(feedback, "correct", `practice.steps[${index}].feedback`),
-        genericIncorrect: requireString(feedback, "genericIncorrect", `practice.steps[${index}].feedback`),
+        correct: parseContentBlocks(feedback.correct, `practice.steps[${index}].feedback.correct`),
+        genericIncorrect: parseContentBlocks(feedback.genericIncorrect, `practice.steps[${index}].feedback.genericIncorrect`),
         ...(mistakes === undefined ? {} : { mistakes }),
       },
       ...(stepRecord.hints === undefined ? {} : { hints: parsePracticeHints(stepRecord.hints, `practice.steps[${index}].hints`) }),
@@ -638,6 +782,58 @@ const parsePractice = (raw: unknown): PracticeContent => {
   };
 };
 
+const normalizeFactor = (factor: string): string => factor.replaceAll(" ", "").replaceAll("·", "*").toLowerCase();
+
+const validatePracticeComponentReferences = (problem: ProblemDefinition, practice: PracticeContent) => {
+  const componentsById = new Map(
+    problem.forceDecompositions.flatMap((decomposition) => [
+      [decomposition.components.x.id, decomposition.components.x] as const,
+      [decomposition.components.y.id, decomposition.components.y] as const,
+    ]),
+  );
+
+  practice.steps.forEach((step) => {
+    if (step.interaction.type !== "equation-builder") {
+      return;
+    }
+
+    step.interaction.availableTerms.forEach((term) => {
+      const componentId = term.semantic.componentId;
+      if (componentId === undefined) {
+        return;
+      }
+      const component = componentsById.get(componentId);
+      if (!component) {
+        throw new Error(`practice step "${step.id}" term "${term.id}" references missing force component "${componentId}".`);
+      }
+      if (term.semantic.direction !== undefined && term.semantic.direction !== component.axis) {
+        throw new Error(`practice step "${step.id}" term "${term.id}" component axis does not match semantic direction.`);
+      }
+      const termFactor = term.semantic.factor === undefined ? undefined : normalizeFactor(term.semantic.factor);
+      const componentFactor = normalizeFactor(component.factor);
+      if (termFactor !== undefined && termFactor !== "0" && !termFactor.includes(componentFactor)) {
+        throw new Error(`practice step "${step.id}" term "${term.id}" factor does not match force component "${componentId}".`);
+      }
+    });
+
+    step.interaction.expectedEquation.terms.forEach((term, index) => {
+      const componentId = term.componentId;
+      if (componentId === undefined) {
+        return;
+      }
+      const component = componentsById.get(componentId);
+      if (!component) {
+        throw new Error(`practice step "${step.id}" expected term ${index} references missing force component "${componentId}".`);
+      }
+      const termFactor = term.factor === undefined ? undefined : normalizeFactor(term.factor);
+      const componentFactor = normalizeFactor(component.factor);
+      if (termFactor !== undefined && termFactor !== "0" && !termFactor.includes(componentFactor)) {
+        throw new Error(`practice step "${step.id}" expected term ${index} factor does not match force component "${componentId}".`);
+      }
+    });
+  });
+};
+
 export const parseLoadedProblemContent = (
   rawProblem: unknown,
   rawSolution: unknown,
@@ -645,12 +841,16 @@ export const parseLoadedProblemContent = (
   rawPractice: unknown,
 ): LoadedProblemContent => {
   const { problem, explore } = parseProblem(rawProblem);
+  const solution = parseSolution(rawSolution);
+  const practice = parsePractice(rawPractice);
+  validateSolverConfigEquationIds(problem.solverConfig, new Set(solution.equations.map((equation) => equation.id)));
+  validatePracticeComponentReferences(problem, practice);
 
   return {
     problem,
     explore,
-    solution: parseSolution(rawSolution),
+    solution,
     diagram: parseDiagram(rawDiagram, problem),
-    practice: parsePractice(rawPractice),
+    practice,
   };
 };

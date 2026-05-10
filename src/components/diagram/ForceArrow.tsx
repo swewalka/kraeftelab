@@ -1,6 +1,7 @@
 import { Arrow, Group } from "react-konva";
 import { Label } from "./Label";
 import type { CanvasPoint } from "./types";
+import { formatCanvasMathLabel } from "./canvasMathLabel";
 
 type ForceArrowProps = Readonly<{
   start: CanvasPoint;
@@ -29,7 +30,7 @@ export const ForceArrow = ({ start, end, label, color, labelOffset, strokeWidth 
         lineCap="round"
         lineJoin="round"
       />
-      <Label x={labelX} y={labelY} text={label} fill={color} fontSize={fontSize} fontStyle="500" />
+      <Label x={labelX} y={labelY} text={formatCanvasMathLabel(label)} fill={color} fontSize={fontSize} fontStyle="500" />
     </Group>
   );
 };

@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Circle, Layer, Line } from "react-konva";
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
 import type { LoadDefinition, PointDefinition, SupportDefinition } from "../../mechanics/model/types";
@@ -56,6 +57,30 @@ type DimensionConfig = Readonly<{
   startPointId: string;
   endPointId: string;
   label: string;
+  yOffset?: number;
+}>;
+
+type OverlayArrowConfig = Readonly<{
+  id: string;
+  pointId: string;
+  label?: string;
+  componentId?: string;
+  tailOffset: DiagramOffset;
+  tipOffset: DiagramOffset;
+  labelOffset: DiagramOffset;
+  fontSize: number;
+  color: string;
+  strokeWidth?: number;
+}>;
+
+type PolylineMarkerConfig = Readonly<{
+  id: string;
+  pointId: string;
+  label: string;
+  offsets: readonly DiagramOffset[];
+  labelOffset: DiagramOffset;
+  fontSize: number;
+  color: string;
 }>;
 
 export type BeamDiagramConfig = Readonly<{
@@ -63,6 +88,8 @@ export type BeamDiagramConfig = Readonly<{
   supports: readonly SupportAnnotationConfig[];
   loadArrows: readonly LoadArrowConfig[];
   freeBodyReactions: readonly ReactionArrowConfig[];
+  overlayArrows: readonly OverlayArrowConfig[];
+  polylineMarkers: readonly PolylineMarkerConfig[];
   pointLabels: readonly PointLabelConfig[];
   dimensions: readonly DimensionConfig[];
   bounds: Readonly<{
@@ -171,6 +198,48 @@ export const parseBeamDiagramConfig = (value: unknown): BeamDiagramConfig => {
         ...parseArrowBase(arrow, `beam diagram config.freeBodyReactions[${index}]`),
       };
     }),
+    overlayArrows:
+      record.overlayArrows === undefined
+        ? []
+        : requireArray(record, "overlayArrows", "beam diagram config").map((item, index) => {
+            const arrow = requireRecord(item, `beam diagram config.overlayArrows[${index}]`);
+            const strokeWidth =
+              arrow.strokeWidth === undefined
+                ? undefined
+                : requireNumber(arrow, "strokeWidth", `beam diagram config.overlayArrows[${index}]`);
+            if (arrow.label === undefined && arrow.componentId === undefined) {
+              throw new Error(`beam diagram config.overlayArrows[${index}] requires label or componentId.`);
+            }
+            return {
+              id: requireString(arrow, "id", `beam diagram config.overlayArrows[${index}]`),
+              ...(arrow.label === undefined
+                ? {}
+                : { label: requireString(arrow, "label", `beam diagram config.overlayArrows[${index}]`) }),
+              ...(arrow.componentId === undefined
+                ? {}
+                : { componentId: requireString(arrow, "componentId", `beam diagram config.overlayArrows[${index}]`) }),
+              ...parseArrowBase(arrow, `beam diagram config.overlayArrows[${index}]`),
+              ...(strokeWidth === undefined ? {} : { strokeWidth }),
+            };
+          }),
+    polylineMarkers:
+      record.polylineMarkers === undefined
+        ? []
+        : requireArray(record, "polylineMarkers", "beam diagram config").map((item, index) => {
+            const marker = requireRecord(item, `beam diagram config.polylineMarkers[${index}]`);
+            return {
+              id: requireString(marker, "id", `beam diagram config.polylineMarkers[${index}]`),
+              pointId: requireString(marker, "pointId", `beam diagram config.polylineMarkers[${index}]`),
+              label: requireString(marker, "label", `beam diagram config.polylineMarkers[${index}]`),
+              offsets: requireArray(marker, "offsets", `beam diagram config.polylineMarkers[${index}]`).map(
+                (offset, offsetIndex) =>
+                  parseOffset(offset, `beam diagram config.polylineMarkers[${index}].offsets[${offsetIndex}]`),
+              ),
+              labelOffset: parseOffset(marker.labelOffset, `beam diagram config.polylineMarkers[${index}].labelOffset`),
+              fontSize: requireNumber(marker, "fontSize", `beam diagram config.polylineMarkers[${index}]`),
+              color: requireString(marker, "color", `beam diagram config.polylineMarkers[${index}]`),
+            };
+          }),
     pointLabels: requireArray(record, "pointLabels", "beam diagram config").map((item, index) => {
       const label = requireRecord(item, `beam diagram config.pointLabels[${index}]`);
       return {
@@ -182,10 +251,15 @@ export const parseBeamDiagramConfig = (value: unknown): BeamDiagramConfig => {
     }),
     dimensions: requireArray(record, "dimensions", "beam diagram config").map((item, index) => {
       const dimension = requireRecord(item, `beam diagram config.dimensions[${index}]`);
+      const yOffset =
+        dimension.yOffset === undefined
+          ? undefined
+          : requireNumber(dimension, "yOffset", `beam diagram config.dimensions[${index}]`);
       const parsed = {
         startPointId: requireString(dimension, "startPointId", `beam diagram config.dimensions[${index}]`),
         endPointId: requireString(dimension, "endPointId", `beam diagram config.dimensions[${index}]`),
         label: requireString(dimension, "label", `beam diagram config.dimensions[${index}]`),
+        ...(yOffset === undefined ? {} : { yOffset }),
       };
       return dimension.id === undefined
         ? parsed
@@ -236,6 +310,26 @@ const findReactionLabel = (problem: ProblemDefinition, solverResult: SolverResul
   return unknownReaction.label;
 };
 
+const findComponentLabel = (problem: ProblemDefinition, componentId: string): string => {
+  const component = problem.forceDecompositions
+    .flatMap((decomposition) => [decomposition.components.x, decomposition.components.y])
+    .find((candidate) => candidate.id === componentId);
+  if (!component) {
+    throw new Error(`Beam diagram references missing force component "${componentId}".`);
+  }
+  return component.latex;
+};
+
+const getOverlayLabel = (problem: ProblemDefinition, overlayArrow: OverlayArrowConfig): string => {
+  if (overlayArrow.componentId !== undefined) {
+    return findComponentLabel(problem, overlayArrow.componentId);
+  }
+  if (overlayArrow.label !== undefined) {
+    return overlayArrow.label;
+  }
+  throw new Error(`Beam diagram overlay "${overlayArrow.id}" requires label or componentId.`);
+};
+
 const offsetPoint = (point: CanvasPoint, offset: DiagramOffset): CanvasPoint => ({
   x: point.x + offset.x,
   y: point.y + offset.y,
@@ -281,6 +375,8 @@ export const BeamDiagramLayer = ({
   const getOpacity = (objectId: string) => (dimmedIds.has(objectId) ? dimOpacity : 1);
   const shouldShowReaction = (reactionId: string) =>
     isFreeBody || mode === "practice" && (visibleIds.has(reactionId) || canvasState?.solvedValues?.[reactionId] !== undefined);
+  const shouldShowOverlay = (objectId: string) =>
+    isFreeBody || visibleIds.has(objectId) || highlightedIds.has(objectId) || solvedIds.has(objectId);
 
   const supportLayer = !isFreeBody ? (
     <>
@@ -332,6 +428,57 @@ export const BeamDiagramLayer = ({
 
       {supportLayer}
 
+      {diagramConfig.overlayArrows.map((overlayArrow) => {
+        if (!shouldShowOverlay(overlayArrow.id)) {
+          return null;
+        }
+        const point = worldToCanvas(findPoint(problem, overlayArrow.pointId));
+        const color = getStroke(overlayArrow.id, overlayArrow.color);
+        return (
+          <ForceArrow
+            key={overlayArrow.id}
+            start={offsetPoint(point, overlayArrow.tailOffset)}
+            end={offsetPoint(point, overlayArrow.tipOffset)}
+            label={getOverlayLabel(problem, overlayArrow)}
+            color={color}
+            labelOffset={overlayArrow.labelOffset}
+            fontSize={overlayArrow.fontSize}
+            {...(overlayArrow.strokeWidth === undefined ? {} : { strokeWidth: overlayArrow.strokeWidth })}
+            opacity={getOpacity(overlayArrow.id)}
+          />
+        );
+      })}
+
+      {diagramConfig.polylineMarkers.map((marker) => {
+        if (!shouldShowOverlay(marker.id) || marker.offsets.length < 2) {
+          return null;
+        }
+        const point = worldToCanvas(findPoint(problem, marker.pointId));
+        const markerPoints = marker.offsets.flatMap((offset) => [point.x + offset.x, point.y + offset.y]);
+        const labelPoint = offsetPoint(point, marker.labelOffset);
+        const color = getStroke(marker.id, marker.color);
+        return (
+          <Fragment key={marker.id}>
+            <Line
+              points={markerPoints}
+              stroke={color}
+              strokeWidth={2}
+              lineCap="round"
+              lineJoin="round"
+              opacity={getOpacity(marker.id)}
+            />
+            <Label
+              x={labelPoint.x}
+              y={labelPoint.y}
+              text={marker.label}
+              fill={color}
+              fontSize={marker.fontSize}
+              fontStyle="500"
+            />
+          </Fragment>
+        );
+      })}
+
       {isFreeBody || mode === "practice" ? (
         <>
           {diagramConfig.freeBodyReactions.map((reactionArrow) => {
@@ -380,6 +527,7 @@ export const BeamDiagramLayer = ({
             start={worldToCanvas(findPoint(problem, dimension.startPointId))}
             end={worldToCanvas(findPoint(problem, dimension.endPointId))}
             label={dimension.label}
+            {...(dimension.yOffset === undefined ? {} : { yOffset: dimension.yOffset })}
             color={getStroke(dimensionId, "#111111")}
             opacity={getOpacity(dimensionId)}
           />

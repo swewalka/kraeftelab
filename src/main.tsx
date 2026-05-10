@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "katex/dist/katex.min.css";
 import { App } from "./app/App";
 import { I18nProvider } from "./i18n/I18nProvider";
 import "./styles/globals.css";

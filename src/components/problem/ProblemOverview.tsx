@@ -1,25 +1,26 @@
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
-import { useI18n } from "../../i18n/I18nProvider";
+import { MathInline } from "../math/MathInline";
 
 type ProblemOverviewProps = Readonly<{
   problem: ProblemDefinition;
+  eyebrow: string;
 }>;
 
-export const ProblemOverview = ({ problem }: ProblemOverviewProps) => {
-  const { t } = useI18n();
-
+export const ProblemOverview = ({ problem, eyebrow }: ProblemOverviewProps) => {
   return (
-    <section className="space-y-4">
+    <section>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-signal">{t("problem.current")}</p>
-        <h2 className="mt-1 text-2xl font-semibold tracking-normal sm:text-3xl">{problem.title}</h2>
-        <p className="mt-3 max-w-3xl text-base leading-7 text-steel">{problem.statement}</p>
+        <p className="technical-label text-signal">{eyebrow}</p>
+        <h2 className="mt-4 font-display text-4xl font-semibold leading-[1.18] tracking-normal text-black">{problem.title}</h2>
+        <p className="mt-9 text-lg leading-8 text-ink">{problem.statement}</p>
       </div>
-      <dl className="grid gap-3 sm:grid-cols-3">
+      <dl className="mt-8 grid gap-3">
         {problem.parameters.map((parameter) => (
-          <div key={parameter.id} className="rounded-md border border-ink/15 bg-white px-4 py-3">
-            <dt className="text-xs uppercase tracking-[0.14em] text-steel">{parameter.label}</dt>
-            <dd className="mt-1 font-mono text-lg font-semibold">{parameter.displayValue}</dd>
+          <div key={parameter.id} className="grid grid-cols-[84px_1fr] items-center rounded border border-line/80 bg-white px-5 py-4">
+            <dt className="technical-label text-steel">
+              <MathInline latex={parameter.label} />
+            </dt>
+            <dd className="font-mono text-lg font-semibold text-black">{parameter.displayValue}</dd>
           </div>
         ))}
       </dl>

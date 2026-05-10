@@ -1,3 +1,5 @@
+import type { ContentBlock } from "../content/types";
+
 export type PracticeSessionState = Readonly<{
   currentStepId: string;
   stepStatuses: Record<string, "locked" | "active" | "completed">;
@@ -17,25 +19,25 @@ export type PracticeCanvasState = Readonly<{
 
 export type MistakeFeedback = Readonly<{
   id: string;
-  text: string;
+  content: readonly ContentBlock[];
 }>;
 
 export type PracticeHint = Readonly<{
   level: 1 | 2 | 3;
-  text: string;
+  content: readonly ContentBlock[];
   highlightCanvasIds?: readonly string[];
 }>;
 
 export type PracticeStep = Readonly<{
   id: string;
   title: string;
-  goal: string;
-  instructions?: string;
+  goal: readonly ContentBlock[];
+  instructions?: readonly ContentBlock[];
   canvasState?: PracticeCanvasState;
   interaction: PracticeInteraction;
   feedback: Readonly<{
-    correct: string;
-    genericIncorrect: string;
+    correct: readonly ContentBlock[];
+    genericIncorrect: readonly ContentBlock[];
     mistakes?: readonly MistakeFeedback[];
   }>;
   hints?: readonly PracticeHint[];
@@ -55,6 +57,8 @@ export type PracticeContent = Readonly<{
 export type InteractionOption = Readonly<{
   id: string;
   label: string;
+  latex?: string;
+  content?: readonly ContentBlock[];
 }>;
 
 export type CheckboxInteraction = Readonly<{
@@ -93,12 +97,13 @@ export type EquationBuilderInteraction = Readonly<{
 
 export type EquationTerm = Readonly<{
   id: string;
-  label: string;
+  latex: string;
   semantic: Readonly<{
     variable: string;
     direction?: "x" | "y";
     sign: "+" | "-";
     factor?: string;
+    componentId?: string;
     momentAbout?: string;
   }>;
 }>;
@@ -110,6 +115,7 @@ export type ExpectedEquation = Readonly<{
     variable: string;
     sign: "+" | "-";
     factor?: string;
+    componentId?: string;
   }>[];
   rhs: "0";
 }>;
@@ -132,5 +138,5 @@ export type PracticeInteraction =
 export type ValidationResult = Readonly<{
   isCorrect: boolean;
   mistakeIds?: readonly string[];
-  feedbackMessages: readonly string[];
+  feedbackMessages: readonly ContentBlock[];
 }>;

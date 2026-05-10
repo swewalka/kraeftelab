@@ -1,9 +1,10 @@
 import type { EquilibriumEquation } from "../model/types";
+import type { ContentBlock } from "../content/types";
 
 export type SolutionStepContent = Readonly<{
   id: string;
   title: string;
-  body: string;
+  body: readonly ContentBlock[];
   equationIds?: readonly string[];
 }>;
 

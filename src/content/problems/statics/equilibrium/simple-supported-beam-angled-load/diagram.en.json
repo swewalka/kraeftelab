@@ -1,0 +1,111 @@
+{
+  "diagramKey": "beam-diagram",
+  "stageLabels": {
+    "default": "Mechanics canvas",
+    "solution": "Explanation canvas"
+  },
+  "config": {
+    "beam": {
+      "bodyId": "beam",
+      "startPointId": "pointA",
+      "endPointId": "pointB"
+    },
+    "supports": [
+      { "supportId": "supportA", "pointId": "pointA" },
+      { "supportId": "supportB", "pointId": "pointB" }
+    ],
+    "loadArrows": [
+      {
+        "loadId": "angledLoad",
+        "pointId": "pointLoad",
+        "tailOffset": { "x": -98, "y": -82 },
+        "tipOffset": { "x": -8, "y": -8 },
+        "labelOffset": { "x": -44, "y": -60 },
+        "fontSize": 30,
+        "color": "#ff1010"
+      }
+    ],
+    "freeBodyReactions": [
+      {
+        "reactionId": "reactionAy",
+        "pointId": "pointA",
+        "tailOffset": { "x": 0, "y": -4 },
+        "tipOffset": { "x": 0, "y": -104 },
+        "labelOffset": { "x": 14, "y": 4 },
+        "fontSize": 16,
+        "color": "#0d9488"
+      },
+      {
+        "reactionId": "reactionAx",
+        "pointId": "pointA",
+        "tailOffset": { "x": -6, "y": 2 },
+        "tipOffset": { "x": -94, "y": 2 },
+        "labelOffset": { "x": -78, "y": 14 },
+        "fontSize": 16,
+        "color": "#0d9488"
+      },
+      {
+        "reactionId": "reactionBy",
+        "pointId": "pointB",
+        "tailOffset": { "x": 0, "y": -4 },
+        "tipOffset": { "x": 0, "y": -104 },
+        "labelOffset": { "x": 14, "y": 4 },
+        "fontSize": 16,
+        "color": "#0d9488"
+      }
+    ],
+    "overlayArrows": [
+      {
+        "id": "componentFx",
+        "pointId": "pointLoad",
+        "componentId": "angledLoadFx",
+        "tailOffset": { "x": -2, "y": -46 },
+        "tipOffset": { "x": 94, "y": -46 },
+        "labelOffset": { "x": -2, "y": 10 },
+        "fontSize": 15,
+        "color": "#7c3aed",
+        "strokeWidth": 2
+      },
+      {
+        "id": "componentFy",
+        "pointId": "pointLoad",
+        "componentId": "angledLoadFy",
+        "tailOffset": { "x": -2, "y": -46 },
+        "tipOffset": { "x": -2, "y": 54 },
+        "labelOffset": { "x": 10, "y": 8 },
+        "fontSize": 15,
+        "color": "#7c3aed",
+        "strokeWidth": 2
+      }
+    ],
+    "polylineMarkers": [
+      {
+        "id": "angleAlpha",
+        "pointId": "pointLoad",
+        "label": "\\alpha",
+        "offsets": [
+          { "x": -62, "y": -48 },
+          { "x": -38, "y": -48 },
+          { "x": -52, "y": -62 }
+        ],
+        "labelOffset": { "x": -38, "y": -74 },
+        "fontSize": 16,
+        "color": "#7c3aed"
+      }
+    ],
+    "pointLabels": [
+      { "pointId": "pointA", "text": "A", "offset": { "x": -48, "y": -10 }, "fontSize": 34 },
+      { "pointId": "pointB", "text": "B", "offset": { "x": 20, "y": -10 }, "fontSize": 34 },
+      { "pointId": "pointLoad", "text": "F", "offset": { "x": -6, "y": 18 }, "fontSize": 18 }
+    ],
+    "dimensions": [
+      { "id": "dimensionTotal", "startPointId": "pointA", "endPointId": "pointB", "label": "L", "yOffset": 116 },
+      { "id": "dimensionAtoLoad", "startPointId": "pointA", "endPointId": "pointLoad", "label": "a", "yOffset": 76 },
+      { "id": "dimensionLoadToB", "startPointId": "pointLoad", "endPointId": "pointB", "label": "L-a", "yOffset": 76 }
+    ],
+    "bounds": {
+      "startPointId": "pointA",
+      "endPointId": "pointB"
+    }
+  }
+}

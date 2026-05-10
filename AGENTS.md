@@ -1,232 +1,193 @@
-# Mechanics Playground Agent Guide
+# AGENTS.md
 
-## Project Goal
+## Project Context
 
-Mechanics Playground is a browser-based engineering mechanics learning app for students. The long-term goal is an extensible 2D mechanics platform that can support statics topics such as equilibrium, friction, internal forces, multi-body systems, and interactive answer checking.
+KraefteLab is an interactive mechanics learning app for students. It combines visual mechanics problems, step-by-step solution explanations, and interactive practice workflows.
 
-## Current MVP Scope
+The project should stay extensible beyond the current beam examples. Future content may include support reactions, angled forces, friction, internal forces, multi-body systems, hydrostatics, and other mechanics topics.
 
-The current version focuses only on analytical support reactions for one statically determinate beam problem:
+German (`de`) and English (`en`) are supported. German is the default language.
 
-- horizontal rigid beam,
-- pin support at A,
-- roller support at B,
-- one vertical downward point load at midspan,
-- free-body diagram concept,
-- equilibrium equations,
-- transparent step-by-step solution.
+## Core Agent Rule
 
-The MVP should stay small, robust, and easy to extend.
+Do not optimize only for the current task. Every substantial change must preserve a clean path for future mechanics problems, future interaction modes, and bilingual content.
 
-The app is bilingual. German (`de`) and English (`en`) must both remain supported, with German as the default language.
+Before implementation, inspect the existing structure and use the project context files as the source of truth.
 
-## Do Not Implement Yet
+Relevant context files:
 
-Do not add these until the underlying architecture needs them:
+- `AGENTS.md` — agent workflow and project-level rules
+- `ARCHITECTURE.md` — application structure, boundaries, and data flow
+- `CONTENT_SCHEMA.md` — problem/content format and validation expectations
+- `DESIGN.md` — visual and UX rules, when present
+- `docs/agent-reports/` — implementation, review, and architecture reports written by agents
 
-- force dragging,
-- graphical force polygons,
-- friction,
-- internal force diagrams,
-- full problem editor,
-- generated exercises,
-- student accounts,
-- authentication,
-- database or backend code,
-- physics simulation engines,
-- heavy symbolic algebra/CAS,
-- complex routing,
-- broad design systems.
+If these files conflict, prefer the more specific file. For example, `CONTENT_SCHEMA.md` overrides generic content advice in this file.
 
-## Architecture
+## Expected Workflow
 
-Problem-specific data and teaching flow belong under `src/content/problems`. Shared app, mechanics, solver, rendering, and UI layers must not hide one-off example content.
+For non-trivial changes, follow this sequence:
 
-The core flow is:
+1. Read the relevant context files.
+2. Inspect the existing implementation before editing.
+3. Identify the smallest clean change that satisfies the task.
+4. Write or mentally form a short plan before implementation.
+5. Implement within scope.
+6. Run available checks such as typecheck, lint, tests, or build.
+7. Review the change critically.
+8. Update relevant context files if the change affects future work.
+9. Write a report in `docs/agent-reports/` for substantial changes.
 
-1. a content folder provides JSON for mechanics data, solution flow, diagram annotations, and practice copy,
-2. a thin TypeScript loader validates JSON and converts it into typed domain objects,
-3. `ProblemDefinition` metadata selects a solver by `solverKey`,
-4. the solver computes numeric results and equation lines,
-5. the explanation builder combines solver output with curated solution content,
-6. the canvas chooses a renderer by `diagramKey` and renders configured diagram annotations.
+Do not rewrite unrelated parts of the app. Do not introduce broad abstractions unless the current task clearly needs them.
 
-Content owns problem-specific items such as title, statement, parameter values, points, bodies, supports, loads, unknowns, solver configuration, explanation text, step order, equation display copy, assumptions, result headings, diagram annotations, hints, and practice prompts.
+## Architecture Boundaries
 
-Mechanics owns reusable concepts and computations such as points, vectors, forces, supports, unknown reactions, equilibrium equations, solver results, unit formatting, coordinate conventions, linear equation utilities, and validation helpers.
+Keep these boundaries intact:
 
-Generic UI text belongs in the i18n layer, not in React components. Problem-specific teaching text belongs in localized content files, not in generic UI translation files.
+- Problem-specific teaching content belongs in `src/content/problems`.
+- Generic mechanics logic belongs in reusable mechanics/domain modules.
+- React components should not contain hardcoded mechanics solutions.
+- Solvers should not contain curated teaching prose.
+- Diagram renderers should consume structured problem and diagram data instead of hidden example constants.
+- Generic UI strings belong in the i18n layer.
+- Localized educational text belongs in localized content files.
 
-## Main Folders
+When adding a new feature, ask whether the implementation would still make sense for a different mechanics problem type. If not, isolate the problem-specific part in content, a solver, a renderer adapter, or a clearly named domain module.
 
-- `src/app`: application composition and top-level mode state.
-- `src/components/layout`: shell, header, tabs, and page layout components.
-- `src/components/problem`: problem statement and parameter display.
-- `src/components/diagram`: Konva canvas rendering, renderer registry, and canvas primitives.
-- `src/components/equations`: equation and solution step rendering.
-- `src/components/results`: final reaction/result summaries.
-- `src/content/problems`: discoverable problem content folders, JSON files, catalog registration, and JSON parsing.
-- `src/i18n`: locale types, generic UI translation dictionaries, provider, and translation hook.
-- `src/mechanics/core`: math, vectors, units, and low-level numerical utilities.
-- `src/mechanics/model`: shared domain types and problem definition contracts.
-- `src/mechanics/solvers`: solver implementations and solver registry.
-- `src/mechanics/explanation`: generic assembly of curated solution content with solver output.
-- `src/styles`: global Tailwind/CSS entry points.
+## Content Rules
 
-## Content Folders
+Problem content should be structured, localized, and data-driven.
 
-Each problem should be discoverable in one folder under `src/content/problems`. The current pattern is:
+Problem-specific content includes:
 
-- `problem.en.json` / `problem.de.json`: metadata, `problemType`, `solverKey`, `diagramKey`, mechanics definition, parameters, solver config, and localized problem copy.
-- `solution.en.json` / `solution.de.json`: curated guided solution flow, equation titles/explanations, assumptions, and result panel title.
-- `diagram.en.json` / `diagram.de.json`: problem-specific renderer annotations, localized stage labels, and ids consumed by the selected diagram adapter.
-- `practice.en.json` / `practice.de.json`: practice-mode copy and future prompts.
-- `index.ts`: thin loader only; avoid mechanics calculations or educational copy here.
+- problem statements
+- given values and units
+- diagram annotations
+- solution steps
+- practice prompts
+- hints and feedback
+- localized labels
+- assumptions
+- result explanations
 
-Prefer real JSON for content. If TypeScript is needed, keep it as a parser, adapter, or registration layer. Invalid content should fail with clear errors instead of silently rendering partial diagrams or incomplete solutions.
+Avoid hardcoding this content in React components or solver logic.
 
-To add a new problem, create a content folder with both English and German content files, add it to `src/content/problems/catalog.ts` for both locales, and reuse an existing `solverKey`/`diagramKey` when the mechanics and rendering contracts match. Add a new solver or renderer only when the new problem type actually needs one.
+Keep German and English versions mechanically aligned unless the task intentionally defines different problems. IDs, units, solver keys, diagram keys, point IDs, reaction IDs, and numeric values should remain consistent across locales.
 
-Localized problem files for the same problem must keep mechanics-critical ids and numeric data aligned unless the intended mechanics problem actually differs. In particular, preserve matching `id`, `problemType`, `solverKey`, `diagramKey`, point ids, body ids, support ids, load ids, reaction ids, equation ids, solver config ids, vectors, SI values, and units across locales. Localize visible teaching copy such as titles, statements, body labels when shown, notices, solution text, assumptions, equation explanations, result headings, practice copy, and language-dependent diagram labels.
+## Math and Explanation Rendering
+
+All mathematical notation shown in the UI should use the shared math/rendering components.
+
+General rules:
+
+- Use inline math only for short symbols inside prose.
+- Use separate math blocks for equations, substitutions, transformations, and final formulas.
+- Do not place full equations directly inside normal paragraph text in the explanation or practice panel.
+- Keep rendered LaTeX separate from answer validation.
+- Practice checking should use semantic expected-answer data, not visual LaTeX strings.
 
 ## Internationalization
 
-Supported locales are:
+The app supports:
 
-- `de`: German, default locale.
-- `en`: English, fallback locale.
+- `de` — German, default locale
+- `en` — English, fallback locale
 
-Use the lightweight custom i18n layer in `src/i18n`.
+Rules:
 
-- Use `useI18n()` and `t(key)` for generic UI strings in components.
-- Add generic UI keys to `src/i18n/translations.ts` in both languages at the same time.
-- Do not hardcode visible German or English UI strings in React components.
+- Do not hardcode visible UI strings in components.
+- Add generic UI labels to the i18n layer in both languages.
+- Keep problem-specific teaching copy in localized content files.
 - Do not duplicate components for different languages.
-- Keep the language switcher reload-free and preserve app state where possible.
-- Persisted locale may use `localStorage`; do not add routing only for language switching unless there is a separate clear need.
-- Generic UI translations should fall back to English if a key is missing.
+- Check user-facing features in both German and English before handoff.
 
-Separate translation ownership carefully:
+German wording should be natural technical German suitable for HTL/TU-level students.
 
-- Generic UI: app title/subtitle, mode names, button labels, tab labels, section headings, empty states, generic validation/error messages, and generic canvas labels.
-- Problem-specific content: problem title, statement, parameter descriptions, educational paragraphs, hints, practice text, diagram labels when language-dependent, step titles/bodies, equation display copy, assumptions, and result summary headings.
-- Solver/explanation output: generated numeric results and equation lines should stay solver-owned. Do not localize by changing mechanics calculations or duplicating solver logic. If solver-generated prose ever becomes necessary, introduce a typed localization contract instead of embedding prose in solvers.
+## Implementation Standards
 
-German copy should use natural technical German suitable for HTL/TU students. Preferred terms include:
+Use strict, explicit TypeScript. Prefer clear domain names over vague generic names.
 
-- statics: Statik
-- equilibrium: Gleichgewicht
-- support reaction(s): Lagerreaktion(en), Lagerkräfte
-- pin support: Festlager
-- roller support: Loslager
-- free-body diagram: Freischnitt
-- isolate / cut free: freischneiden
-- equilibrium equations: Gleichgewichtsbedingungen
-- sum of forces: Summe der Kräfte
-- sum of moments: Summe der Momente
-- external force: äußere Kraft
-- reaction force: Reaktionskraft or Lagerkraft
-- beam: Balken
-- load: Last
-- vertical force: vertikale Kraft
-- moment about A: Momentengleichgewicht um A
-- counterclockwise positive: gegen den Uhrzeigersinn positiv
-- unknowns: Unbekannte
-- known values: gegebene Werte
-- result: Ergebnis
-- final reactions: finale Lagerkräfte
+Keep files focused. Keep mechanics calculations outside JSX. Keep rendering components mostly presentational. Add comments only when they explain non-obvious mechanics, numerical logic, or architecture boundaries.
 
-## Coding Conventions
-
-- Use strict TypeScript and explicit domain types.
-- Keep mechanics calculations outside JSX.
-- Keep problem-specific ids and values in content unless they are part of an explicitly specialized solver or renderer adapter.
-- Keep visible strings either in `src/i18n/translations.ts` or localized content files.
-- Avoid vague names such as `item`, `obj`, `value1`, or `forceThing`.
-- Keep files small and focused.
-- Add comments only when they clarify non-obvious mechanics, numerical logic, or architecture boundaries.
-- Do not introduce dependencies unless they remove real complexity.
-- Keep rendering components mostly presentational.
+Do not add new dependencies unless they remove real complexity and are justified in the report.
 
 ## Mechanics Conventions
 
-Use a right-handed 2D statics coordinate system:
+Use a consistent 2D statics convention unless a specific problem defines otherwise:
 
-- `x` is positive to the right,
-- `y` is positive upward,
-- counterclockwise moments are positive.
+- positive `x` points right
+- positive `y` points upward
+- counterclockwise moments are positive
+- internal calculations use SI units
 
-Support reactions should be represented as unknowns with a support id, component, label, and direction vector.
+Display formatting may use student-friendly units such as `kN` or `kN m`, but stored data and solver calculations should remain consistent with the project schema.
 
-External forces should be represented by a point of application and a vector in SI units.
+## Context File Maintenance
 
-## Units Convention
+After any substantial feature, refactor, architecture change, schema change, solver change, renderer change, or UX pattern change, check whether the context files need updates.
 
-Internal calculations use SI units:
+Update context files when the change introduces or modifies:
 
-- meters (`m`),
-- newtons (`N`),
-- newton meters (`N m`).
+- architecture boundaries
+- folder structure
+- content schema
+- solver contracts
+- renderer contracts
+- math rendering rules
+- practice-mode behavior
+- bilingual content rules
+- reusable mechanics abstractions
+- design or interaction conventions
+- known limitations relevant to future agents
 
-Display formatting may convert to student-friendly units such as `kN` or `kN m`, but the stored problem data and solver calculations should remain SI.
+Do not rewrite context files unnecessarily. Updates should be concise, durable, and based on actual code changes.
 
-## Solver Guidelines
+Every substantial handoff must include a context-maintenance section stating:
 
-Solvers should:
+- which context files were checked
+- which context files were updated
+- which context files did not need updates and why
 
-- be selected through `solverKey`,
-- accept typed problem data and solver config,
-- validate required parameters, reactions, and equation ids,
-- return typed `SolverResult` data,
-- compute values and equation lines without embedding curated teaching paragraphs,
-- keep formulas transparent,
-- avoid fake symbolic manipulation,
-- use numerical utilities from `src/mechanics/core` when useful,
-- avoid React imports.
+## Agent Reports
 
-For this MVP, the current `simply-supported-beam-reactions` solver is intentionally specialized. Future general solvers can introduce matrix assembly and broader linear system support while preserving the existing result shape.
+For substantial tasks, create a Markdown report in `docs/agent-reports/`.
 
-## Diagram And Canvas Rendering
+The report should include:
 
-The main mechanics diagram uses `react-konva` and `konva`, not SVG. `MechanicsCanvas` owns the responsive `Stage`, dotted paper background, container measurement, and world-to-canvas transform. It chooses a diagram adapter by `diagramKey`.
+- task summary
+- changed files
+- implementation decisions
+- verification performed
+- what works
+- what is fragile or questionable
+- future recommendations
+- context file updates
 
-The current `beam-diagram` renderer is intentionally beam-specific, but it should consume ids and annotations from localized `diagram.*.json` files instead of hardcoded example constants. Keep `ForceArrow`, `SupportSymbol`, `DimensionLine`, and `Label` reusable.
+Reports should be factual and critical. Do not use them as marketing summaries.
 
-Mechanics coordinates and canvas coordinates must stay separated. Mechanics data uses `x` positive right and `y` positive upward. Browser canvas coordinates use `y` positive downward, so renderers must convert through `worldToCanvas(point)`. Do not put canvas coordinates into problem definitions or solver output; renderer annotation offsets belong in diagram content.
+## Do Not Do Without Explicit Request
 
-Future interactive features should be implemented in the canvas layer. Dragging should update controlled problem parameters or draft problem state, then solvers should recompute from that state. Do not mutate solver results directly, and do not make render components the source of mechanics truth.
+Do not add these unless directly requested or required by an approved plan:
 
-## Safe Extension Notes
+- authentication
+- student accounts
+- backend/database infrastructure
+- generated exercise systems
+- full problem editor
+- heavy symbolic algebra/CAS
+- broad design-system rewrites
+- large routing changes
+- physics simulation engines
+- unrelated UI redesigns
 
-When adding new mechanics features:
+## Handoff Expectations
 
-- extend domain types first,
-- add problem content second,
-- add or update solvers third,
-- generate explanation data fourth,
-- render the new output last.
+At the end of a substantial task, provide a concise summary containing:
 
-Future agents should avoid reintroducing hardcoded example logic into shared layers. Problem-specific educational text, step labels, equation ordering, final summaries, diagram annotations, hints, and practice prompts should stay in content.
+1. What changed
+2. How it was verified
+3. What remains fragile
+4. Which context files were checked or updated
+5. Where the agent report was written
 
-Future agents should also avoid reintroducing single-language assumptions. Any user-facing feature should be checked in both German and English before handoff.
-
-Current limitations:
-
-- only one specialized beam reaction solver is registered,
-- only one beam-oriented Konva renderer is registered,
-- no dragging, full editor, generated exercises, backend, student accounts, or broad symbolic/general statics solver exists yet.
-
-Future additions should preserve compatibility with:
-
-- multi-body rigid systems,
-- internal hinges,
-- ropes,
-- friction contacts,
-- free-body diagrams per body,
-- beam internal force diagrams,
-- interactive force dragging,
-- JSON-loaded problems,
-- generated exercises,
-- student answer checking.
-
-Do not mix future feature scaffolding into the MVP UI unless there is a clear typed contract behind it.
+Prefer honest partial completion over pretending a change is fully verified when checks were not run or failed.

@@ -47,6 +47,7 @@
   ],
   "solverConfig": {
     "beamLengthParameterId": "beamLength",
+    "loadId": "centerLoad",
     "loadMagnitudeParameterId": "loadMagnitude",
     "loadPositionParameterId": "loadPosition",
     "horizontalReactionId": "reactionAx",

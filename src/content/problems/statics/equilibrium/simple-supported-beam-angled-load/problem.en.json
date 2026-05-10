@@ -1,0 +1,99 @@
+{
+  "id": "simple-supported-beam-angled-load",
+  "title": "Simply Supported Beam with Angled Off-Center Load",
+  "topic": "statics.equilibrium",
+  "problemType": "supported-beam",
+  "solverKey": "simply-supported-beam-reactions",
+  "diagramKey": "beam-diagram",
+  "statement": "A horizontal rigid beam is supported by a pin at A and a roller at B. An angled force F is applied at distance a from A. The angle alpha is measured from the positive x-axis; the force acts downward and to the right, so its components are positive in x and negative in y. Calculate the support reactions.",
+  "parameters": [
+    { "id": "beamLength", "label": "L", "value": 8, "unit": "m", "displayValue": "8 m" },
+    { "id": "loadPosition", "label": "a", "value": 3, "unit": "m", "displayValue": "3 m" },
+    { "id": "loadMagnitude", "label": "F", "value": 10000, "unit": "N", "displayValue": "10 kN" },
+    { "id": "loadAngle", "label": "\\alpha", "value": 35, "unit": "deg", "displayValue": "35°" }
+  ],
+  "points": [
+    { "id": "pointA", "label": "A", "x": 0, "y": 0 },
+    { "id": "pointB", "label": "B", "x": 8, "y": 0 },
+    { "id": "pointLoad", "label": "F", "x": 3, "y": 0 }
+  ],
+  "bodies": [
+    {
+      "id": "beam",
+      "label": "Rigid beam",
+      "kind": "rigidBeam",
+      "startPointId": "pointA",
+      "endPointId": "pointB"
+    }
+  ],
+  "supports": [
+    { "id": "supportA", "label": "A", "kind": "pin", "pointId": "pointA", "bodyId": "beam" },
+    { "id": "supportB", "label": "B", "kind": "roller", "pointId": "pointB", "bodyId": "beam" }
+  ],
+  "loads": [
+    {
+      "id": "angledLoad",
+      "label": "F",
+      "kind": "pointForce",
+      "bodyId": "beam",
+      "positionPointId": "pointLoad",
+      "vector": { "x": 8191.52, "y": -5735.76 },
+      "displayMagnitude": "10 kN"
+    }
+  ],
+  "forceDecompositions": [
+    {
+      "id": "angledLoadDecomposition",
+      "forceId": "angledLoad",
+      "magnitudeParameterId": "loadMagnitude",
+      "angleParameterId": "loadAngle",
+      "angleReference": "positive-x",
+      "components": {
+        "x": {
+          "id": "angledLoadFx",
+          "axis": "x",
+          "sign": "+",
+          "factor": "cos(alpha)",
+          "expression": "F*cos(alpha)",
+          "latex": "F\\cos(\\alpha)"
+        },
+        "y": {
+          "id": "angledLoadFy",
+          "axis": "y",
+          "sign": "-",
+          "factor": "sin(alpha)",
+          "expression": "-F*sin(alpha)",
+          "latex": "F\\sin(\\alpha)"
+        }
+      }
+    }
+  ],
+  "unknownReactions": [
+    { "id": "reactionAx", "label": "A_x", "supportId": "supportA", "component": "x", "direction": { "x": 1, "y": 0 } },
+    { "id": "reactionAy", "label": "A_y", "supportId": "supportA", "component": "y", "direction": { "x": 0, "y": 1 } },
+    { "id": "reactionBy", "label": "B_y", "supportId": "supportB", "component": "y", "direction": { "x": 0, "y": 1 } }
+  ],
+  "solverConfig": {
+    "beamLengthParameterId": "beamLength",
+    "loadId": "angledLoad",
+    "loadMagnitudeParameterId": "loadMagnitude",
+    "loadPositionParameterId": "loadPosition",
+    "loadDecompositionId": "angledLoadDecomposition",
+    "horizontalReactionId": "reactionAx",
+    "leftVerticalReactionId": "reactionAy",
+    "rightVerticalReactionId": "reactionBy",
+    "equationIds": {
+      "sumForceX": "sum-force-x",
+      "sumMomentAboutLeftSupport": "sum-moment-a",
+      "sumForceY": "sum-force-y"
+    }
+  },
+  "explore": {
+    "noticeTitle": "What to notice",
+    "notices": [
+      "The angled force must be decomposed before equilibrium equations are written.",
+      "The horizontal component is balanced by A_x because the roller at B cannot carry horizontal force.",
+      "The force is applied on the beam centerline, so only the vertical component creates a moment about A."
+    ]
+  }
+}

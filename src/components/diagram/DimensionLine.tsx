@@ -1,6 +1,7 @@
 import { Arrow, Group, Line } from "react-konva";
 import { Label } from "./Label";
 import type { CanvasPoint } from "./types";
+import { formatCanvasMathLabel } from "./canvasMathLabel";
 
 type DimensionLineProps = Readonly<{
   start: CanvasPoint;
@@ -27,7 +28,7 @@ export const DimensionLine = ({ start, end, label, yOffset = 86, color = "#11111
         pointerWidth={7}
         pointerAtBeginning
       />
-      <Label x={(start.x + end.x) / 2 - 20} y={y - 31} text={label} fill={color} fontSize={20} fontStyle="400" />
+      <Label x={(start.x + end.x) / 2 - 20} y={y - 31} text={formatCanvasMathLabel(label)} fill={color} fontSize={20} fontStyle="400" />
     </Group>
   );
 };

@@ -1,14 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color: #17201a;
-  background: #f7f4ec;
+  color: #191c1e;
+  background: #f8f9fb;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  background: #f8f9fb;
 }
 
 body {
@@ -25,5 +31,43 @@ select {
 }
 
 ::selection {
-  background: rgba(13, 148, 136, 0.2);
+  background: rgba(0, 106, 97, 0.2);
+}
+
+.katex-display {
+  margin: 0;
+}
+
+.katex {
+  font-size: 1em;
+}
+
+@layer components {
+  .ui-focus {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-signal/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+  }
+
+  .technical-label {
+    @apply font-display text-xs font-bold uppercase leading-none tracking-[0.1em];
+  }
+}
+
+@keyframes practice-success-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.practice-success-pop {
+  animation: practice-success-pop 360ms ease-out both;
+  transform-origin: center;
 }

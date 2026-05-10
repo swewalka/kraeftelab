@@ -11,52 +11,75 @@
     {
       "id": "sum-force-x",
       "title": "Horizontales Kräftegleichgewicht",
-      "explanation": "Es wirkt keine äußere horizontale Kraft, daher ist die horizontale Lagerkraft im Festlager gleich null."
+      "explanation": [
+        { "type": "paragraph", "text": "Es wirkt keine äußere horizontale Kraft, daher ist die horizontale Lagerkraft im Festlager gleich null." }
+      ]
     },
     {
       "id": "sum-moment-a",
       "title": "Momentengleichgewicht um A",
-      "explanation": "Wir bilden das Momentengleichgewicht um A. Dadurch fallen A_x und A_y weg, weil ihre Wirkungslinien durch den Punkt A gehen."
+      "explanation": [
+        { "type": "paragraph", "text": "Wir bilden das Momentengleichgewicht um A. Dadurch fallen $A_x$ und $A_y$ weg, weil ihre Wirkungslinien durch den Punkt A gehen." }
+      ]
     },
     {
       "id": "sum-force-y",
       "title": "Vertikales Kräftegleichgewicht",
-      "explanation": "Sobald B_y bekannt ist, liefert das vertikale Kräftegleichgewicht die verbleibende vertikale Lagerkraft bei A."
+      "explanation": [
+        { "type": "paragraph", "text": "Sobald $B_y$ bekannt ist, liefert das vertikale Kräftegleichgewicht die verbleibende vertikale Lagerkraft bei A." }
+      ]
     }
   ],
   "steps": [
     {
       "id": "identify-unknowns",
       "title": "1. Unbekannte Lagerkräfte bestimmen",
-      "body": "Lager A ist ein Festlager und kann daher A_x und A_y aufnehmen. Lager B ist ein Loslager und liefert nur B_y."
+      "body": [
+        { "type": "paragraph", "text": "Lager A ist ein Festlager und kann daher $A_x$ und $A_y$ aufnehmen. Lager B ist ein Loslager und liefert nur $B_y$." }
+      ]
     },
     {
       "id": "free-body",
       "title": "2. Lager durch Reaktionskräfte ersetzen",
-      "body": "Der Balken wird freigeschnitten. Die Last von 12 kN wirkt bei x = 3 m nach unten; die Lager werden durch ihre unbekannten Lagerkräfte ersetzt."
+      "body": [
+        { "type": "paragraph", "text": "Der Balken wird freigeschnitten. Die Last von 12 kN wirkt nach unten bei:" },
+        { "type": "math", "latex": "x = 3\\,\\mathrm{m}" },
+        { "type": "paragraph", "text": "Die Lager werden durch ihre unbekannten Lagerkräfte ersetzt." }
+      ]
     },
     {
       "id": "equilibrium-x",
       "title": "3. Horizontales Gleichgewicht anwenden",
-      "body": "Es gibt keine eingeprägten horizontalen Kräfte, daher hat das Festlager keine horizontale Reaktionskraft.",
+      "body": [
+        { "type": "paragraph", "text": "Es gibt keine eingeprägten horizontalen Kräfte, daher hat das Festlager keine horizontale Reaktionskraft." }
+      ],
       "equationIds": ["sum-force-x"]
     },
     {
       "id": "moment-a",
       "title": "4. Momentengleichgewicht um A bilden",
-      "body": "Der Hebelarm von B_y beträgt 6 m. Der Hebelarm der Last beträgt 3 m.",
+      "body": [
+        { "type": "paragraph", "text": "Der Hebelarm von $B_y$ beträgt:" },
+        { "type": "math", "latex": "6\\,\\mathrm{m}" },
+        { "type": "paragraph", "text": "Der Hebelarm der Last beträgt:" },
+        { "type": "math", "latex": "3\\,\\mathrm{m}" }
+      ],
       "equationIds": ["sum-moment-a"]
     },
     {
       "id": "equilibrium-y",
       "title": "5. Vertikales Gleichgewicht anwenden",
-      "body": "Die nach oben gerichteten Lagerkräfte müssen die nach unten gerichtete Einzellast ausgleichen.",
+      "body": [
+        { "type": "paragraph", "text": "Die nach oben gerichteten Lagerkräfte müssen die nach unten gerichtete Einzellast ausgleichen." }
+      ],
       "equationIds": ["sum-force-y"]
     },
     {
       "id": "summary",
       "title": "6. Lagerkräfte zusammenfassen",
-      "body": "Die finalen Lagerkräfte sind unten angeführt."
+      "body": [
+        { "type": "paragraph", "text": "Die finalen Lagerkräfte sind unten angeführt." }
+      ]
     }
   ]
 }

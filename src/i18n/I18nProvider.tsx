@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { defaultLocale, isLocale, type Locale } from "./types";
 import { translations, type TranslationKey } from "./translations";
 
-const storageKey = "mechanics-playground.locale";
+const storageKey = "kraeftelab.locale";
 
 type TranslateOptions = Readonly<Record<string, string | number>>;
 

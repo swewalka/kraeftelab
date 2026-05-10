@@ -20,9 +20,9 @@ export const DottedGridLayer = ({ width, height, spacing = 24 }: DottedGridLayer
 
   return (
     <Layer listening={false}>
-      <Rect x={0} y={0} width={width} height={height} fill="#fbfaf5" />
+      <Rect x={0} y={0} width={width} height={height} fill="#f9f8f6" />
       {dots.map((dot) => (
-        <Circle key={`${dot.x}-${dot.y}`} x={dot.x} y={dot.y} radius={1.25} fill="#d7d0bf" opacity={0.55} />
+        <Circle key={`${dot.x}-${dot.y}`} x={dot.x} y={dot.y} radius={1.25} fill="#e5e7eb" opacity={0.85} />
       ))}
     </Layer>
   );

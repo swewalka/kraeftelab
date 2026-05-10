@@ -4,16 +4,26 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Aptos", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Hanken Grotesk", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "monospace"],
       },
       colors: {
-        ink: "#17201a",
-        paper: "#f7f4ec",
-        grid: "#d9d2c1",
-        steel: "#40505c",
-        signal: "#0d9488",
-        load: "#b42318",
+        ink: "#191c1e",
+        paper: "#f9f8f6",
+        surface: "#f8f9fb",
+        muted: "#f3f4f6",
+        line: "#c4c7c7",
+        grid: "#e5e7eb",
+        steel: "#444748",
+        signal: "#006a61",
+        signalSoft: "#86f2e4",
+        signalMist: "#f0fdfa",
+        load: "#e45405",
+        loadMist: "#fff7ed",
+      },
+      boxShadow: {
+        tool: "0 4px 20px rgba(0, 0, 0, 0.05)",
       },
     },
   },

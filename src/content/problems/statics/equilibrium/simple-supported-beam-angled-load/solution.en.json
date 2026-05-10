@@ -1,0 +1,144 @@
+{
+  "eyebrow": "Guided explanation",
+  "title": "Angled load reactions",
+  "resultSummaryTitle": "Support reactions",
+  "assumptions": [
+    "Beam self-weight is neglected.",
+    "Supports are ideal: A is a pin and B is a roller.",
+    "The force angle alpha is measured from the positive x-axis and the force points downward-right.",
+    "The angled force is applied on the beam centerline, so its horizontal component creates no moment about A.",
+    "Positive x is right, positive y is upward, and counterclockwise moments are positive."
+  ],
+  "equations": [
+    {
+      "id": "sum-force-x",
+      "title": "Horizontal force equilibrium",
+      "explanation": [
+        { "type": "paragraph", "text": "The horizontal load component points to the right, so the pin reaction at A points to the left." },
+        { "type": "math", "latex": "A_x = -F\\cos(\\alpha)" }
+      ]
+    },
+    {
+      "id": "sum-moment-a",
+      "title": "Moment equilibrium about A",
+      "explanation": [
+        { "type": "paragraph", "text": "Taking moments about A eliminates $A_x$ and $A_y$. Because the force is applied on the beam axis, only the vertical component contributes a moment." },
+        { "type": "math", "latex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}" }
+      ]
+    },
+    {
+      "id": "sum-force-y",
+      "title": "Vertical force equilibrium",
+      "explanation": [
+        { "type": "paragraph", "text": "The vertical component has magnitude $F\\sin(\\alpha)$ but enters the equilibrium equation with a negative sign." },
+        { "type": "math", "latex": "A_y = F\\sin(\\alpha) - B_y" }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "identify-unknowns",
+      "title": "1. Identify support reactions",
+      "body": [
+        { "type": "paragraph", "text": "Support A is a pin, so it can provide $A_x$ and $A_y$. Support B is a roller, so it provides only $B_y$." }
+      ]
+    },
+    {
+      "id": "decompose-force",
+      "title": "2. Decompose the angled force",
+      "body": [
+        { "type": "paragraph", "text": "The force points downward and to the right. With alpha measured from the positive x-axis, the components are:" },
+        { "type": "math", "latex": "F_x = F\\cos(\\alpha)" },
+        { "type": "math", "latex": "F_y = -F\\sin(\\alpha)" },
+        { "type": "paragraph", "text": "The vertical component magnitude is:" },
+        { "type": "math", "latex": "F\\sin(\\alpha)" }
+      ]
+    },
+    {
+      "id": "equilibrium-x",
+      "title": "3. Set up horizontal force equilibrium",
+      "body": [
+        { "type": "paragraph", "text": "Only $A_x$ and the horizontal load component act in the x-direction." },
+        { "type": "math", "latex": "A_x + F\\cos(\\alpha) = 0" }
+      ],
+      "equationIds": ["sum-force-x"]
+    },
+    {
+      "id": "solve-ax",
+      "title": "4. Solve for A_x",
+      "body": [
+        { "type": "paragraph", "text": "Move the load component to the other side." },
+        { "type": "math", "latex": "A_x = -F\\cos(\\alpha)" }
+      ]
+    },
+    {
+      "id": "choose-moment-point",
+      "title": "5. Choose moment point A",
+      "body": [
+        { "type": "paragraph", "text": "Moments about A remove both reactions at A because their lever arms are zero." },
+        { "type": "math", "latex": "r_{A_x} = 0" },
+        { "type": "math", "latex": "r_{A_y} = 0" }
+      ]
+    },
+    {
+      "id": "lever-arms",
+      "title": "6. Determine lever arms",
+      "body": [
+        { "type": "paragraph", "text": "The force is applied on the beam centerline, so its horizontal component acts along the beam axis and creates no moment about A." },
+        { "type": "math", "latex": "r_{F\\cos(\\alpha)} = 0" },
+        { "type": "math", "latex": "r_{F\\sin(\\alpha)} = a" },
+        { "type": "math", "latex": "r_{B_y} = L" }
+      ]
+    },
+    {
+      "id": "moment-signs",
+      "title": "7. Build moment signs",
+      "body": [
+        { "type": "paragraph", "text": "$B_y$ at B rotates the beam counterclockwise about A. The downward vertical load component rotates it clockwise." },
+        { "type": "math", "latex": "+B_y\\cdot L" },
+        { "type": "math", "latex": "-F\\sin(\\alpha)\\cdot a" }
+      ]
+    },
+    {
+      "id": "moment-a",
+      "title": "8. Build moment equilibrium around A",
+      "body": [
+        { "type": "paragraph", "text": "Use only the nonzero moment terms." },
+        { "type": "math", "latex": "B_y\\cdot L - F\\sin(\\alpha)\\cdot a = 0" }
+      ],
+      "equationIds": ["sum-moment-a"]
+    },
+    {
+      "id": "solve-by",
+      "title": "9. Solve for B_y",
+      "body": [
+        { "type": "paragraph", "text": "Move the load moment to the right side and divide by L." },
+        { "type": "math", "latex": "B_y\\cdot L = F\\sin(\\alpha)\\cdot a" },
+        { "type": "math", "latex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}" }
+      ]
+    },
+    {
+      "id": "equilibrium-y",
+      "title": "10. Build vertical force equilibrium",
+      "body": [
+        { "type": "paragraph", "text": "The support reactions are upward. The vertical contribution of the applied force is downward." },
+        { "type": "math", "latex": "A_y + B_y - F\\sin(\\alpha) = 0" }
+      ],
+      "equationIds": ["sum-force-y"]
+    },
+    {
+      "id": "solve-ay",
+      "title": "11. Solve for A_y and check",
+      "body": [
+        { "type": "paragraph", "text": "Substitute the value for $B_y$." },
+        { "type": "math", "latex": "A_y = F\\sin(\\alpha) - \\frac{F\\sin(\\alpha)\\,a}{L}" },
+        { "type": "math", "latex": "A_y = F\\sin(\\alpha)\\left(1 - \\frac{a}{L}\\right)" },
+        { "type": "math", "latex": "A_y = \\frac{F\\sin(\\alpha)(L-a)}{L}" },
+        { "type": "paragraph", "text": "Final reactions:" },
+        { "type": "math", "latex": "A_x = -F\\cos(\\alpha)" },
+        { "type": "math", "latex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}" },
+        { "type": "math", "latex": "A_y = \\frac{F\\sin(\\alpha)(L-a)}{L}" }
+      ]
+    }
+  ]
+}

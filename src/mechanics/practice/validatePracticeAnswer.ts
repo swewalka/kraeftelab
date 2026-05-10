@@ -23,14 +23,14 @@ const toStringRecord = (answer: unknown): Record<string, string> => {
   );
 };
 
-const findFeedbackMessages = (step: PracticeStep, mistakeIds: readonly string[]): readonly string[] => {
-  const mistakeFeedback = new Map(step.feedback.mistakes?.map((mistake) => [mistake.id, mistake.text]) ?? []);
+const findFeedbackMessages = (step: PracticeStep, mistakeIds: readonly string[]): ValidationResult["feedbackMessages"] => {
+  const mistakeFeedback = new Map(step.feedback.mistakes?.map((mistake) => [mistake.id, mistake.content]) ?? []);
   const messages = mistakeIds.flatMap((mistakeId) => {
     const message = mistakeFeedback.get(mistakeId);
-    return message === undefined ? [] : [message];
+    return message === undefined ? [] : message;
   });
 
-  return messages.length > 0 ? messages : [step.feedback.genericIncorrect];
+  return messages.length > 0 ? messages : step.feedback.genericIncorrect;
 };
 
 const compareIdSets = (
@@ -55,11 +55,13 @@ const normalizeFactor = (factor?: string): string => {
   return factor.replaceAll(" ", "").replaceAll("·", "*").toLowerCase();
 };
 
-const termKey = (term: Pick<EquationTerm["semantic"], "variable" | "sign" | "factor">): string =>
-  `${term.variable}:${term.sign}:${normalizeFactor(term.factor)}`;
+const normalizeComponentId = (componentId?: string): string => componentId ?? "";
+
+const termKey = (term: Pick<EquationTerm["semantic"], "variable" | "sign" | "factor" | "componentId">): string =>
+  `${term.variable}:${term.sign}:${normalizeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
 
 const expectedTermKey = (term: ExpectedEquation["terms"][number]): string =>
-  `${term.variable}:${term.sign}:${normalizeFactor(term.factor)}`;
+  `${term.variable}:${term.sign}:${normalizeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
 
 const validateEquation = (
   interaction: EquationBuilderInteraction,
@@ -142,6 +144,15 @@ const normalizeExpression = (expression: string, variable: string): string => {
 
 const normalizeComparableExpression = (expression: string, variable: string): string =>
   normalizeExpression(expression, variable)
+    .replaceAll("alpha", "α")
+    .replaceAll("\\alpha", "α")
+    .replaceAll("sin(α)", "s")
+    .replaceAll("cos(α)", "c")
+    .replaceAll("sinalpha", "s")
+    .replaceAll("cosalpha", "c")
+    .replace(/([falsc])\*/g, "$1")
+    .replace(/\*([falsc])/g, "$1")
+    .replace(/\(([^()]+)\)/g, "$1")
     .replace(/^0\.5\*?f$/, "f/2")
     .replace(/^f\*1\/2$/, "f/2")
     .replace(/^1\/2\*f$/, "f/2");
@@ -190,7 +201,7 @@ export const validatePracticeAnswer = (step: PracticeStep, answer: unknown): Val
     return {
       isCorrect: validation.isCorrect,
       mistakeIds: validation.mistakeIds,
-      feedbackMessages: validation.isCorrect ? [step.feedback.correct] : findFeedbackMessages(step, validation.mistakeIds),
+      feedbackMessages: validation.isCorrect ? step.feedback.correct : findFeedbackMessages(step, validation.mistakeIds),
     };
   }
 
@@ -200,7 +211,7 @@ export const validatePracticeAnswer = (step: PracticeStep, answer: unknown): Val
     return {
       isCorrect: mistakeIds.length === 0,
       mistakeIds,
-      feedbackMessages: mistakeIds.length === 0 ? [step.feedback.correct] : findFeedbackMessages(step, mistakeIds),
+      feedbackMessages: mistakeIds.length === 0 ? step.feedback.correct : findFeedbackMessages(step, mistakeIds),
     };
   }
 
@@ -209,7 +220,7 @@ export const validatePracticeAnswer = (step: PracticeStep, answer: unknown): Val
     return {
       isCorrect: validation.isCorrect,
       mistakeIds: validation.mistakeIds,
-      feedbackMessages: validation.isCorrect ? [step.feedback.correct] : findFeedbackMessages(step, validation.mistakeIds),
+      feedbackMessages: validation.isCorrect ? step.feedback.correct : findFeedbackMessages(step, validation.mistakeIds),
     };
   }
 
@@ -226,7 +237,7 @@ export const validatePracticeAnswer = (step: PracticeStep, answer: unknown): Val
     return {
       isCorrect: mistakeIds.length === 0,
       mistakeIds,
-      feedbackMessages: mistakeIds.length === 0 ? [step.feedback.correct] : findFeedbackMessages(step, mistakeIds),
+      feedbackMessages: mistakeIds.length === 0 ? step.feedback.correct : findFeedbackMessages(step, mistakeIds),
     };
   }
 
@@ -235,7 +246,7 @@ export const validatePracticeAnswer = (step: PracticeStep, answer: unknown): Val
     return {
       isCorrect: validation.isCorrect,
       mistakeIds: validation.mistakeIds,
-      feedbackMessages: validation.isCorrect ? [step.feedback.correct] : findFeedbackMessages(step, validation.mistakeIds),
+      feedbackMessages: validation.isCorrect ? step.feedback.correct : findFeedbackMessages(step, validation.mistakeIds),
     };
   }
 
@@ -248,6 +259,6 @@ export const validatePracticeAnswer = (step: PracticeStep, answer: unknown): Val
   return {
     isCorrect: validation.isCorrect,
     mistakeIds: validation.mistakeIds,
-    feedbackMessages: validation.isCorrect ? [step.feedback.correct] : findFeedbackMessages(step, validation.mistakeIds),
+    feedbackMessages: validation.isCorrect ? step.feedback.correct : findFeedbackMessages(step, validation.mistakeIds),
   };
 };

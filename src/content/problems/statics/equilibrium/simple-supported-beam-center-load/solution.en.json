@@ -11,52 +11,75 @@
     {
       "id": "sum-force-x",
       "title": "Horizontal force equilibrium",
-      "explanation": "No external horizontal load is applied, so the horizontal pin reaction is zero."
+      "explanation": [
+        { "type": "paragraph", "text": "No external horizontal load is applied, so the horizontal pin reaction is zero." }
+      ]
     },
     {
       "id": "sum-moment-a",
       "title": "Moment equilibrium about A",
-      "explanation": "Taking moments about A eliminates A_x and A_y, because their lines of action pass through point A."
+      "explanation": [
+        { "type": "paragraph", "text": "Taking moments about A eliminates $A_x$ and $A_y$, because their lines of action pass through point A." }
+      ]
     },
     {
       "id": "sum-force-y",
       "title": "Vertical force equilibrium",
-      "explanation": "After B_y is known, vertical force equilibrium gives the remaining vertical reaction at A."
+      "explanation": [
+        { "type": "paragraph", "text": "After $B_y$ is known, vertical force equilibrium gives the remaining vertical reaction at A." }
+      ]
     }
   ],
   "steps": [
     {
       "id": "identify-unknowns",
       "title": "1. Identify unknown reactions",
-      "body": "Support A is a pin, so it can provide A_x and A_y. Support B is a roller, so it provides only B_y."
+      "body": [
+        { "type": "paragraph", "text": "Support A is a pin, so it can provide $A_x$ and $A_y$. Support B is a roller, so it provides only $B_y$." }
+      ]
     },
     {
       "id": "free-body",
       "title": "2. Replace supports with reaction forces",
-      "body": "The beam is isolated. The downward load is 12 kN at x = 3 m, and supports are replaced by their reaction components."
+      "body": [
+        { "type": "paragraph", "text": "The beam is isolated. The downward load is 12 kN at:" },
+        { "type": "math", "latex": "x = 3\\,\\mathrm{m}" },
+        { "type": "paragraph", "text": "The supports are replaced by their reaction components." }
+      ]
     },
     {
       "id": "equilibrium-x",
       "title": "3. Apply horizontal equilibrium",
-      "body": "There are no applied horizontal forces, so the pin has no horizontal reaction.",
+      "body": [
+        { "type": "paragraph", "text": "There are no applied horizontal forces, so the pin has no horizontal reaction." }
+      ],
       "equationIds": ["sum-force-x"]
     },
     {
       "id": "moment-a",
       "title": "4. Take moments about A",
-      "body": "The moment arm for B_y is 6 m. The moment arm for the load is 3 m.",
+      "body": [
+        { "type": "paragraph", "text": "The moment arm for $B_y$ is:" },
+        { "type": "math", "latex": "6\\,\\mathrm{m}" },
+        { "type": "paragraph", "text": "The moment arm for the load is:" },
+        { "type": "math", "latex": "3\\,\\mathrm{m}" }
+      ],
       "equationIds": ["sum-moment-a"]
     },
     {
       "id": "equilibrium-y",
       "title": "5. Apply vertical equilibrium",
-      "body": "The upward reactions must balance the downward point load.",
+      "body": [
+        { "type": "paragraph", "text": "The upward reactions must balance the downward point load." }
+      ],
       "equationIds": ["sum-force-y"]
     },
     {
       "id": "summary",
       "title": "6. Summarize reactions",
-      "body": "The final support reactions are listed below."
+      "body": [
+        { "type": "paragraph", "text": "The final support reactions are listed below." }
+      ]
     }
   ]
 }

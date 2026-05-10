@@ -5,8 +5,11 @@ import { EquationBlock } from "./EquationBlock";
 import { ArrowLeft, ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { ResultSummary } from "../results/ResultSummary";
 import { useI18n } from "../../i18n/I18nProvider";
+import { ContentBlockRenderer } from "../content/ContentBlockRenderer";
+import { StepProgress } from "../layout/StepProgress";
 
 type SolutionPanelProps = Readonly<{
+  eyebrow: string;
   solution: SolutionContent;
   steps: readonly SolutionStep[];
   solverResult: SolverResult;
@@ -14,7 +17,7 @@ type SolutionPanelProps = Readonly<{
   onStepChange: (stepIndex: number) => void;
 }>;
 
-export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, onStepChange }: SolutionPanelProps) => {
+export const SolutionPanel = ({ eyebrow, solution, steps, solverResult, activeStepIndex, onStepChange }: SolutionPanelProps) => {
   const { t } = useI18n();
   const activeStep = steps[activeStepIndex];
   const isFirstStep = activeStepIndex === 0;
@@ -25,44 +28,25 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
   }
 
   return (
-    <section className="flex h-full flex-col bg-paper">
-      <div className="border-b border-ink/15 bg-white px-5 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-signal">{solution.eyebrow}</p>
-        <h2 className="mt-1 text-xl font-semibold">{solution.title}</h2>
-        <div
-          className="mt-4 grid gap-1"
-          style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}
-          aria-label={t("solution.progress")}
-        >
-          {steps.map((step, index) => (
-            <button
-              key={step.id}
-              type="button"
-              aria-label={t("solution.goToStep", { title: step.title })}
-              className={[
-                "h-2 rounded-full transition",
-                index <= activeStepIndex ? "bg-signal" : "bg-ink/15 hover:bg-ink/25",
-              ].join(" ")}
-              onClick={() => onStepChange(index)}
-            />
-          ))}
+    <section className="flex min-h-0 flex-1 flex-col px-14 pb-10 pt-12">
+      <div>
+        <p className="technical-label text-signal">{eyebrow}</p>
+        <div className="mt-4 flex items-start justify-between gap-4">
+          <h2 className="font-display text-4xl font-semibold leading-[1.18] tracking-normal text-black">{activeStep.title}</h2>
+          {isLastStep ? <CheckCircle2 className="practice-success-pop mt-2 h-7 w-7 shrink-0 text-signal" aria-hidden="true" /> : null}
         </div>
+        <StepProgress current={activeStepIndex + 1} total={steps.length} ariaLabel={t("solution.progress")} />
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
-        <article>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="font-mono text-xs text-steel">
-                {t("solution.stepCounter", { current: activeStepIndex + 1, total: steps.length })}
-              </p>
-              <h3 className="mt-2 text-xl font-semibold">{activeStep.title}</h3>
-            </div>
-            {isLastStep ? <CheckCircle2 className="mt-1 h-5 w-5 text-signal" aria-hidden="true" /> : null}
-          </div>
-          <p className="mt-4 text-base leading-7 text-steel">{activeStep.body}</p>
+      <div className="min-h-0 flex-1 overflow-y-auto pt-12">
+        <article className="rounded-lg border border-line/80 bg-white p-8">
+          <ContentBlockRenderer
+            blocks={activeStep.body}
+            className="space-y-4"
+            paragraphClassName="text-lg leading-8 text-ink"
+          />
           {activeStep.equations && activeStep.equations.length > 0 ? (
-            <div className="mt-6 grid gap-5">
+            <div className="mt-8 grid gap-6">
               {activeStep.equations.map((equation) => (
                 <EquationBlock key={equation.id} equation={equation} />
               ))}
@@ -71,14 +55,14 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
         </article>
 
         {isLastStep ? (
-          <div className="mt-5">
+          <div className="mt-8">
             <ResultSummary result={solverResult} title={solution.resultSummaryTitle} />
           </div>
         ) : null}
 
-        <section className="mt-5 rounded-md border border-ink/15 bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-steel">{t("solution.assumptions")}</h3>
-          <ul className="mt-3 space-y-2 text-sm leading-6 text-steel">
+        <section className="mt-8 rounded-lg border border-line/80 bg-white p-6">
+          <h3 className="technical-label text-steel">{t("solution.assumptions")}</h3>
+          <ul className="mt-4 space-y-3 text-base leading-7 text-steel">
             {solution.assumptions.map((assumption) => (
               <li key={assumption}>{assumption}</li>
             ))}
@@ -86,10 +70,10 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
         </section>
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-ink/15 bg-white px-5 py-4">
+      <div className="grid grid-cols-[1fr_1fr_1.4fr] gap-3 pt-8">
         <button
           type="button"
-          className="flex h-10 items-center gap-2 rounded border border-ink/15 px-3 text-sm font-medium text-steel transition hover:bg-ink/5 disabled:cursor-not-allowed disabled:opacity-40"
+          className="ui-focus flex h-14 items-center justify-center gap-2 rounded border border-black bg-transparent px-4 font-display text-base font-semibold text-black transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
           disabled={isFirstStep}
           onClick={() => onStepChange(activeStepIndex - 1)}
         >
@@ -98,7 +82,7 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
         </button>
         <button
           type="button"
-          className="flex h-10 items-center gap-2 rounded border border-ink/15 px-3 text-sm font-medium text-steel transition hover:bg-ink/5"
+          className="ui-focus flex h-14 items-center justify-center gap-2 rounded border border-black bg-transparent px-4 font-display text-base font-semibold text-black transition hover:bg-white"
           onClick={() => onStepChange(0)}
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
@@ -106,7 +90,7 @@ export const SolutionPanel = ({ solution, steps, solverResult, activeStepIndex, 
         </button>
         <button
           type="button"
-          className="flex h-10 items-center gap-2 rounded bg-ink px-4 text-sm font-medium text-white transition hover:bg-steel disabled:cursor-not-allowed disabled:opacity-45"
+          className="ui-focus flex h-14 items-center justify-center gap-2 rounded bg-black px-4 font-display text-base font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"
           disabled={isLastStep}
           onClick={() => onStepChange(activeStepIndex + 1)}
         >

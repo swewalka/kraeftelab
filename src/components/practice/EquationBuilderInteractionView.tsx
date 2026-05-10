@@ -1,36 +1,50 @@
 import { useI18n } from "../../i18n/I18nProvider";
 import type { EquationBuilderInteraction } from "../../mechanics/practice/types";
+import { MathBlock } from "../math/MathBlock";
+import { MathInline } from "../math/MathInline";
 
 type EquationBuilderInteractionViewProps = Readonly<{
   interaction: EquationBuilderInteraction;
   answer: unknown;
+  validationState: "correct" | "incorrect" | undefined;
   onAnswerChange: (answer: readonly string[]) => void;
 }>;
 
 const equationLabel = (target: EquationBuilderInteraction["equationTarget"], aboutPoint?: string) => {
   if (target === "sumFx") {
-    return "ΣF_x";
+    return "\\sum F_x";
   }
   if (target === "sumFy") {
-    return "ΣF_y";
+    return "\\sum F_y";
   }
-  return aboutPoint ? `ΣM_${aboutPoint}` : "ΣM";
+  return aboutPoint ? `\\sum M_${aboutPoint}` : "\\sum M";
 };
 
-export const EquationBuilderInteractionView = ({ interaction, answer, onAnswerChange }: EquationBuilderInteractionViewProps) => {
+const selectedClassName = (validationState: "correct" | "incorrect" | undefined) => {
+  if (validationState === "incorrect") {
+    return "border-load/70 bg-loadMist text-ink";
+  }
+  if (validationState === "correct") {
+    return "border-signal bg-signalSoft text-ink";
+  }
+  return "border-signal bg-signal/10 text-ink";
+};
+
+export const EquationBuilderInteractionView = ({ interaction, answer, validationState, onAnswerChange }: EquationBuilderInteractionViewProps) => {
   const { t } = useI18n();
   const selectedIds = Array.isArray(answer) ? answer.filter((item): item is string => typeof item === "string") : [];
   const selectedSet = new Set(selectedIds);
   const selectedTerms = interaction.availableTerms.filter((term) => selectedSet.has(term.id));
+  const previewLatex = `${equationLabel(interaction.equationTarget, interaction.aboutPoint)} = ${
+    selectedTerms.length > 0 ? selectedTerms.map((term) => term.latex).join(" ") : "\\square"
+  } = 0`;
 
   return (
-    <div className="grid gap-4">
-      <div className="rounded-md border border-ink/15 bg-white p-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-steel">{t("practice.equationPreview")}</p>
-        <p className="mt-2 min-h-8 font-mono text-lg text-ink">
-          {equationLabel(interaction.equationTarget, interaction.aboutPoint)}:{" "}
-          {selectedTerms.length > 0 ? selectedTerms.map((term) => term.label).join(" ") : t("practice.emptyEquation")} = 0
-        </p>
+    <div className="grid gap-6">
+      <div className="rounded border border-line/80 bg-[#f8fafc] p-5">
+        <p className="technical-label text-steel">{t("practice.equationPreview")}</p>
+        <MathBlock latex={previewLatex} />
+        {selectedTerms.length === 0 ? <p className="text-xs text-steel">{t("practice.emptyEquation")}</p> : null}
       </div>
       <div className="flex flex-wrap gap-2">
         {interaction.availableTerms.map((term) => {
@@ -40,15 +54,15 @@ export const EquationBuilderInteractionView = ({ interaction, answer, onAnswerCh
               key={term.id}
               type="button"
               className={[
-                "min-h-10 rounded-md border px-3 font-mono text-sm transition",
-                isSelected ? "border-signal bg-signal/10 text-ink" : "border-ink/15 bg-white text-steel hover:border-ink/30",
+                "ui-focus min-h-12 rounded border px-4 text-base transition",
+                isSelected ? selectedClassName(validationState) : "border-line/80 bg-white text-ink hover:border-ink",
               ].join(" ")}
               onClick={() => {
                 const next = isSelected ? selectedIds.filter((id) => id !== term.id) : [...selectedIds, term.id];
                 onAnswerChange(next);
               }}
             >
-              {term.label}
+              <MathInline latex={term.latex} />
             </button>
           );
         })}

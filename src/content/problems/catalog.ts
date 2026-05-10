@@ -1,10 +1,20 @@
 import { simpleSupportedBeamCenterLoad } from "./statics/equilibrium/simple-supported-beam-center-load";
+import { simpleSupportedBeamAngledLoad } from "./statics/equilibrium/simple-supported-beam-angled-load";
 import { defaultLocale, type Locale } from "../../i18n/types";
 import type { LoadedProblemContent } from "./types";
+import { validateLocalizedProblemPair } from "./localeValidation";
+
+const registerLocalizedProblem = <T extends Readonly<{ en: LoadedProblemContent; de: LoadedProblemContent }>>(content: T): T => {
+  validateLocalizedProblemPair(content.en, content.de);
+  return content;
+};
+
+const centerLoad = registerLocalizedProblem(simpleSupportedBeamCenterLoad);
+const angledLoad = registerLocalizedProblem(simpleSupportedBeamAngledLoad);
 
 export const problemCatalog: Readonly<Record<Locale, readonly LoadedProblemContent[]>> = {
-  en: [simpleSupportedBeamCenterLoad.en],
-  de: [simpleSupportedBeamCenterLoad.de],
+  en: [centerLoad.en, angledLoad.en],
+  de: [centerLoad.de, angledLoad.de],
 };
 
 const firstProblem = problemCatalog[defaultLocale][0];

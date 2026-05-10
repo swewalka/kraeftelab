@@ -5,7 +5,7 @@ import { MechanicsCanvas } from "../components/diagram/MechanicsCanvas";
 import { ProblemOverview } from "../components/problem/ProblemOverview";
 import { SolutionPanel } from "../components/equations/SolutionPanel";
 import { PracticePanel } from "../components/practice/PracticePanel";
-import { getDefaultProblem } from "../content/problems/catalog";
+import { getDefaultProblem, getProblemById, problemCatalog } from "../content/problems/catalog";
 import { useI18n } from "../i18n/I18nProvider";
 import { buildSolutionSteps } from "../mechanics/explanation/buildSolutionSteps";
 import {
@@ -17,10 +17,11 @@ import {
 import { solveProblem } from "../mechanics/solvers/solverRegistry";
 
 export const App = () => {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const [activeMode, setActiveMode] = useState<AppMode>("explain");
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const problemContent = getDefaultProblem(locale);
+  const [activeProblemId, setActiveProblemId] = useState(() => getDefaultProblem(locale).problem.id);
+  const problemContent = getProblemById(activeProblemId, locale);
   const { diagram, explore, practice, problem, solution } = problemContent;
   const [practiceSession, setPracticeSession] = useState(() => createInitialPracticeSession(practice.steps));
   const solverResult = useMemo(() => solveProblem(problem), [problem]);
@@ -41,6 +42,11 @@ export const App = () => {
       setPracticeSession(createInitialPracticeSession(practice.steps));
     }
   }, [practice.steps, practiceSession.currentStepId]);
+
+  useEffect(() => {
+    setActiveStepIndex(0);
+    setPracticeSession(createInitialPracticeSession(practice.steps));
+  }, [practice.steps, problem.id]);
 
   const handleModeChange = (mode: AppMode) => {
     setActiveMode(mode);
@@ -76,9 +82,16 @@ export const App = () => {
     });
   };
 
+  const topicEyebrow = `${t("topic.statics")}: ${solution.title}`;
+
   return (
-    <AppShell>
-      <div className="grid h-full grid-cols-[minmax(720px,1fr)_520px]">
+    <AppShell
+      problemTitle={problem.title}
+      problems={problemCatalog[locale].map((entry) => ({ id: entry.problem.id, title: entry.problem.title }))}
+      activeProblemId={problem.id}
+      onProblemChange={setActiveProblemId}
+    >
+      <div className="grid h-full grid-cols-[minmax(680px,1fr)_560px]">
         <MechanicsCanvas
           problem={problem}
           solverResult={solverResult}
@@ -91,18 +104,18 @@ export const App = () => {
           onObjectSelect={handleCanvasObjectSelect}
         />
 
-        <aside className="flex min-h-0 flex-col border-l border-ink/10 bg-paper">
-          <div className="border-b border-ink/15 bg-white px-5 py-4">
+        <aside className="flex min-h-0 flex-col border-l border-line/75 bg-surface">
+          <div className="px-14 pt-16">
             <ModeTabs activeMode={activeMode} onModeChange={handleModeChange} />
           </div>
 
           {activeMode === "explore" ? (
-            <div className="min-h-0 flex-1 overflow-y-auto p-5">
-              <ProblemOverview problem={problem} />
+            <div className="min-h-0 flex-1 overflow-y-auto px-14 pb-10 pt-12">
+              <ProblemOverview problem={problem} eyebrow={topicEyebrow} />
               {explore.notices.length > 0 ? (
-                <section className="mt-5 rounded-md border border-ink/15 bg-white p-4 shadow-sm">
-                  {explore.noticeTitle ? <h3 className="font-semibold">{explore.noticeTitle}</h3> : null}
-                  <ul className="mt-3 space-y-3 text-sm leading-6 text-steel">
+                <section className="mt-8 rounded-lg border border-line/80 bg-white p-6">
+                  {explore.noticeTitle ? <h3 className="font-display text-lg font-semibold">{explore.noticeTitle}</h3> : null}
+                  <ul className="mt-4 space-y-3 text-base leading-7 text-steel">
                     {explore.notices.map((notice) => (
                       <li key={notice}>{notice}</li>
                     ))}
@@ -114,6 +127,7 @@ export const App = () => {
 
           {activeMode === "explain" ? (
             <SolutionPanel
+              eyebrow={topicEyebrow}
               solution={solution}
               steps={solutionSteps}
               solverResult={solverResult}
@@ -123,7 +137,7 @@ export const App = () => {
           ) : null}
 
           {activeMode === "practice" ? (
-            <PracticePanel practice={practice} session={practiceSession} onSessionChange={setPracticeSession} />
+            <PracticePanel eyebrow={topicEyebrow} practice={practice} session={practiceSession} onSessionChange={setPracticeSession} />
           ) : null}
         </aside>
       </div>

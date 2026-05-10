@@ -12,12 +12,12 @@
       "interaction": {
         "type": "checkbox",
         "options": [
-          { "id": "reactionAx", "label": "A_x" },
-          { "id": "reactionAy", "label": "A_y" },
-          { "id": "momentA", "label": "M_A" },
-          { "id": "reactionBx", "label": "B_x" },
-          { "id": "reactionBy", "label": "B_y" },
-          { "id": "momentB", "label": "M_B" }
+          { "id": "reactionAx", "label": "A_x", "latex": "A_x" },
+          { "id": "reactionAy", "label": "A_y", "latex": "A_y" },
+          { "id": "momentA", "label": "M_A", "latex": "M_A" },
+          { "id": "reactionBx", "label": "B_x", "latex": "B_x" },
+          { "id": "reactionBy", "label": "B_y", "latex": "B_y" },
+          { "id": "momentB", "label": "M_B", "latex": "M_B" }
         ],
         "correctOptionIds": ["reactionAx", "reactionAy", "reactionBy"]
       },
@@ -88,15 +88,15 @@
       "interaction": {
         "type": "matching",
         "leftItems": [
-          { "id": "reactionAx", "label": "A_x" },
-          { "id": "reactionAy", "label": "A_y" },
-          { "id": "centerLoad", "label": "F" },
-          { "id": "reactionBy", "label": "B_y" }
+          { "id": "reactionAx", "label": "A_x", "latex": "A_x" },
+          { "id": "reactionAy", "label": "A_y", "latex": "A_y" },
+          { "id": "centerLoad", "label": "F", "latex": "F" },
+          { "id": "reactionBy", "label": "B_y", "latex": "B_y" }
         ],
         "rightItems": [
-          { "id": "zero", "label": "0" },
-          { "id": "halfLength", "label": "L/2" },
-          { "id": "fullLength", "label": "L" }
+          { "id": "zero", "label": "0", "latex": "0" },
+          { "id": "halfLength", "label": "L/2", "latex": "\\frac{L}{2}" },
+          { "id": "fullLength", "label": "L", "latex": "L" }
         ],
         "correctPairs": {
           "reactionAx": "zero",
@@ -106,16 +106,33 @@
         }
       },
       "feedback": {
-        "correct": "Correct. The reactions at A have zero lever arm, F acts at L/2, and B_y acts at L.",
+        "correct": [
+          { "type": "paragraph", "text": "Correct. The reactions at A have zero lever arm. The load acts at:" },
+          { "type": "math", "latex": "\\frac{L}{2}" },
+          { "type": "paragraph", "text": "$B_y$ acts at:" },
+          { "type": "math", "latex": "L" }
+        ],
         "genericIncorrect": "Measure every lever arm from point A to the force line of action.",
         "mistakes": [
           { "id": "wrong:reactionAx", "text": "A_x acts at A, so its lever arm around A is zero." },
           { "id": "wrong:reactionAy", "text": "A_y acts at A, so its lever arm around A is zero." },
-          { "id": "wrong:centerLoad", "text": "F is applied at the middle, so its lever arm is L/2." },
+          {
+            "id": "wrong:centerLoad",
+            "content": [
+              { "type": "paragraph", "text": "$F$ is applied at the middle, so its lever arm is:" },
+              { "type": "math", "latex": "\\frac{L}{2}" }
+            ]
+          },
           { "id": "wrong:reactionBy", "text": "B_y acts at B, so its lever arm from A is L." },
           { "id": "missing:reactionAx", "text": "A_x acts at A, so its lever arm around A is zero." },
           { "id": "missing:reactionAy", "text": "A_y acts at A, so its lever arm around A is zero." },
-          { "id": "missing:centerLoad", "text": "F is applied at the middle, so its lever arm is L/2." },
+          {
+            "id": "missing:centerLoad",
+            "content": [
+              { "type": "paragraph", "text": "$F$ is applied at the middle, so its lever arm is:" },
+              { "type": "math", "latex": "\\frac{L}{2}" }
+            ]
+          },
           { "id": "missing:reactionBy", "text": "B_y acts at B, so its lever arm from A is L." }
         ]
       },
@@ -136,12 +153,12 @@
       "interaction": {
         "type": "matching",
         "leftItems": [
-          { "id": "termByL", "label": "B_y · L" },
-          { "id": "termFL2", "label": "F · L/2" }
+          { "id": "termByL", "label": "B_y · L", "latex": "B_y \\cdot L" },
+          { "id": "termFL2", "label": "F · L/2", "latex": "F \\cdot \\frac{L}{2}" }
         ],
         "rightItems": [
-          { "id": "positive", "label": "+" },
-          { "id": "negative", "label": "-" }
+          { "id": "positive", "label": "+", "latex": "+" },
+          { "id": "negative", "label": "-", "latex": "-" }
         ],
         "correctPairs": {
           "termByL": "positive",
@@ -178,13 +195,13 @@
         "equationTarget": "sumMoment",
         "aboutPoint": "A",
         "availableTerms": [
-          { "id": "byLPositive", "label": "+ B_y · L", "semantic": { "variable": "B_y", "sign": "+", "factor": "L", "momentAbout": "A" } },
-          { "id": "byLNegative", "label": "- B_y · L", "semantic": { "variable": "B_y", "sign": "-", "factor": "L", "momentAbout": "A" } },
-          { "id": "fHalfPositive", "label": "+ F · L/2", "semantic": { "variable": "F", "sign": "+", "factor": "L/2", "momentAbout": "A" } },
-          { "id": "fHalfNegative", "label": "- F · L/2", "semantic": { "variable": "F", "sign": "-", "factor": "L/2", "momentAbout": "A" } },
-          { "id": "fFullNegative", "label": "- F · L", "semantic": { "variable": "F", "sign": "-", "factor": "L", "momentAbout": "A" } },
-          { "id": "ayZero", "label": "+ A_y · 0", "semantic": { "variable": "A_y", "sign": "+", "factor": "0", "momentAbout": "A" } },
-          { "id": "axZero", "label": "+ A_x · 0", "semantic": { "variable": "A_x", "sign": "+", "factor": "0", "momentAbout": "A" } }
+          { "id": "byLPositive", "latex": "+ B_y \\cdot L", "semantic": { "variable": "B_y", "sign": "+", "factor": "L", "momentAbout": "A" } },
+          { "id": "byLNegative", "latex": "- B_y \\cdot L", "semantic": { "variable": "B_y", "sign": "-", "factor": "L", "momentAbout": "A" } },
+          { "id": "fHalfPositive", "latex": "+ F \\cdot \\frac{L}{2}", "semantic": { "variable": "F", "sign": "+", "factor": "L/2", "momentAbout": "A" } },
+          { "id": "fHalfNegative", "latex": "- F \\cdot \\frac{L}{2}", "semantic": { "variable": "F", "sign": "-", "factor": "L/2", "momentAbout": "A" } },
+          { "id": "fFullNegative", "latex": "- F \\cdot L", "semantic": { "variable": "F", "sign": "-", "factor": "L", "momentAbout": "A" } },
+          { "id": "ayZero", "latex": "+ A_y \\cdot 0", "semantic": { "variable": "A_y", "sign": "+", "factor": "0", "momentAbout": "A" } },
+          { "id": "axZero", "latex": "+ A_x \\cdot 0", "semantic": { "variable": "A_x", "sign": "+", "factor": "0", "momentAbout": "A" } }
         ],
         "expectedEquation": {
           "equationType": "sumMoment",
@@ -197,14 +214,36 @@
         }
       },
       "feedback": {
-        "correct": "Correct. The moment equation is B_y · L - F · L/2 = 0.",
+        "correct": [
+          { "type": "paragraph", "text": "Correct. The moment equation is:" },
+          { "type": "math", "latex": "B_y \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+        ],
         "genericIncorrect": "Keep only the nonzero moment terms about A, with signs from the chosen convention.",
         "mistakes": [
-          { "id": "missing:B_y:+:l", "text": "Missing B_y · L: B_y creates a moment around A." },
-          { "id": "missing:F:-:l/2", "text": "Missing -F · L/2: F creates a moment around A." },
+          {
+            "id": "missing:B_y:+:l",
+            "content": [
+              { "type": "paragraph", "text": "This term is missing because $B_y$ creates a moment around A:" },
+              { "type": "math", "latex": "B_y \\cdot L" }
+            ]
+          },
+          {
+            "id": "missing:F:-:l/2",
+            "content": [
+              { "type": "paragraph", "text": "This term is missing because $F$ creates a moment around A:" },
+              { "type": "math", "latex": "-F \\cdot \\frac{L}{2}" }
+            ]
+          },
           { "id": "wrongSign:F", "text": "Wrong sign for F: F rotates clockwise around A and is negative." },
           { "id": "wrongSign:B_y", "text": "Wrong sign for B_y: B_y rotates counterclockwise around A and is positive." },
-          { "id": "wrongFactor:F", "text": "Use F · L/2, not F · L, because the load is at the middle." },
+          {
+            "id": "wrongFactor:F",
+            "content": [
+              { "type": "paragraph", "text": "The load acts in the middle, so its lever arm around A is:" },
+              { "type": "math", "latex": "\\frac{L}{2}" },
+              { "type": "paragraph", "text": "The full length $L$ would only be correct for a force acting at B." }
+            ]
+          },
           { "id": "zeroTerm:A_y", "text": "A_y acts at point A, so its lever arm around A is zero and the term should be omitted." },
           { "id": "zeroTerm:A_x", "text": "A_x acts at point A, so its lever arm around A is zero and the term should be omitted." }
         ]
@@ -212,14 +251,25 @@
       "hints": [
         { "level": 1, "text": "Only F and B_y have nonzero lever arms about A." },
         { "level": 2, "text": "B_y is positive and F is negative with counterclockwise positive." },
-        { "level": 3, "text": "The equation has the form B_y · L - F · L/2 = 0." }
+        {
+          "level": 3,
+          "content": [
+            { "type": "paragraph", "text": "The equation has the form:" },
+            { "type": "math", "latex": "B_y \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+          ]
+        }
       ]
     },
     {
       "id": "solve-by",
       "title": "Solve for B_y",
-      "goal": "Solve the moment equation for B_y.",
-      "instructions": "Use the equilibrium equation from the previous step: ΣM_A = B_y · L - F · L/2 = 0.",
+      "goal": [
+        { "type": "paragraph", "text": "Solve the moment equation for $B_y$." }
+      ],
+      "instructions": [
+        { "type": "paragraph", "text": "Use the equilibrium equation from the previous step:" },
+        { "type": "math", "latex": "\\sum M_A = B_y \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+      ],
       "canvasState": {
         "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
         "highlightedObjects": ["reactionBy"]
@@ -232,18 +282,46 @@
       },
       "feedback": {
         "correct": "Correct. B_y carries half of the centered load.",
-        "genericIncorrect": "Start from B_y · L - F · L/2 = 0 and isolate B_y.",
+        "genericIncorrect": [
+          { "type": "paragraph", "text": "Start from the moment equation and isolate $B_y$:" },
+          { "type": "math", "latex": "B_y \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+        ],
         "mistakes": [
-          { "id": "expressionEquals:F", "text": "B_y = F means you forgot that the lever arm of F is L/2." },
+          {
+            "id": "expressionEquals:F",
+            "content": [
+              { "type": "paragraph", "text": "This result forgets that the load lever arm is:" },
+              { "type": "math", "latex": "\\frac{L}{2}" }
+            ]
+          },
           { "id": "expressionContains:L", "text": "B_y is a force; after dividing the moment equation by L, no L remains." },
           { "id": "negativeExpression", "text": "A negative result means one moment sign was reversed." },
-          { "id": "expressionIncorrect", "text": "Divide both sides by L after moving F · L/2 to the other side." }
+          {
+            "id": "expressionIncorrect",
+            "content": [
+              { "type": "paragraph", "text": "Move the load moment to the other side:" },
+              { "type": "math", "latex": "B_y \\cdot L = F \\cdot \\frac{L}{2}" },
+              { "type": "paragraph", "text": "Then divide both sides by $L$." }
+            ]
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Move F · L/2 to the right side." },
+        {
+          "level": 1,
+          "content": [
+            { "type": "paragraph", "text": "Move the load moment to the right side:" },
+            { "type": "math", "latex": "F \\cdot \\frac{L}{2}" }
+          ]
+        },
         { "level": 2, "text": "Then divide the whole equation by L." },
-        { "level": 3, "text": "The L cancels, leaving B_y = F/2." }
+        {
+          "level": 3,
+          "content": [
+            { "type": "paragraph", "text": "The $L$ cancels, leaving:" },
+            { "type": "math", "latex": "B_y = \\frac{F}{2}" }
+          ]
+        }
       ],
       "successResult": {
         "solvedValues": { "reactionBy": "B_y = F/2" },
@@ -263,11 +341,11 @@
         "type": "equation-builder",
         "equationTarget": "sumFy",
         "availableTerms": [
-          { "id": "ayPositive", "label": "+ A_y", "semantic": { "variable": "A_y", "direction": "y", "sign": "+" } },
-          { "id": "byPositive", "label": "+ B_y", "semantic": { "variable": "B_y", "direction": "y", "sign": "+" } },
-          { "id": "fPositive", "label": "+ F", "semantic": { "variable": "F", "direction": "y", "sign": "+" } },
-          { "id": "fNegative", "label": "- F", "semantic": { "variable": "F", "direction": "y", "sign": "-" } },
-          { "id": "axPositive", "label": "+ A_x", "semantic": { "variable": "A_x", "direction": "x", "sign": "+" } }
+          { "id": "ayPositive", "latex": "+ A_y", "semantic": { "variable": "A_y", "direction": "y", "sign": "+" } },
+          { "id": "byPositive", "latex": "+ B_y", "semantic": { "variable": "B_y", "direction": "y", "sign": "+" } },
+          { "id": "fPositive", "latex": "+ F", "semantic": { "variable": "F", "direction": "y", "sign": "+" } },
+          { "id": "fNegative", "latex": "- F", "semantic": { "variable": "F", "direction": "y", "sign": "-" } },
+          { "id": "axPositive", "latex": "+ A_x", "semantic": { "variable": "A_x", "direction": "x", "sign": "+" } }
         ],
         "expectedEquation": {
           "equationType": "sumFy",
@@ -280,11 +358,30 @@
         }
       },
       "feedback": {
-        "correct": "Correct. The vertical equilibrium equation is A_y + B_y - F = 0.",
-        "genericIncorrect": "Only vertical forces belong in ΣF_y, and upward is positive.",
+        "correct": [
+          { "type": "paragraph", "text": "Correct. The vertical equilibrium equation is:" },
+          { "type": "math", "latex": "A_y + B_y - F = 0" }
+        ],
+        "genericIncorrect": [
+          { "type": "paragraph", "text": "Only vertical forces belong in:" },
+          { "type": "math", "latex": "\\sum F_y = 0" },
+          { "type": "paragraph", "text": "Upward is positive." }
+        ],
         "mistakes": [
-          { "id": "missing:A_y:+:", "text": "Missing A_y: the vertical reaction at A contributes to ΣF_y." },
-          { "id": "missing:B_y:+:", "text": "Missing B_y: the vertical reaction at B contributes to ΣF_y." },
+          {
+            "id": "missing:A_y:+:",
+            "content": [
+              { "type": "paragraph", "text": "The vertical reaction at A contributes to:" },
+              { "type": "math", "latex": "\\sum F_y = 0" }
+            ]
+          },
+          {
+            "id": "missing:B_y:+:",
+            "content": [
+              { "type": "paragraph", "text": "The vertical reaction at B contributes to:" },
+              { "type": "math", "latex": "\\sum F_y = 0" }
+            ]
+          },
           { "id": "missing:F:-:", "text": "Missing -F: the external force points downward." },
           { "id": "wrongSign:F", "text": "F points downward, so it enters the vertical equilibrium equation with a negative sign." },
           { "id": "extra:A_x", "text": "A_x is horizontal and does not belong in vertical equilibrium." }
@@ -293,14 +390,27 @@
       "hints": [
         { "level": 1, "text": "Use y positive upward." },
         { "level": 2, "text": "Both support reactions point upward, while F points downward." },
-        { "level": 3, "text": "The equation should be A_y + B_y - F = 0." }
+        {
+          "level": 3,
+          "content": [
+            { "type": "paragraph", "text": "The equation should be:" },
+            { "type": "math", "latex": "A_y + B_y - F = 0" }
+          ]
+        }
       ]
     },
     {
       "id": "solve-ay",
       "title": "Solve for A_y",
-      "goal": "Use B_y = F/2 in vertical equilibrium and solve for A_y.",
-      "instructions": "Use the equilibrium equation from the previous step: ΣF_y = A_y + B_y - F = 0.",
+      "goal": [
+        { "type": "paragraph", "text": "Use the solved value for $B_y$ in vertical equilibrium:" },
+        { "type": "math", "latex": "B_y = \\frac{F}{2}" },
+        { "type": "paragraph", "text": "Then solve for $A_y$." }
+      ],
+      "instructions": [
+        { "type": "paragraph", "text": "Use the equilibrium equation from the previous step:" },
+        { "type": "math", "latex": "\\sum F_y = A_y + B_y - F = 0" }
+      ],
       "canvasState": {
         "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
         "highlightedObjects": ["reactionAy"],
@@ -315,18 +425,54 @@
       },
       "feedback": {
         "correct": "Correct. A_y also carries half of the load.",
-        "genericIncorrect": "Insert B_y = F/2 into A_y + B_y - F = 0.",
+        "genericIncorrect": [
+          { "type": "paragraph", "text": "Insert the solved reaction:" },
+          { "type": "math", "latex": "B_y = \\frac{F}{2}" },
+          { "type": "paragraph", "text": "Then use vertical equilibrium:" },
+          { "type": "math", "latex": "A_y + B_y - F = 0" }
+        ],
         "mistakes": [
-          { "id": "expressionEquals:F", "text": "A_y = F ignores that B_y already carries half of the load." },
+          {
+            "id": "expressionEquals:F",
+            "content": [
+              { "type": "paragraph", "text": "$B_y$ already carries half of the load:" },
+              { "type": "math", "latex": "B_y = \\frac{F}{2}" }
+            ]
+          },
           { "id": "expressionEquals:0", "text": "A_y cannot be zero; vertical equilibrium requires both supports to balance F." },
           { "id": "negativeExpression", "text": "A_y points upward in the chosen direction, so it is positive." },
-          { "id": "expressionIncorrect", "text": "From A_y + F/2 - F = 0, the remaining reaction is F/2." }
+          {
+            "id": "expressionIncorrect",
+            "content": [
+              { "type": "paragraph", "text": "After substituting $B_y$, vertical equilibrium becomes:" },
+              { "type": "math", "latex": "A_y + \\frac{F}{2} - F = 0" },
+              { "type": "paragraph", "text": "Solving this gives:" },
+              { "type": "math", "latex": "A_y = \\frac{F}{2}" }
+            ]
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Substitute B_y = F/2." },
-        { "level": 2, "text": "A_y + F/2 - F = 0." },
-        { "level": 3, "text": "Move F/2 to the right side to get A_y = F/2." }
+        {
+          "level": 1,
+          "content": [
+            { "type": "paragraph", "text": "Substitute:" },
+            { "type": "math", "latex": "B_y = \\frac{F}{2}" }
+          ]
+        },
+        {
+          "level": 2,
+          "content": [
+            { "type": "math", "latex": "A_y + \\frac{F}{2} - F = 0" }
+          ]
+        },
+        {
+          "level": 3,
+          "content": [
+            { "type": "paragraph", "text": "Move the known half-load to the right side:" },
+            { "type": "math", "latex": "A_y = \\frac{F}{2}" }
+          ]
+        }
       ],
       "successResult": {
         "solvedValues": { "reactionAy": "A_y = F/2" },
@@ -350,9 +496,32 @@
       "interaction": {
         "type": "multiple-choice",
         "options": [
-          { "id": "all-equations", "label": "ΣF_x = 0, ΣF_y = F/2 + F/2 - F = 0, and ΣM_A = F/2 · L - F · L/2 = 0." },
-          { "id": "vertical-only", "label": "Only ΣF_y has to be checked because the beam is horizontal." },
-          { "id": "moment-only", "label": "Only ΣM_A has to be checked because it gave B_y." }
+          {
+            "id": "all-equations",
+            "label": "All equilibrium equations are satisfied.",
+            "content": [
+              { "type": "paragraph", "text": "All equilibrium equations are satisfied:" },
+              { "type": "math", "latex": "\\sum F_x = 0" },
+              { "type": "math", "latex": "\\sum F_y = \\frac{F}{2} + \\frac{F}{2} - F = 0" },
+              { "type": "math", "latex": "\\sum M_A = \\frac{F}{2} \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+            ]
+          },
+          {
+            "id": "vertical-only",
+            "label": "Only vertical equilibrium has to be checked because the beam is horizontal.",
+            "content": [
+              { "type": "paragraph", "text": "Only this condition has to be checked because the beam is horizontal:" },
+              { "type": "math", "latex": "\\sum F_y = 0" }
+            ]
+          },
+          {
+            "id": "moment-only",
+            "label": "Only moment equilibrium has to be checked because it gave B_y.",
+            "content": [
+              { "type": "paragraph", "text": "Only this condition has to be checked because it gave $B_y$:" },
+              { "type": "math", "latex": "\\sum M_A = 0" }
+            ]
+          }
         ],
         "correctOptionId": "all-equations"
       },
@@ -366,7 +535,15 @@
       },
       "hints": [
         { "level": 1, "text": "Check every independent equilibrium equation." },
-        { "level": 2, "text": "There is no horizontal external load, so A_x = 0 satisfies ΣF_x." },
+        {
+          "level": 2,
+          "content": [
+            { "type": "paragraph", "text": "There is no horizontal external load, so:" },
+            { "type": "math", "latex": "A_x = 0" },
+            { "type": "paragraph", "text": "This satisfies:" },
+            { "type": "math", "latex": "\\sum F_x = 0" }
+          ]
+        },
         { "level": 3, "text": "The two vertical reactions add to F, and their moment about A balances the load moment." }
       ],
       "successResult": {

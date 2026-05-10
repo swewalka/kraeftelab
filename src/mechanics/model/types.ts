@@ -1,4 +1,5 @@
 import type { Vector2 } from "../core/vector";
+import type { ContentBlock } from "../content/types";
 
 export type PointDefinition = Readonly<{
   id: string;
@@ -35,6 +36,27 @@ export type LoadDefinition = Readonly<{
   displayMagnitude: string;
 }>;
 
+export type ForceDecompositionComponent = Readonly<{
+  id: string;
+  axis: "x" | "y";
+  sign: "+" | "-";
+  factor: string;
+  expression: string;
+  latex: string;
+}>;
+
+export type ForceDecomposition = Readonly<{
+  id: string;
+  forceId: string;
+  magnitudeParameterId: string;
+  angleParameterId: string;
+  angleReference: "positive-x";
+  components: Readonly<{
+    x: ForceDecompositionComponent;
+    y: ForceDecompositionComponent;
+  }>;
+}>;
+
 export type UnknownReaction = Readonly<{
   id: string;
   label: string;
@@ -47,7 +69,7 @@ export type ParameterDefinition = Readonly<{
   id: string;
   label: string;
   value: number;
-  unit: "m" | "N";
+  unit: "m" | "N" | "deg";
   displayValue: string;
 }>;
 
@@ -64,12 +86,12 @@ export type EquilibriumEquation = Readonly<{
   symbolic: string;
   substituted: string;
   solved?: string;
-  explanation: string;
+  explanation: readonly ContentBlock[];
 }>;
 
 export type SolutionStep = Readonly<{
   id: string;
   title: string;
-  body: string;
+  body: readonly ContentBlock[];
   equations?: readonly EquilibriumEquation[];
 }>;
