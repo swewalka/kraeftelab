@@ -37,12 +37,15 @@ behavior.
 React components render already-parsed content and solver results. They should not contain curated
 mechanics solution facts.
 
-The beam diagram renderer remains beam-specific, but its decomposition overlay labels can now be
-resolved from force component ids. Diagram files still own drawing offsets, colors, and visibility
-ids.
+The beam diagram renderer remains beam-specific, but shared diagram overlay helpers own reusable
+force-arrow, component-arrow, angle-marker, label, dimension, opacity, and solved-state styling.
+Beam diagram files still own beam-specific placement offsets and visibility ids. Decomposition
+overlay labels are resolved from force component ids.
 
 Solve and Practice mode share the same neutral canvas-state contract for visible objects,
-highlights, dimming, solved objects, and solved value labels. Solve mode consumes authored
+important objects, dimming, solved objects, and solved value ids. Solve mode consumes authored
 per-solution-step canvas state directly. Practice mode builds its canvas state from the active
 practice step plus completed-step success results; interaction, validation, hints, and accumulated
-progress remain practice-specific.
+progress remain practice-specific. `highlightedObjects` is retained as the content field name for
+backward compatibility, but renderers treat it as the set of important full-opacity objects rather
+than as a colored highlight request.

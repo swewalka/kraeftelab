@@ -6,7 +6,20 @@
       "id": "identify-reactions",
       "title": "Lagerreaktionen bestimmen",
       "goal": "Wähle alle unbekannten Lagerreaktionen, die in den Freischnitt gehören.",
-      "canvasState": { "highlightedObjects": ["supportA", "supportB"] },
+      "canvasState": {
+        "highlightedObjects": [
+          "beam",
+          "supportA",
+          "supportB",
+          "angledLoad",
+          "pointA",
+          "pointB",
+          "pointLoad",
+          "dimensionTotal",
+          "dimensionAtoLoad",
+          "dimensionLoadToB"
+        ]
+      },
       "interaction": {
         "type": "checkbox",
         "options": [

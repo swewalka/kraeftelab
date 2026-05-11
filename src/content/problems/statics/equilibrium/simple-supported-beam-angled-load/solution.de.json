@@ -42,7 +42,18 @@
         { "type": "paragraph", "text": "Das Festlager A kann $A_x$ und $A_y$ aufnehmen. Das Loslager B liefert nur $B_y$." }
       ],
       "canvasState": {
-        "highlightedObjects": ["supportA", "supportB"]
+        "highlightedObjects": [
+          "beam",
+          "supportA",
+          "supportB",
+          "angledLoad",
+          "pointA",
+          "pointB",
+          "pointLoad",
+          "dimensionTotal",
+          "dimensionAtoLoad",
+          "dimensionLoadToB"
+        ]
       }
     },
     {

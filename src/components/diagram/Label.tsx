@@ -9,6 +9,7 @@ type LabelProps = Readonly<{
   fontStyle?: string;
   align?: "left" | "center" | "right";
   width?: number;
+  opacity?: number;
 }>;
 
 export const Label = ({
@@ -20,6 +21,7 @@ export const Label = ({
   fontStyle = "600",
   align = "left",
   width,
+  opacity = 1,
 }: LabelProps) => (
   <Text
     x={x}
@@ -30,6 +32,7 @@ export const Label = ({
     fontStyle={fontStyle}
     fontFamily="Aptos, system-ui, sans-serif"
     align={align}
+    opacity={opacity}
     {...(width === undefined ? {} : { width })}
   />
 );

@@ -37,7 +37,17 @@
         { "type": "paragraph", "text": "Lager A ist ein Festlager und kann daher $A_x$ und $A_y$ aufnehmen. Lager B ist ein Loslager und liefert nur $B_y$." }
       ],
       "canvasState": {
-        "highlightedObjects": ["supportA", "supportB"]
+        "highlightedObjects": [
+          "beam",
+          "supportA",
+          "supportB",
+          "centerLoad",
+          "pointA",
+          "pointB",
+          "pointLoad",
+          "dimensionAtoLoad",
+          "dimensionLoadToB"
+        ]
       }
     },
     {

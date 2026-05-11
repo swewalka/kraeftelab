@@ -123,8 +123,9 @@ The palette is designed to mimic professional engineering documentation.
 - **The Canvas:** "Warm Paper" (#F9F8F6) acts as the primary workspace background, reducing eye strain during long study sessions.
 - **UI Surfaces:** Pure White (#FFFFFF) and Soft Gray (#F3F4F6) are used for floating panels and interface overlays to separate "tools" from the "work."
 - **Accents:** 
-    - **Technical Teal:** Used for "Success" states, active interactions, and correctly solved vectors.
-    - **Safety Orange:** Used for "Forces," critical warnings, and incorrect states. This color is intentionally muted to maintain a professional tone.
+    - **Technical Teal:** Used for "Success" states and active interactions.
+    - **Safety Orange:** Used for critical warnings and incorrect states. This color is intentionally muted to maintain a professional tone.
+    - **Diagram Forces:** Canvas force colors follow mechanics roles: external forces use green, support reactions and future internal forces use red, and angle/dimension construction marks use neutral ink/gray. Component arrows may use a thinner or dashed green variant to distinguish decomposition aids from the original applied force.
 
 ## Typography
 
@@ -152,6 +153,7 @@ This design system uses **Tonal Layering** and **Low-Contrast Outlines** rather 
 - **Level 1 (Cards/Containers):** Pure white background with a 1px border (#E5E7EB). Shadows are avoided here to keep the "flat notebook" feel.
 - **Level 2 (Floating Controls):** Used for pan/zoom tools and mode selectors. These feature a very soft, diffused shadow (0px 4px 20px rgba(0,0,0,0.05)) to suggest they are "tools" resting on top of the paper.
 - **Active State:** Elements being dragged or interacted with gain a slightly sharper border using the Technical Teal accent.
+- **Canvas Focus:** Diagram focus should be expressed through visibility and opacity, not by recoloring mechanics objects. Important objects stay fully visible; contextual objects may be dimmed.
 
 ## Shapes
 

@@ -6,7 +6,20 @@
       "id": "identify-reactions",
       "title": "Identify support reactions",
       "goal": "Select all unknown support reactions that belong in the free-body diagram.",
-      "canvasState": { "highlightedObjects": ["supportA", "supportB"] },
+      "canvasState": {
+        "highlightedObjects": [
+          "beam",
+          "supportA",
+          "supportB",
+          "angledLoad",
+          "pointA",
+          "pointB",
+          "pointLoad",
+          "dimensionTotal",
+          "dimensionAtoLoad",
+          "dimensionLoadToB"
+        ]
+      },
       "interaction": {
         "type": "checkbox",
         "options": [

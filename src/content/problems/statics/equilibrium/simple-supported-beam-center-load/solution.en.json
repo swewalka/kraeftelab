@@ -37,7 +37,17 @@
         { "type": "paragraph", "text": "Support A is a pin, so it can provide $A_x$ and $A_y$. Support B is a roller, so it provides only $B_y$." }
       ],
       "canvasState": {
-        "highlightedObjects": ["supportA", "supportB"]
+        "highlightedObjects": [
+          "beam",
+          "supportA",
+          "supportB",
+          "centerLoad",
+          "pointA",
+          "pointB",
+          "pointLoad",
+          "dimensionAtoLoad",
+          "dimensionLoadToB"
+        ]
       }
     },
     {

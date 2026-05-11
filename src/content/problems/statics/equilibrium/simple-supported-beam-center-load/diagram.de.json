@@ -19,39 +19,39 @@
         "loadId": "centerLoad",
         "pointId": "pointLoad",
         "tailOffset": { "x": 0, "y": -118 },
-        "tipOffset": { "x": 0, "y": -6 },
+        "tipOffset": { "x": 0, "y": 0 },
         "labelOffset": { "x": -48, "y": -68 },
         "fontSize": 30,
-        "color": "#ff1010"
+        "color": "#00a86b"
       }
     ],
     "freeBodyReactions": [
       {
         "reactionId": "reactionAy",
         "pointId": "pointA",
-        "tailOffset": { "x": 0, "y": -4 },
-        "tipOffset": { "x": 0, "y": -104 },
-        "labelOffset": { "x": 14, "y": 4 },
-        "fontSize": 16,
-        "color": "#0d9488"
+        "tailOffset": { "x": 0, "y": 104 },
+        "tipOffset": { "x": 0, "y": 4 },
+        "labelOffset": { "x": 18, "y": 36 },
+        "fontSize": 22,
+        "color": "#ef4444"
       },
       {
         "reactionId": "reactionAx",
         "pointId": "pointA",
-        "tailOffset": { "x": -6, "y": 2 },
-        "tipOffset": { "x": 86, "y": 2 },
-        "labelOffset": { "x": -8, "y": 14 },
-        "fontSize": 16,
-        "color": "#0d9488"
+        "tailOffset": { "x": -94, "y": 2 },
+        "tipOffset": { "x": -6, "y": 2 },
+        "labelOffset": { "x": -82, "y": 18 },
+        "fontSize": 22,
+        "color": "#ef4444"
       },
       {
         "reactionId": "reactionBy",
         "pointId": "pointB",
-        "tailOffset": { "x": 0, "y": -4 },
-        "tipOffset": { "x": 0, "y": -104 },
-        "labelOffset": { "x": 14, "y": 4 },
-        "fontSize": 16,
-        "color": "#0d9488"
+        "tailOffset": { "x": 0, "y": 104 },
+        "tipOffset": { "x": 0, "y": 4 },
+        "labelOffset": { "x": 18, "y": 36 },
+        "fontSize": 22,
+        "color": "#ef4444"
       }
     ],
     "pointLabels": [

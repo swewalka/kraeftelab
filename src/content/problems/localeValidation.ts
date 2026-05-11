@@ -110,6 +110,10 @@ const diagramConfigSnapshot = (config: unknown) => {
       id: record.id,
       pointId: record.pointId,
     })),
+    angleMarkers: mapRecords("angleMarkers", (record) => ({
+      id: record.id,
+      pointId: record.pointId,
+    })),
     dimensions: mapRecords("dimensions", (record) => ({
       id: record.id,
       startPointId: record.startPointId,

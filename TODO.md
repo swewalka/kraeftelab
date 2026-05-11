@@ -28,10 +28,6 @@ listed item, delete that item from this file during the same handoff.
 
 ## Diagrams And Canvas
 
-- Extract renderer-agnostic overlay primitives for force arrows, component arrows, angle markers,
-  dimensions, labels, highlights, and solved-state styling.
-- Keep `BeamDiagramLayer` beam-specific, but move reusable overlay drawing and visibility behavior
-  out of the beam renderer.
 - Add visual regression checks for representative Solve and Practice canvas states.
 - Decide how Explore Mode will show real numeric values without leaking numeric display into Solve
   or Practice.

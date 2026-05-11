@@ -67,11 +67,11 @@ reactions. Use this only for final results, not intermediate equations.
 ## Canvas state
 
 Solution steps and practice steps may define `canvasState` to drive diagram visibility and
-highlighting.
+focus.
 
 Canvas state may define:
 - `visibleObjects`
-- `highlightedObjects`
+- `highlightedObjects`, retained as the field name for important/full-opacity objects
 - `dimmedObjects`
 - `annotations`
 - `solvedValues`, keyed by canvas object id
@@ -79,6 +79,14 @@ Canvas state may define:
 
 Solution-step canvas states are self-contained. They are not cumulative unless the content repeats
 previously revealed objects, solved objects, or solved values in the later step.
+
+Canvas `solvedValues` may mark an object as solved or visible, but diagram arrows should keep
+stable object labels such as force or reaction names. Exact formulas belong in explanation and
+practice feedback content, not in canvas arrow labels.
+
+Beam diagram configs may define `angleMarkers` for arc-based angle annotations. Each marker uses a
+diagram object id, anchor point id, label, radius, start/end angles in canvas degrees, label offset,
+and font size.
 
 ## Practice semantics
 

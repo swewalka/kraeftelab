@@ -3,9 +3,11 @@ import { Circle, Layer, Line } from "react-konva";
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
 import type { LoadDefinition, PointDefinition, SupportDefinition } from "../../mechanics/model/types";
 import type { SolverResult } from "../../mechanics/solvers/equilibrium2D/types";
+import { AngleMarker } from "./AngleMarker";
 import { DimensionLine } from "./DimensionLine";
 import { ForceArrow } from "./ForceArrow";
 import { Label } from "./Label";
+import { createOverlayState, diagramColors } from "./overlayStyle";
 import { SupportSymbol } from "./SupportSymbol";
 import type { CanvasPoint, DiagramInteractionState, DiagramMode, WorldToCanvas } from "./types";
 
@@ -32,7 +34,7 @@ type LoadArrowConfig = Readonly<{
   tipOffset: DiagramOffset;
   labelOffset: DiagramOffset;
   fontSize: number;
-  color: string;
+  color?: string;
 }>;
 
 type ReactionArrowConfig = Readonly<{
@@ -42,7 +44,7 @@ type ReactionArrowConfig = Readonly<{
   tipOffset: DiagramOffset;
   labelOffset: DiagramOffset;
   fontSize: number;
-  color: string;
+  color?: string;
 }>;
 
 type PointLabelConfig = Readonly<{
@@ -69,7 +71,7 @@ type OverlayArrowConfig = Readonly<{
   tipOffset: DiagramOffset;
   labelOffset: DiagramOffset;
   fontSize: number;
-  color: string;
+  color?: string;
   strokeWidth?: number;
 }>;
 
@@ -80,7 +82,19 @@ type PolylineMarkerConfig = Readonly<{
   offsets: readonly DiagramOffset[];
   labelOffset: DiagramOffset;
   fontSize: number;
-  color: string;
+  color?: string;
+}>;
+
+type AngleMarkerConfig = Readonly<{
+  id: string;
+  pointId: string;
+  label: string;
+  radius: number;
+  startAngleDeg: number;
+  endAngleDeg: number;
+  labelOffset: DiagramOffset;
+  fontSize: number;
+  color?: string;
 }>;
 
 export type BeamDiagramConfig = Readonly<{
@@ -90,6 +104,7 @@ export type BeamDiagramConfig = Readonly<{
   freeBodyReactions: readonly ReactionArrowConfig[];
   overlayArrows: readonly OverlayArrowConfig[];
   polylineMarkers: readonly PolylineMarkerConfig[];
+  angleMarkers: readonly AngleMarkerConfig[];
   pointLabels: readonly PointLabelConfig[];
   dimensions: readonly DimensionConfig[];
   bounds: Readonly<{
@@ -141,6 +156,28 @@ const requireNumber = (record: JsonRecord, key: string, context: string): number
   return value;
 };
 
+const optionalString = (record: JsonRecord, key: string, context: string): string | undefined => {
+  const value = record[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "string" || value.length === 0) {
+    throw new Error(`${context}.${key} must be a non-empty string.`);
+  }
+  return value;
+};
+
+const optionalNumber = (record: JsonRecord, key: string, context: string): number | undefined => {
+  const value = record[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(`${context}.${key} must be a finite number.`);
+  }
+  return value;
+};
+
 const requireArray = (record: JsonRecord, key: string, context: string): readonly unknown[] => {
   const value = record[key];
   if (!Array.isArray(value)) {
@@ -157,14 +194,17 @@ const parseOffset = (value: unknown, context: string): DiagramOffset => {
   };
 };
 
-const parseArrowBase = (record: JsonRecord, context: string) => ({
-  pointId: requireString(record, "pointId", context),
-  tailOffset: parseOffset(record.tailOffset, `${context}.tailOffset`),
-  tipOffset: parseOffset(record.tipOffset, `${context}.tipOffset`),
-  labelOffset: parseOffset(record.labelOffset, `${context}.labelOffset`),
-  fontSize: requireNumber(record, "fontSize", context),
-  color: requireString(record, "color", context),
-});
+const parseArrowBase = (record: JsonRecord, context: string) => {
+  const color = optionalString(record, "color", context);
+  return {
+    pointId: requireString(record, "pointId", context),
+    tailOffset: parseOffset(record.tailOffset, `${context}.tailOffset`),
+    tipOffset: parseOffset(record.tipOffset, `${context}.tipOffset`),
+    labelOffset: parseOffset(record.labelOffset, `${context}.labelOffset`),
+    fontSize: requireNumber(record, "fontSize", context),
+    ...(color === undefined ? {} : { color }),
+  };
+};
 
 export const parseBeamDiagramConfig = (value: unknown): BeamDiagramConfig => {
   const record = requireRecord(value, "beam diagram config");
@@ -203,10 +243,7 @@ export const parseBeamDiagramConfig = (value: unknown): BeamDiagramConfig => {
         ? []
         : requireArray(record, "overlayArrows", "beam diagram config").map((item, index) => {
             const arrow = requireRecord(item, `beam diagram config.overlayArrows[${index}]`);
-            const strokeWidth =
-              arrow.strokeWidth === undefined
-                ? undefined
-                : requireNumber(arrow, "strokeWidth", `beam diagram config.overlayArrows[${index}]`);
+            const strokeWidth = optionalNumber(arrow, "strokeWidth", `beam diagram config.overlayArrows[${index}]`);
             if (arrow.label === undefined && arrow.componentId === undefined) {
               throw new Error(`beam diagram config.overlayArrows[${index}] requires label or componentId.`);
             }
@@ -227,6 +264,7 @@ export const parseBeamDiagramConfig = (value: unknown): BeamDiagramConfig => {
         ? []
         : requireArray(record, "polylineMarkers", "beam diagram config").map((item, index) => {
             const marker = requireRecord(item, `beam diagram config.polylineMarkers[${index}]`);
+            const color = optionalString(marker, "color", `beam diagram config.polylineMarkers[${index}]`);
             return {
               id: requireString(marker, "id", `beam diagram config.polylineMarkers[${index}]`),
               pointId: requireString(marker, "pointId", `beam diagram config.polylineMarkers[${index}]`),
@@ -237,7 +275,25 @@ export const parseBeamDiagramConfig = (value: unknown): BeamDiagramConfig => {
               ),
               labelOffset: parseOffset(marker.labelOffset, `beam diagram config.polylineMarkers[${index}].labelOffset`),
               fontSize: requireNumber(marker, "fontSize", `beam diagram config.polylineMarkers[${index}]`),
-              color: requireString(marker, "color", `beam diagram config.polylineMarkers[${index}]`),
+              ...(color === undefined ? {} : { color }),
+            };
+          }),
+    angleMarkers:
+      record.angleMarkers === undefined
+        ? []
+        : requireArray(record, "angleMarkers", "beam diagram config").map((item, index) => {
+            const marker = requireRecord(item, `beam diagram config.angleMarkers[${index}]`);
+            const color = optionalString(marker, "color", `beam diagram config.angleMarkers[${index}]`);
+            return {
+              id: requireString(marker, "id", `beam diagram config.angleMarkers[${index}]`),
+              pointId: requireString(marker, "pointId", `beam diagram config.angleMarkers[${index}]`),
+              label: requireString(marker, "label", `beam diagram config.angleMarkers[${index}]`),
+              radius: requireNumber(marker, "radius", `beam diagram config.angleMarkers[${index}]`),
+              startAngleDeg: requireNumber(marker, "startAngleDeg", `beam diagram config.angleMarkers[${index}]`),
+              endAngleDeg: requireNumber(marker, "endAngleDeg", `beam diagram config.angleMarkers[${index}]`),
+              labelOffset: parseOffset(marker.labelOffset, `beam diagram config.angleMarkers[${index}].labelOffset`),
+              fontSize: requireNumber(marker, "fontSize", `beam diagram config.angleMarkers[${index}]`),
+              ...(color === undefined ? {} : { color }),
             };
           }),
     pointLabels: requireArray(record, "pointLabels", "beam diagram config").map((item, index) => {
@@ -362,39 +418,41 @@ export const BeamDiagramLayer = ({
   const beamEnd = worldToCanvas(findPoint(problem, diagramConfig.beam.endPointId));
   const isFreeBody = mode === "explain";
   const usesAuthoredCanvasState = canvasState !== undefined && (mode === "explain" || mode === "practice");
-  const highlightedIds = new Set(canvasState?.highlightedObjects ?? []);
-  const dimmedIds = new Set(canvasState?.dimmedObjects ?? []);
-  const visibleIds = new Set(canvasState?.visibleObjects ?? []);
-  const solvedIds = new Set(canvasState?.solvedObjects ?? []);
+  const overlayState = createOverlayState({ canvasState, selectedObjectIds });
   const selectableIds = new Set(selectableObjectIds);
-  const selectedIds = new Set(selectedObjectIds);
-  const interactivePointIds = new Set([...selectableIds, ...selectedIds].filter((id) => problem.points.some((point) => point.id === id)));
-  const highlightColor = "#0d9488";
-  const dimOpacity = 0.28;
-  const getStroke = (objectId: string, fallback: string) =>
-    highlightedIds.has(objectId) || selectedIds.has(objectId) || solvedIds.has(objectId) ? highlightColor : fallback;
-  const getOpacity = (objectId: string) => (dimmedIds.has(objectId) ? dimOpacity : 1);
+  const interactivePointIds = new Set(
+    [...selectableIds, ...overlayState.selectedIds].filter((id) => problem.points.some((point) => point.id === id)),
+  );
   const shouldShowReaction = (reactionId: string) =>
-    usesAuthoredCanvasState
-      ? visibleIds.has(reactionId) || canvasState?.solvedValues?.[reactionId] !== undefined
-      : isFreeBody;
+    usesAuthoredCanvasState ? overlayState.isVisibleOrSolved(reactionId) : isFreeBody;
   const shouldShowOverlay = (objectId: string) =>
     usesAuthoredCanvasState
-      ? visibleIds.has(objectId) || highlightedIds.has(objectId) || solvedIds.has(objectId)
+      ? overlayState.isVisibleOrSolved(objectId) || overlayState.importantIds.has(objectId)
       : isFreeBody;
+  const supportReactionIds = (supportId: string) =>
+    problem.unknownReactions.filter((reaction) => reaction.supportId === supportId).map((reaction) => reaction.id);
+  const shouldShowSupport = (supportId: string) =>
+    !isFreeBody && !supportReactionIds(supportId).some((reactionId) => shouldShowReaction(reactionId));
+  const beamPresentation = {
+    ...overlayState.getPresentation(diagramConfig.beam.bodyId, diagramColors.neutral),
+    opacity: 1,
+  };
 
   const supportLayer = !isFreeBody ? (
     <>
       {diagramConfig.supports.map((supportAnnotation) => {
+        if (!shouldShowSupport(supportAnnotation.supportId)) {
+          return null;
+        }
         const support = findSupport(problem, supportAnnotation.supportId);
-        const stroke = getStroke(supportAnnotation.supportId, "#111111");
+        const presentation = overlayState.getPresentation(supportAnnotation.supportId, diagramColors.neutral);
         return (
           <SupportSymbol
             key={supportAnnotation.supportId}
             kind={support.kind}
             point={worldToCanvas(findPoint(problem, supportAnnotation.pointId))}
-            stroke={stroke}
-            opacity={getOpacity(supportAnnotation.supportId)}
+            stroke={presentation.color}
+            opacity={presentation.opacity}
           />
         );
       })}
@@ -405,28 +463,44 @@ export const BeamDiagramLayer = ({
     <Layer>
       <Line
         points={[beamStart.x, beamStart.y, beamEnd.x, beamEnd.y]}
-        stroke={getStroke(diagramConfig.beam.bodyId, "#111111")}
+        stroke={beamPresentation.color}
         strokeWidth={4}
         lineCap="round"
-        opacity={getOpacity(diagramConfig.beam.bodyId)}
+        opacity={beamPresentation.opacity}
       />
-      <Circle x={beamStart.x} y={beamStart.y} radius={5} fill="#fbfaf5" stroke="#111111" strokeWidth={1.5} />
-      <Circle x={beamEnd.x} y={beamEnd.y} radius={5} fill="#fbfaf5" stroke="#111111" strokeWidth={1.5} />
+      <Circle
+        x={beamStart.x}
+        y={beamStart.y}
+        radius={5}
+        fill={diagramColors.paper}
+        stroke={diagramColors.neutral}
+        strokeWidth={1.5}
+        opacity={overlayState.getPresentation(diagramConfig.beam.startPointId, diagramColors.neutral).opacity}
+      />
+      <Circle
+        x={beamEnd.x}
+        y={beamEnd.y}
+        radius={5}
+        fill={diagramColors.paper}
+        stroke={diagramColors.neutral}
+        strokeWidth={1.5}
+        opacity={overlayState.getPresentation(diagramConfig.beam.endPointId, diagramColors.neutral).opacity}
+      />
 
       {diagramConfig.loadArrows.map((loadArrow) => {
         const load = findLoad(problem, loadArrow.loadId);
         const loadPoint = worldToCanvas(findPoint(problem, loadArrow.pointId));
-        const color = getStroke(loadArrow.loadId, loadArrow.color);
+        const presentation = overlayState.getPresentation(loadArrow.loadId, loadArrow.color ?? diagramColors.externalForce);
         return (
           <ForceArrow
             key={loadArrow.loadId}
             start={offsetPoint(loadPoint, loadArrow.tailOffset)}
             end={offsetPoint(loadPoint, loadArrow.tipOffset)}
             label={load.label}
-            color={color}
+            color={presentation.color}
             labelOffset={loadArrow.labelOffset}
             fontSize={loadArrow.fontSize}
-            opacity={getOpacity(loadArrow.loadId)}
+            opacity={presentation.opacity}
           />
         );
       })}
@@ -438,18 +512,21 @@ export const BeamDiagramLayer = ({
           return null;
         }
         const point = worldToCanvas(findPoint(problem, overlayArrow.pointId));
-        const color = getStroke(overlayArrow.id, overlayArrow.color);
+        const presentation = overlayState.getPresentation(
+          overlayArrow.id,
+          overlayArrow.color ?? diagramColors.externalForceComponent,
+        );
         return (
           <ForceArrow
             key={overlayArrow.id}
             start={offsetPoint(point, overlayArrow.tailOffset)}
             end={offsetPoint(point, overlayArrow.tipOffset)}
             label={getOverlayLabel(problem, overlayArrow)}
-            color={color}
+            color={presentation.color}
             labelOffset={overlayArrow.labelOffset}
             fontSize={overlayArrow.fontSize}
-            {...(overlayArrow.strokeWidth === undefined ? {} : { strokeWidth: overlayArrow.strokeWidth })}
-            opacity={getOpacity(overlayArrow.id)}
+            strokeWidth={overlayArrow.strokeWidth ?? 2.5}
+            opacity={presentation.opacity}
           />
         );
       })}
@@ -461,26 +538,49 @@ export const BeamDiagramLayer = ({
         const point = worldToCanvas(findPoint(problem, marker.pointId));
         const markerPoints = marker.offsets.flatMap((offset) => [point.x + offset.x, point.y + offset.y]);
         const labelPoint = offsetPoint(point, marker.labelOffset);
-        const color = getStroke(marker.id, marker.color);
+        const presentation = overlayState.getPresentation(marker.id, marker.color ?? diagramColors.neutralSoft);
         return (
           <Fragment key={marker.id}>
             <Line
               points={markerPoints}
-              stroke={color}
+              stroke={presentation.color}
               strokeWidth={2}
               lineCap="round"
               lineJoin="round"
-              opacity={getOpacity(marker.id)}
+              opacity={presentation.opacity}
             />
             <Label
               x={labelPoint.x}
               y={labelPoint.y}
               text={marker.label}
-              fill={color}
+              fill={presentation.color}
               fontSize={marker.fontSize}
               fontStyle="500"
+              opacity={presentation.opacity}
             />
           </Fragment>
+        );
+      })}
+
+      {diagramConfig.angleMarkers.map((marker) => {
+        if (!shouldShowOverlay(marker.id)) {
+          return null;
+        }
+        const point = worldToCanvas(findPoint(problem, marker.pointId));
+        const presentation = overlayState.getPresentation(marker.id, marker.color ?? diagramColors.neutralSoft);
+        return (
+          <AngleMarker
+            key={marker.id}
+            center={point}
+            radius={marker.radius}
+            startAngleDeg={marker.startAngleDeg}
+            endAngleDeg={marker.endAngleDeg}
+            label={marker.label}
+            labelOffset={marker.labelOffset}
+            color={presentation.color}
+            fontSize={marker.fontSize}
+            opacity={presentation.opacity}
+          />
         );
       })}
 
@@ -491,17 +591,20 @@ export const BeamDiagramLayer = ({
               return null;
             }
             const reactionPoint = worldToCanvas(findPoint(problem, reactionArrow.pointId));
-            const color = getStroke(reactionArrow.reactionId, reactionArrow.color);
+            const presentation = overlayState.getPresentation(
+              reactionArrow.reactionId,
+              reactionArrow.color ?? diagramColors.reactionForce,
+            );
             return (
               <ForceArrow
                 key={reactionArrow.reactionId}
                 start={offsetPoint(reactionPoint, reactionArrow.tailOffset)}
                 end={offsetPoint(reactionPoint, reactionArrow.tipOffset)}
-                label={canvasState?.solvedValues?.[reactionArrow.reactionId] ?? findReactionLabel(problem, solverResult, reactionArrow.reactionId)}
-                color={color}
+                label={findReactionLabel(problem, solverResult, reactionArrow.reactionId)}
+                color={presentation.color}
                 labelOffset={reactionArrow.labelOffset}
                 fontSize={reactionArrow.fontSize}
-                opacity={getOpacity(reactionArrow.reactionId)}
+                opacity={presentation.opacity}
               />
             );
           })}
@@ -511,21 +614,24 @@ export const BeamDiagramLayer = ({
       {diagramConfig.pointLabels.map((pointLabel) => {
         const point = worldToCanvas(findPoint(problem, pointLabel.pointId));
         const labelPoint = offsetPoint(point, pointLabel.offset);
+        const presentation = overlayState.getPresentation(pointLabel.pointId, diagramColors.neutral);
         return (
           <Label
             key={`${pointLabel.pointId}-${pointLabel.text}`}
             x={labelPoint.x}
             y={labelPoint.y}
             text={pointLabel.text}
-            fill={getStroke(pointLabel.pointId, "#17201a")}
+            fill={presentation.color}
             fontSize={pointLabel.fontSize}
             fontStyle="400"
+            opacity={presentation.opacity}
           />
         );
       })}
 
       {diagramConfig.dimensions.map((dimension) => {
         const dimensionId = dimension.id ?? `${dimension.startPointId}-${dimension.endPointId}-${dimension.label}`;
+        const presentation = overlayState.getPresentation(dimensionId, diagramColors.neutral);
         return (
           <DimensionLine
             key={dimensionId}
@@ -533,25 +639,26 @@ export const BeamDiagramLayer = ({
             end={worldToCanvas(findPoint(problem, dimension.endPointId))}
             label={dimension.label}
             {...(dimension.yOffset === undefined ? {} : { yOffset: dimension.yOffset })}
-            color={getStroke(dimensionId, "#111111")}
-            opacity={getOpacity(dimensionId)}
+            color={presentation.color}
+            opacity={presentation.opacity}
           />
         );
       })}
 
       {[...interactivePointIds].map((pointId) => {
         const point = worldToCanvas(findPoint(problem, pointId));
-        const isSelected = selectedIds.has(pointId);
-        const isHighlighted = highlightedIds.has(pointId);
+        const presentation = overlayState.getPresentation(pointId, diagramColors.selection);
+        const isSelected = presentation.isSelected;
+        const isImportant = presentation.isImportant;
         return (
           <Circle
             key={`hit-${pointId}`}
             x={point.x}
             y={point.y}
-            radius={isSelected || isHighlighted ? 19 : 15}
-            fill={isSelected ? "rgba(13, 148, 136, 0.16)" : "rgba(13, 148, 136, 0.04)"}
-            stroke={isSelected || isHighlighted ? highlightColor : "rgba(13, 148, 136, 0.55)"}
-            strokeWidth={isSelected || isHighlighted ? 3 : 1.5}
+            radius={isSelected || isImportant ? 19 : 15}
+            fill={isSelected ? "rgba(0, 106, 97, 0.16)" : "rgba(0, 106, 97, 0.04)"}
+            stroke={isSelected || isImportant ? diagramColors.selection : "rgba(0, 106, 97, 0.55)"}
+            strokeWidth={isSelected || isImportant ? 3 : 1.5}
             onClick={() => onObjectSelect?.(pointId)}
             onTap={() => onObjectSelect?.(pointId)}
           />
