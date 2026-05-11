@@ -7,6 +7,7 @@ export type ContentBlock =
       type: "math";
       latex: string;
       display?: "block" | "inline";
+      tone?: "default" | "result";
     }>
   | Readonly<{
       type: "list";

@@ -1,9 +1,7 @@
 import type { SolutionStep } from "../../mechanics/model/types";
-import type { SolverResult } from "../../mechanics/solvers/equilibrium2D/types";
 import type { SolutionContent } from "../../mechanics/explanation/types";
 import { EquationBlock } from "./EquationBlock";
 import { ArrowLeft, ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
-import { ResultSummary } from "../results/ResultSummary";
 import { useI18n } from "../../i18n/I18nProvider";
 import { ContentBlockRenderer } from "../content/ContentBlockRenderer";
 import { StepProgress } from "../layout/StepProgress";
@@ -12,12 +10,11 @@ type SolutionPanelProps = Readonly<{
   eyebrow: string;
   solution: SolutionContent;
   steps: readonly SolutionStep[];
-  solverResult: SolverResult;
   activeStepIndex: number;
   onStepChange: (stepIndex: number) => void;
 }>;
 
-export const SolutionPanel = ({ eyebrow, solution, steps, solverResult, activeStepIndex, onStepChange }: SolutionPanelProps) => {
+export const SolutionPanel = ({ eyebrow, solution, steps, activeStepIndex, onStepChange }: SolutionPanelProps) => {
   const { t } = useI18n();
   const activeStep = steps[activeStepIndex];
   const isFirstStep = activeStepIndex === 0;
@@ -53,12 +50,6 @@ export const SolutionPanel = ({ eyebrow, solution, steps, solverResult, activeSt
             </div>
           ) : null}
         </article>
-
-        {isLastStep ? (
-          <div className="mt-8">
-            <ResultSummary result={solverResult} title={solution.resultSummaryTitle} />
-          </div>
-        ) : null}
 
         <section className="mt-8 rounded-lg border border-line/80 bg-white p-6">
           <h3 className="technical-label text-steel">{t("solution.assumptions")}</h3>

@@ -32,6 +32,7 @@ export const buildSolutionSteps = (
       id: step.id,
       title: step.title,
       body: step.body,
+      ...(step.canvasState === undefined ? {} : { canvasState: step.canvasState }),
     };
 
     return equations === undefined ? solutionStep : { ...solutionStep, equations };

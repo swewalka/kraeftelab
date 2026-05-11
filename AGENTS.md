@@ -4,7 +4,7 @@
 
 KraefteLab is an interactive mechanics learning app for students. It combines visual mechanics problems, step-by-step solution explanations, and interactive practice workflows.
 
-The project should stay extensible beyond the current beam examples. Future content may include support reactions, angled forces, friction, internal forces, multi-body systems, hydrostatics, and other mechanics topics.
+The project should stay extensible beyond the current beam examples. Future content may include support reactions, angled forces, distributed loads, friction, internal forces, multi-body systems, and other mechanics topics.
 
 German (`de`) and English (`en`) are supported. German is the default language.
 
@@ -20,6 +20,7 @@ Relevant context files:
 - `ARCHITECTURE.md` — application structure, boundaries, and data flow
 - `CONTENT_SCHEMA.md` — problem/content format and validation expectations
 - `DESIGN.md` — visual and UX rules, when present
+- `TODO.md` — durable next-step backlog and known follow-up work
 - `docs/agent-reports/` — implementation, review, and architecture reports written by agents
 
 If these files conflict, prefer the more specific file. For example, `CONTENT_SCHEMA.md` overrides generic content advice in this file.
@@ -125,6 +126,9 @@ Display formatting may use student-friendly units such as `kN` or `kN m`, but st
 ## Context File Maintenance
 
 After any substantial feature, refactor, architecture change, schema change, solver change, renderer change, or UX pattern change, check whether the context files need updates.
+
+Also check `TODO.md`. If a substantial task completes an item listed there, delete that item from
+`TODO.md` in the same change so the backlog stays current.
 
 Update context files when the change introduces or modifies:
 

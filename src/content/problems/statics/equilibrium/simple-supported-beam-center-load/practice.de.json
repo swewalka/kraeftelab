@@ -526,7 +526,12 @@
         "correctOptionId": "all-equations"
       },
       "feedback": {
-        "correct": "Die Lösung erfüllt alle Gleichgewichtsbedingungen. Wegen der Symmetrie tragen beide vertikalen Lagerreaktionen je die Hälfte der Last.",
+        "correct": [
+          { "type": "paragraph", "text": "Die Lösung erfüllt alle Gleichgewichtsbedingungen. Die finalen Lagerkräfte sind:" },
+          { "type": "math", "latex": "A_x = 0", "tone": "result" },
+          { "type": "math", "latex": "B_y = \\frac{F}{2}", "tone": "result" },
+          { "type": "math", "latex": "A_y = \\frac{F}{2}", "tone": "result" }
+        ],
         "genericIncorrect": "Eine Statiklösung muss Kräftegleichgewicht und Momentengleichgewicht erfüllen.",
         "mistakes": [
           { "id": "selected:vertical-only", "text": "Das vertikale Kräftegleichgewicht ist notwendig, aber auch das Momentengleichgewicht muss erfüllt sein." },

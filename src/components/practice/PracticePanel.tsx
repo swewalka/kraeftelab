@@ -108,6 +108,23 @@ export const PracticePanel = ({ eyebrow, practice, session, onSessionChange }: P
     }
   };
 
+  const debugAdvance = () => {
+    const validation: ValidationResult = {
+      isCorrect: true,
+      feedbackMessages: activeStep.feedback.correct,
+    };
+    setValidationByStep({ ...validationByStep, [activeStep.id]: validation });
+    onSessionChange({
+      ...session,
+      currentStepId: nextStep?.id ?? activeStep.id,
+      stepStatuses: {
+        ...session.stepStatuses,
+        [activeStep.id]: "completed",
+        ...(nextStep === undefined ? {} : { [nextStep.id]: "active" }),
+      },
+    });
+  };
+
   const attempts = session.attempts[activeStep.id] ?? 0;
   const isActiveStepCompleted = session.stepStatuses[activeStep.id] === "completed";
 
@@ -215,6 +232,14 @@ export const PracticePanel = ({ eyebrow, practice, session, onSessionChange }: P
             <ArrowRight className="h-5 w-5" aria-hidden="true" />
           </button>
         )}
+        <button
+          type="button"
+          className="ui-focus flex h-12 items-center justify-center gap-2 rounded border border-dashed border-signal/70 bg-white px-4 font-display text-sm font-semibold text-signal transition hover:bg-signalMist"
+          onClick={debugAdvance}
+        >
+          {t("practice.debugNext")}
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </button>
         <button
           type="button"
           className="ui-focus flex h-14 items-center justify-center gap-2 rounded border border-black bg-transparent px-4 font-display text-lg font-medium text-black transition hover:bg-white"

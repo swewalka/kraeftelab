@@ -1,5 +1,6 @@
 import type { Vector2 } from "../core/vector";
 import type { ContentBlock } from "../content/types";
+import type { CanvasState } from "./canvasState";
 
 export type PointDefinition = Readonly<{
   id: string;
@@ -76,16 +77,12 @@ export type ParameterDefinition = Readonly<{
 export type SolverEquation = Readonly<{
   id: string;
   symbolic: string;
-  substituted: string;
-  solved?: string;
 }>;
 
 export type EquilibriumEquation = Readonly<{
   id: string;
   title: string;
   symbolic: string;
-  substituted: string;
-  solved?: string;
   explanation: readonly ContentBlock[];
 }>;
 
@@ -94,4 +91,5 @@ export type SolutionStep = Readonly<{
   title: string;
   body: readonly ContentBlock[];
   equations?: readonly EquilibriumEquation[];
+  canvasState?: CanvasState;
 }>;

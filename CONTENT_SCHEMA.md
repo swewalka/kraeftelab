@@ -55,6 +55,31 @@ Beam reaction solver config must define:
 Solver config references are validated during content registration, including equation ids from
 the solution content.
 
+## Solution content
+
+Solution content is for symbolic guided explanation. It should use variables and symbolic
+relationships, not numeric substitutions or numeric result summaries. Numeric parameter values may
+remain in problem definitions for mechanics checks and future Explore-mode displays.
+
+Math content blocks may set `tone: "result"` for final answer formulas such as final support
+reactions. Use this only for final results, not intermediate equations.
+
+## Canvas state
+
+Solution steps and practice steps may define `canvasState` to drive diagram visibility and
+highlighting.
+
+Canvas state may define:
+- `visibleObjects`
+- `highlightedObjects`
+- `dimmedObjects`
+- `annotations`
+- `solvedValues`, keyed by canvas object id
+- `solvedObjects`
+
+Solution-step canvas states are self-contained. They are not cumulative unless the content repeats
+previously revealed objects, solved objects, or solved values in the later step.
+
 ## Practice semantics
 
 Equation-builder terms may include `semantic.componentId`. When present, the component id must
@@ -70,7 +95,7 @@ Problem registration compares `en` and `de` mechanics-critical structure. Keep t
 - ids and numeric values for parameters, points, bodies, supports, loads, reactions, and
   force decompositions
 - solver config and generated equation ids
-- solution equation ids and step ids
+- solution equation ids, step ids, and canvas object id arrays
 - practice step ids, interaction ids, expected equation semantics, correct ids, and canvas object
   id arrays
 - diagram object references such as load ids, reaction ids, component ids, point ids, and dimension

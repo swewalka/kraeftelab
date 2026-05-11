@@ -44,7 +44,7 @@ export const ContentBlockRenderer = ({
             <MathInline latex={block.latex} />
           </span>
         ) : (
-          <MathBlock key={`${block.latex}-${index}`} latex={block.latex} />
+          <MathBlock key={`${block.latex}-${index}`} latex={block.latex} {...(block.tone === undefined ? {} : { tone: block.tone })} />
         );
       }
 

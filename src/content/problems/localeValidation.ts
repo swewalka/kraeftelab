@@ -1,4 +1,5 @@
 import type { LoadedProblemContent } from "./types";
+import type { CanvasState } from "../../mechanics/model/canvasState";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -9,7 +10,7 @@ const snapshot = (value: unknown): string => JSON.stringify(value);
 
 const ids = (items: readonly { id: string }[]) => items.map((item) => item.id);
 
-const canvasStateSnapshot = (canvasState: LoadedProblemContent["practice"]["steps"][number]["canvasState"]) => ({
+const canvasStateSnapshot = (canvasState: CanvasState | undefined) => ({
   visibleObjects: canvasState?.visibleObjects ?? [],
   highlightedObjects: canvasState?.highlightedObjects ?? [],
   dimmedObjects: canvasState?.dimmedObjects ?? [],
@@ -167,6 +168,7 @@ const mechanicsSnapshot = (content: LoadedProblemContent) => ({
     steps: content.solution.steps.map((step) => ({
       id: step.id,
       equationIds: step.equationIds ?? [],
+      canvasState: canvasStateSnapshot(step.canvasState),
     })),
   },
   practice: {

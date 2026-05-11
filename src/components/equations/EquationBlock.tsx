@@ -11,8 +11,6 @@ export const EquationBlock = ({ equation }: EquationBlockProps) => (
     <h4 className="font-display text-lg font-semibold text-black">{equation.title}</h4>
     <div className="mt-4">
       <MathBlock latex={equation.symbolic} />
-      <MathBlock latex={equation.substituted} />
-      {equation.solved ? <MathBlock latex={equation.solved} tone="success" /> : null}
     </div>
     <ContentBlockRenderer blocks={equation.explanation} className="mt-4 space-y-3" paragraphClassName="text-base leading-7 text-steel" />
   </article>

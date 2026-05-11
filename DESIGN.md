@@ -175,6 +175,8 @@ Containers for problem statements. Use a white background, 1px border, and 24px 
 ### Math Blocks
 Equations are housed in containers with a subtle #F8FAFC background. The monospaced font should be centered, with ample vertical breathing room (16px top/bottom).
 
+Final result formulas, such as final support reactions, use a distinct result math block treatment with a teal accent and subtle success-tinted background. This treatment should be reserved for final answers, not ordinary derivation steps.
+
 ### Buttons
 - **Primary ('Check'):** Solid #1A1A1A background with white text. High-contrast and authoritative.
 - **Secondary:** Outlined 1px #1A1A1A. Transparent background.

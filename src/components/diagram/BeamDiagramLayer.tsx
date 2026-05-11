@@ -361,6 +361,7 @@ export const BeamDiagramLayer = ({
   const beamStart = worldToCanvas(findPoint(problem, diagramConfig.beam.startPointId));
   const beamEnd = worldToCanvas(findPoint(problem, diagramConfig.beam.endPointId));
   const isFreeBody = mode === "explain";
+  const usesAuthoredCanvasState = canvasState !== undefined && (mode === "explain" || mode === "practice");
   const highlightedIds = new Set(canvasState?.highlightedObjects ?? []);
   const dimmedIds = new Set(canvasState?.dimmedObjects ?? []);
   const visibleIds = new Set(canvasState?.visibleObjects ?? []);
@@ -374,9 +375,13 @@ export const BeamDiagramLayer = ({
     highlightedIds.has(objectId) || selectedIds.has(objectId) || solvedIds.has(objectId) ? highlightColor : fallback;
   const getOpacity = (objectId: string) => (dimmedIds.has(objectId) ? dimOpacity : 1);
   const shouldShowReaction = (reactionId: string) =>
-    isFreeBody || mode === "practice" && (visibleIds.has(reactionId) || canvasState?.solvedValues?.[reactionId] !== undefined);
+    usesAuthoredCanvasState
+      ? visibleIds.has(reactionId) || canvasState?.solvedValues?.[reactionId] !== undefined
+      : isFreeBody;
   const shouldShowOverlay = (objectId: string) =>
-    isFreeBody || visibleIds.has(objectId) || highlightedIds.has(objectId) || solvedIds.has(objectId);
+    usesAuthoredCanvasState
+      ? visibleIds.has(objectId) || highlightedIds.has(objectId) || solvedIds.has(objectId)
+      : isFreeBody;
 
   const supportLayer = !isFreeBody ? (
     <>

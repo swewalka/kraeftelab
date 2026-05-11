@@ -29,7 +29,9 @@ export const App = () => {
   const stageLabel = activeMode === "explain" ? diagram.stageLabels.solution : diagram.stageLabels.default;
   const canvasMode: AppMode = activeMode === "explain" && activeStepIndex === 0 ? "explore" : activeMode;
   const activePracticeStep = getActivePracticeStep(practice, practiceSession);
+  const solutionCanvasState = activeMode === "explain" ? solutionSteps[activeStepIndex]?.canvasState : undefined;
   const practiceCanvasState = activeMode === "practice" ? buildPracticeCanvasState(practice, practiceSession) : undefined;
+  const activeCanvasState = activeMode === "practice" ? practiceCanvasState : solutionCanvasState;
   const selectableObjectIds = activeMode === "practice" ? getCurrentCanvasSelectableIds(activePracticeStep) : [];
   const canvasAnswer = activePracticeStep?.interaction.type === "canvas-click" ? practiceSession.answers[activePracticeStep.id] : undefined;
   const selectedObjectIds =
@@ -98,7 +100,7 @@ export const App = () => {
           diagram={diagram}
           mode={canvasMode}
           stageLabel={stageLabel}
-          canvasState={practiceCanvasState}
+          canvasState={activeCanvasState}
           selectableObjectIds={selectableObjectIds}
           selectedObjectIds={selectedObjectIds}
           onObjectSelect={handleCanvasObjectSelect}
@@ -130,7 +132,6 @@ export const App = () => {
               eyebrow={topicEyebrow}
               solution={solution}
               steps={solutionSteps}
-              solverResult={solverResult}
               activeStepIndex={activeStepIndex}
               onStepChange={setActiveStepIndex}
             />

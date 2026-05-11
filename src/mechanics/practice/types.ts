@@ -1,4 +1,5 @@
 import type { ContentBlock } from "../content/types";
+import type { CanvasState } from "../model/canvasState";
 
 export type PracticeSessionState = Readonly<{
   currentStepId: string;
@@ -8,14 +9,7 @@ export type PracticeSessionState = Readonly<{
   revealedHints: Record<string, number>;
 }>;
 
-export type PracticeCanvasState = Readonly<{
-  visibleObjects?: readonly string[];
-  highlightedObjects?: readonly string[];
-  dimmedObjects?: readonly string[];
-  annotations?: readonly string[];
-  solvedValues?: Record<string, string>;
-  solvedObjects?: readonly string[];
-}>;
+export type PracticeCanvasState = CanvasState;
 
 export type MistakeFeedback = Readonly<{
   id: string;

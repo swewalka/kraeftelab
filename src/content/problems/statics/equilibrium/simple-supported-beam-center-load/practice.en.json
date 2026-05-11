@@ -526,7 +526,12 @@
         "correctOptionId": "all-equations"
       },
       "feedback": {
-        "correct": "The solution satisfies all equilibrium equations. Because the problem is symmetric, both vertical support reactions carry half of the load.",
+        "correct": [
+          { "type": "paragraph", "text": "The solution satisfies all equilibrium equations. The final support reactions are:" },
+          { "type": "math", "latex": "A_x = 0", "tone": "result" },
+          { "type": "math", "latex": "B_y = \\frac{F}{2}", "tone": "result" },
+          { "type": "math", "latex": "A_y = \\frac{F}{2}", "tone": "result" }
+        ],
         "genericIncorrect": "A statics solution must satisfy force equilibrium and moment equilibrium.",
         "mistakes": [
           { "id": "selected:vertical-only", "text": "Vertical force equilibrium is necessary, but moment equilibrium must also be satisfied." },

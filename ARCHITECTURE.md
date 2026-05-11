@@ -4,8 +4,8 @@
 
 Problem folders export localized `en` and `de` content through `parseLoadedProblemContent`.
 Parsing validates the generic problem shape, force-decomposition contracts, typed solver config,
-solution equation ids, practice component references, and diagram keys before the content reaches
-the app.
+solution equation ids, solution/practice canvas state, practice component references, and diagram
+keys before the content reaches the app.
 
 `src/content/problems/catalog.ts` registers localized problem pairs and runs strict mechanics
 alignment checks between English and German. Locale validation compares ids, numeric mechanics
@@ -27,6 +27,11 @@ Solver config is typed at registration time. The current beam reaction solver us
 decomposition id, beam length/load magnitude/load position parameters, reaction ids, and generated
 equation ids. Solvers should consume typed config only; they should not parse raw JSON.
 
+Solve and Practice modes present symbolic variable-based mechanics. Solver-generated equation
+content consumed by Solve mode must remain symbolic and must not substitute numeric parameter
+values. Numeric parameter values and formatted numeric results are reserved for Explore-mode
+behavior.
+
 ## UI and diagrams
 
 React components render already-parsed content and solver results. They should not contain curated
@@ -34,4 +39,10 @@ mechanics solution facts.
 
 The beam diagram renderer remains beam-specific, but its decomposition overlay labels can now be
 resolved from force component ids. Diagram files still own drawing offsets, colors, and visibility
-ids. Practice mode controls canvas visibility/highlighting through per-step canvas state.
+ids.
+
+Solve and Practice mode share the same neutral canvas-state contract for visible objects,
+highlights, dimming, solved objects, and solved value labels. Solve mode consumes authored
+per-solution-step canvas state directly. Practice mode builds its canvas state from the active
+practice step plus completed-step success results; interaction, validation, hints, and accumulated
+progress remain practice-specific.

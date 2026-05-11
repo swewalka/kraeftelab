@@ -34,6 +34,7 @@ export type TranslationKey =
   | "practice.tryAgain"
   | "practice.hints"
   | "practice.showStepSolution"
+  | "practice.debugNext"
   | "practice.canvasClickPrompt"
   | "practice.noCanvasSelection"
   | "practice.selectPlaceholder"
@@ -78,6 +79,7 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "practice.tryAgain": "Check this step",
     "practice.hints": "Hints",
     "practice.showStepSolution": "Show solution for this step",
+    "practice.debugNext": "Debug: next",
     "practice.canvasClickPrompt": "Select the object directly in the canvas.",
     "practice.noCanvasSelection": "Nothing selected yet.",
     "practice.selectPlaceholder": "Choose...",
@@ -121,6 +123,7 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "practice.tryAgain": "Prüfe diesen Schritt",
     "practice.hints": "Hinweise",
     "practice.showStepSolution": "Lösung für diesen Schritt zeigen",
+    "practice.debugNext": "Debug: Weiter",
     "practice.canvasClickPrompt": "Wähle das Objekt direkt in der Zeichenfläche aus.",
     "practice.noCanvasSelection": "Noch nichts ausgewählt.",
     "practice.selectPlaceholder": "Auswählen...",

@@ -1,6 +1,6 @@
 import type { ProblemDefinition } from "../../model/problemDefinition";
 import type { BeamReactionSolverConfig } from "../../model/solverConfig";
-import type { ForceDecomposition, LoadDefinition, SolverEquation } from "../../model/types";
+import type { ForceDecomposition, LoadDefinition, ParameterDefinition, SolverEquation } from "../../model/types";
 import { resolveForceDecomposition } from "../../core/forceDecomposition";
 
 export type BeamReactionEquationIds = Readonly<{
@@ -10,12 +10,11 @@ export type BeamReactionEquationIds = Readonly<{
 }>;
 
 export type BeamEquationInput = Readonly<{
-  beamLength: number;
-  loadMagnitude: number;
-  loadPosition: number;
-  loadAngleDegrees?: number;
-  horizontalLoad: number;
-  verticalLoadMagnitude: number;
+  beamLengthLabel: string;
+  loadMagnitudeLabel: string;
+  loadPositionLabel: string;
+  horizontalLoadLatex?: string;
+  verticalLoadLatex?: string;
   horizontalReactionLabel: string;
   leftVerticalReactionLabel: string;
   rightVerticalReactionLabel: string;
@@ -25,12 +24,12 @@ export type BeamEquationInput = Readonly<{
   equationIds: BeamReactionEquationIds;
 }>;
 
-const getParameterValue = (problem: ProblemDefinition, parameterId: string): number => {
-  const value = problem.parameters.find((parameter) => parameter.id === parameterId)?.value;
-  if (value === undefined) {
+const getParameter = (problem: ProblemDefinition, parameterId: string): ParameterDefinition => {
+  const parameter = problem.parameters.find((candidate) => candidate.id === parameterId);
+  if (!parameter) {
     throw new Error(`Beam reaction solver requires parameter "${parameterId}".`);
   }
-  return value;
+  return parameter;
 };
 
 const getLoad = (problem: ProblemDefinition, loadId: string): LoadDefinition => {
@@ -57,45 +56,43 @@ const getReactionLabel = (problem: ProblemDefinition, reactionId: string): strin
   return reaction.label;
 };
 
-const unit = (name: "N" | "m") => `\\,\\mathrm{${name}}`;
-
-const formatNumber = (value: number): string => Number.parseFloat(value.toFixed(3)).toString();
-
 export const getBeamEquationValues = (
   problem: ProblemDefinition,
   config: BeamReactionSolverConfig,
 ): BeamEquationInput => {
-  const beamLength = getParameterValue(problem, config.beamLengthParameterId);
-  const loadMagnitude = getParameterValue(problem, config.loadMagnitudeParameterId);
-  const loadPosition = getParameterValue(problem, config.loadPositionParameterId);
+  const beamLengthParameter = getParameter(problem, config.beamLengthParameterId);
+  const loadMagnitudeParameter = getParameter(problem, config.loadMagnitudeParameterId);
+  const loadPositionParameter = getParameter(problem, config.loadPositionParameterId);
   const load = getLoad(problem, config.loadId);
+  const forceDecomposition =
+    config.loadDecompositionId === undefined ? undefined : getForceDecomposition(problem, config.loadDecompositionId);
   const resolvedDecomposition =
-    config.loadDecompositionId === undefined
-      ? undefined
-      : resolveForceDecomposition(getForceDecomposition(problem, config.loadDecompositionId), problem.parameters);
-  const loadAngleDegrees = resolvedDecomposition?.angleDegrees;
+    forceDecomposition === undefined ? undefined : resolveForceDecomposition(forceDecomposition, problem.parameters);
 
-  if (beamLength <= 0) {
+  if (beamLengthParameter.value <= 0) {
     throw new Error("Beam reaction solver requires a positive beam length.");
   }
 
-  if (loadPosition < 0 || loadPosition > beamLength) {
+  if (loadPositionParameter.value < 0 || loadPositionParameter.value > beamLengthParameter.value) {
     throw new Error("Beam reaction solver requires the load position to lie on the beam span.");
   }
 
   const horizontalLoad = resolvedDecomposition?.components.x ?? load.vector.x;
   const verticalLoadMagnitude = Math.abs(resolvedDecomposition?.components.y ?? load.vector.y);
   const reactionAx = -horizontalLoad;
-  const reactionBy = (verticalLoadMagnitude * loadPosition) / beamLength;
+  const reactionBy = (verticalLoadMagnitude * loadPositionParameter.value) / beamLengthParameter.value;
   const reactionAy = verticalLoadMagnitude - reactionBy;
 
   return {
-    beamLength,
-    loadMagnitude,
-    loadPosition,
-    ...(loadAngleDegrees === undefined ? {} : { loadAngleDegrees }),
-    horizontalLoad,
-    verticalLoadMagnitude,
+    beamLengthLabel: beamLengthParameter.label,
+    loadMagnitudeLabel: loadMagnitudeParameter.label,
+    loadPositionLabel: loadPositionParameter.label,
+    ...(forceDecomposition === undefined
+      ? {}
+      : {
+          horizontalLoadLatex: forceDecomposition.components.x.latex,
+          verticalLoadLatex: forceDecomposition.components.y.latex,
+        }),
     horizontalReactionLabel: getReactionLabel(problem, config.horizontalReactionId),
     leftVerticalReactionLabel: getReactionLabel(problem, config.leftVerticalReactionId),
     rightVerticalReactionLabel: getReactionLabel(problem, config.rightVerticalReactionId),
@@ -107,31 +104,22 @@ export const getBeamEquationValues = (
 };
 
 export const buildBeamReactionEquations = (input: BeamEquationInput): readonly SolverEquation[] => {
-  if (input.loadAngleDegrees !== undefined) {
-    const verticalLoad = formatNumber(input.verticalLoadMagnitude);
-    const horizontalLoad = formatNumber(input.horizontalLoad);
-    const reactionAx = formatNumber(input.reactionAx);
-    const reactionAy = formatNumber(input.reactionAy);
-    const reactionBy = formatNumber(input.reactionBy);
+  if (input.horizontalLoadLatex !== undefined && input.verticalLoadLatex !== undefined) {
+    const horizontalLoad = input.horizontalLoadLatex ?? input.loadMagnitudeLabel;
+    const verticalLoad = input.verticalLoadLatex ?? input.loadMagnitudeLabel;
 
     return [
       {
         id: input.equationIds.sumForceX,
-        symbolic: "\\sum F_x = 0",
-        substituted: `${input.horizontalReactionLabel} + ${input.loadMagnitude}${unit("N")} \\cos(${input.loadAngleDegrees}^{\\circ}) = 0`,
-        solved: `${input.horizontalReactionLabel} = -${horizontalLoad}${unit("N")} = ${reactionAx}${unit("N")}`,
+        symbolic: `${input.horizontalReactionLabel} + ${horizontalLoad} = 0`,
       },
       {
         id: input.equationIds.sumMomentAboutLeftSupport,
-        symbolic: "\\sum M_A = 0",
-        substituted: `${input.rightVerticalReactionLabel} \\cdot ${input.beamLength}${unit("m")} - ${input.loadMagnitude}${unit("N")} \\sin(${input.loadAngleDegrees}^{\\circ}) \\cdot ${input.loadPosition}${unit("m")} = 0`,
-        solved: `${input.rightVerticalReactionLabel} = \\frac{${verticalLoad}${unit("N")} \\cdot ${input.loadPosition}${unit("m")}}{${input.beamLength}${unit("m")}} = ${reactionBy}${unit("N")}`,
+        symbolic: `${input.rightVerticalReactionLabel} \\cdot ${input.beamLengthLabel} - ${verticalLoad} \\cdot ${input.loadPositionLabel} = 0`,
       },
       {
         id: input.equationIds.sumForceY,
-        symbolic: "\\sum F_y = 0",
-        substituted: `${input.leftVerticalReactionLabel} + ${reactionBy}${unit("N")} - ${verticalLoad}${unit("N")} = 0`,
-        solved: `${input.leftVerticalReactionLabel} = ${verticalLoad}${unit("N")} - ${reactionBy}${unit("N")} = ${reactionAy}${unit("N")}`,
+        symbolic: `${input.leftVerticalReactionLabel} + ${input.rightVerticalReactionLabel} - ${verticalLoad} = 0`,
       },
     ];
   }
@@ -139,21 +127,15 @@ export const buildBeamReactionEquations = (input: BeamEquationInput): readonly S
   return [
     {
       id: input.equationIds.sumForceX,
-      symbolic: "\\sum F_x = 0",
-      substituted: `${input.horizontalReactionLabel} = 0`,
-      solved: `${input.horizontalReactionLabel} = 0${unit("N")}`,
+      symbolic: `${input.horizontalReactionLabel} = 0`,
     },
     {
       id: input.equationIds.sumMomentAboutLeftSupport,
-      symbolic: "\\sum M_A = 0",
-      substituted: `${input.rightVerticalReactionLabel} \\cdot ${input.beamLength}${unit("m")} - ${input.loadMagnitude}${unit("N")} \\cdot ${input.loadPosition}${unit("m")} = 0`,
-      solved: `${input.rightVerticalReactionLabel} = \\frac{${input.loadMagnitude}${unit("N")} \\cdot ${input.loadPosition}${unit("m")}}{${input.beamLength}${unit("m")}} = ${input.reactionBy}${unit("N")}`,
+      symbolic: `${input.rightVerticalReactionLabel} \\cdot ${input.beamLengthLabel} - ${input.loadMagnitudeLabel} \\cdot ${input.loadPositionLabel} = 0`,
     },
     {
       id: input.equationIds.sumForceY,
-      symbolic: "\\sum F_y = 0",
-      substituted: `${input.leftVerticalReactionLabel} + ${input.reactionBy}${unit("N")} - ${input.loadMagnitude}${unit("N")} = 0`,
-      solved: `${input.leftVerticalReactionLabel} = ${input.loadMagnitude}${unit("N")} - ${input.reactionBy}${unit("N")} = ${input.reactionAy}${unit("N")}`,
+      symbolic: `${input.leftVerticalReactionLabel} + ${input.rightVerticalReactionLabel} - ${input.loadMagnitudeLabel} = 0`,
     },
   ];
 };

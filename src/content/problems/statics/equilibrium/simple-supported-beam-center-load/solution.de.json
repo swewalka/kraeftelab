@@ -1,7 +1,6 @@
 {
   "eyebrow": "Geführte Erklärung",
   "title": "Lagerreaktionen",
-  "resultSummaryTitle": "Finale Lagerkräfte",
   "assumptions": [
     "Das Eigengewicht des Balkens wird vernachlässigt.",
     "Die Lager sind idealisiert: A ist ein Festlager und B ist ein Loslager.",
@@ -36,16 +35,23 @@
       "title": "1. Unbekannte Lagerkräfte bestimmen",
       "body": [
         { "type": "paragraph", "text": "Lager A ist ein Festlager und kann daher $A_x$ und $A_y$ aufnehmen. Lager B ist ein Loslager und liefert nur $B_y$." }
-      ]
+      ],
+      "canvasState": {
+        "highlightedObjects": ["supportA", "supportB"]
+      }
     },
     {
       "id": "free-body",
       "title": "2. Lager durch Reaktionskräfte ersetzen",
       "body": [
-        { "type": "paragraph", "text": "Der Balken wird freigeschnitten. Die Last von 12 kN wirkt nach unten bei:" },
-        { "type": "math", "latex": "x = 3\\,\\mathrm{m}" },
+        { "type": "paragraph", "text": "Der Balken wird freigeschnitten. Die Last $F$ wirkt nach unten in der Mitte:" },
+        { "type": "math", "latex": "x_F = \\frac{L}{2}" },
         { "type": "paragraph", "text": "Die Lager werden durch ihre unbekannten Lagerkräfte ersetzt." }
-      ]
+      ],
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["reactionAx", "reactionAy", "reactionBy"]
+      }
     },
     {
       "id": "equilibrium-x",
@@ -53,18 +59,30 @@
       "body": [
         { "type": "paragraph", "text": "Es gibt keine eingeprägten horizontalen Kräfte, daher hat das Festlager keine horizontale Reaktionskraft." }
       ],
-      "equationIds": ["sum-force-x"]
+      "equationIds": ["sum-force-x"],
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["reactionAx"],
+        "solvedValues": { "reactionAx": "A_x = 0" },
+        "solvedObjects": ["reactionAx"]
+      }
     },
     {
       "id": "moment-a",
       "title": "4. Momentengleichgewicht um A bilden",
       "body": [
         { "type": "paragraph", "text": "Der Hebelarm von $B_y$ beträgt:" },
-        { "type": "math", "latex": "6\\,\\mathrm{m}" },
+        { "type": "math", "latex": "L" },
         { "type": "paragraph", "text": "Der Hebelarm der Last beträgt:" },
-        { "type": "math", "latex": "3\\,\\mathrm{m}" }
+        { "type": "math", "latex": "\\frac{L}{2}" }
       ],
-      "equationIds": ["sum-moment-a"]
+      "equationIds": ["sum-moment-a"],
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["pointA", "centerLoad", "reactionBy", "dimensionAtoLoad", "dimensionLoadToB"],
+        "solvedValues": { "reactionAx": "A_x = 0" },
+        "solvedObjects": ["reactionAx"]
+      }
     },
     {
       "id": "equilibrium-y",
@@ -72,14 +90,33 @@
       "body": [
         { "type": "paragraph", "text": "Die nach oben gerichteten Lagerkräfte müssen die nach unten gerichtete Einzellast ausgleichen." }
       ],
-      "equationIds": ["sum-force-y"]
+      "equationIds": ["sum-force-y"],
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["reactionAy", "reactionBy", "centerLoad"],
+        "solvedValues": { "reactionAx": "A_x = 0", "reactionBy": "B_y = F/2" },
+        "solvedObjects": ["reactionAx", "reactionBy"]
+      }
     },
     {
       "id": "summary",
       "title": "6. Lagerkräfte zusammenfassen",
       "body": [
-        { "type": "paragraph", "text": "Die finalen Lagerkräfte sind unten angeführt." }
-      ]
+        { "type": "paragraph", "text": "Die finalen Lagerkräfte sind unten angeführt." },
+        { "type": "math", "latex": "A_x = 0", "tone": "result" },
+        { "type": "math", "latex": "B_y = \\frac{F}{2}", "tone": "result" },
+        { "type": "math", "latex": "A_y = \\frac{F}{2}", "tone": "result" }
+      ],
+      "canvasState": {
+        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
+        "highlightedObjects": ["reactionAx", "reactionAy", "reactionBy", "centerLoad"],
+        "solvedValues": {
+          "reactionAx": "A_x = 0",
+          "reactionAy": "A_y = F/2",
+          "reactionBy": "B_y = F/2"
+        },
+        "solvedObjects": ["reactionAx", "reactionAy", "reactionBy"]
+      }
     }
   ]
 }

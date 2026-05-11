@@ -1,6 +1,7 @@
 import { vector, type Vector2 } from "../../mechanics/core/vector";
 import type { ContentBlock } from "../../mechanics/content/types";
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
+import type { CanvasState } from "../../mechanics/model/canvasState";
 import type {
   BodyDefinition,
   ForceDecomposition,
@@ -30,7 +31,6 @@ import type {
   EquationBuilderInteraction,
   EquationTerm,
   ExpectedEquation,
-  PracticeCanvasState,
   PracticeContent,
   PracticeHint,
   PracticeInteraction,
@@ -102,10 +102,15 @@ const parseContentBlock = (value: unknown, context: string): ContentBlock => {
     if (display !== undefined && display !== "block" && display !== "inline") {
       throw new Error(`${context}.display must be "block" or "inline".`);
     }
+    const tone = record.tone === undefined ? undefined : requireString(record, "tone", context);
+    if (tone !== undefined && tone !== "default" && tone !== "result") {
+      throw new Error(`${context}.tone must be "default" or "result".`);
+    }
     return {
       type,
       latex: requireString(record, "latex", context),
       ...(display === undefined ? {} : { display }),
+      ...(tone === undefined ? {} : { tone }),
     };
   }
 
@@ -441,6 +446,9 @@ const parseSolution = (raw: unknown): SolutionContent => {
       id: requireString(stepRecord, "id", `solution.steps[${index}]`),
       title: requireString(stepRecord, "title", `solution.steps[${index}]`),
       body: parseContentBlocks(stepRecord.body, `solution.steps[${index}].body`),
+      ...(stepRecord.canvasState === undefined
+        ? {}
+        : { canvasState: parseCanvasState(stepRecord.canvasState, `solution.steps[${index}].canvasState`) }),
     };
 
     return stepEquationIds === undefined ? step : { ...step, equationIds: stepEquationIds };
@@ -450,7 +458,6 @@ const parseSolution = (raw: unknown): SolutionContent => {
   return {
     eyebrow: requireString(record, "eyebrow", "solution"),
     title: requireString(record, "title", "solution"),
-    resultSummaryTitle: requireString(record, "resultSummaryTitle", "solution"),
     assumptions: parseStringArray(record.assumptions, "solution.assumptions"),
     equations,
     steps,
@@ -634,7 +641,7 @@ const parsePracticeInteraction = (value: unknown, context: string): PracticeInte
   throw new Error(`${context}.type "${type}" is not a supported practice interaction.`);
 };
 
-const parsePracticeCanvasState = (value: unknown, context: string): PracticeCanvasState => {
+const parseCanvasState = (value: unknown, context: string): CanvasState => {
   const record = requireRecord(value, context);
   const solvedValues =
     record.solvedValues === undefined
@@ -745,7 +752,7 @@ const parsePractice = (raw: unknown): PracticeContent => {
         : { instructions: parseContentBlocks(stepRecord.instructions, `practice.steps[${index}].instructions`) }),
       ...(stepRecord.canvasState === undefined
         ? {}
-        : { canvasState: parsePracticeCanvasState(stepRecord.canvasState, `practice.steps[${index}].canvasState`) }),
+        : { canvasState: parseCanvasState(stepRecord.canvasState, `practice.steps[${index}].canvasState`) }),
       interaction: parsePracticeInteraction(stepRecord.interaction, `practice.steps[${index}].interaction`),
       feedback: {
         correct: parseContentBlocks(feedback.correct, `practice.steps[${index}].feedback.correct`),

@@ -474,9 +474,9 @@
       "feedback": {
         "correct": [
           { "type": "paragraph", "text": "Richtig. Die finalen Lagerkräfte sind:" },
-          { "type": "math", "latex": "A_x=-F\\cos(\\alpha)" },
-          { "type": "math", "latex": "B_y=\\frac{F\\sin(\\alpha)a}{L}" },
-          { "type": "math", "latex": "A_y=\\frac{F\\sin(\\alpha)(L-a)}{L}" }
+          { "type": "math", "latex": "A_x=-F\\cos(\\alpha)", "tone": "result" },
+          { "type": "math", "latex": "B_y=\\frac{F\\sin(\\alpha)a}{L}", "tone": "result" },
+          { "type": "math", "latex": "A_y=\\frac{F\\sin(\\alpha)(L-a)}{L}", "tone": "result" }
         ],
         "genericIncorrect": "Eine Statik-Lösung muss Kräftegleichgewicht und Momentengleichgewicht erfüllen.",
         "mistakes": [
