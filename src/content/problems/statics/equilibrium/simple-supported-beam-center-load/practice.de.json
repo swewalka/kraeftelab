@@ -7,49 +7,105 @@
       "title": "Lagerreaktionen erkennen",
       "goal": "Wähle alle unbekannten Lagerreaktionen aus, die in den Freischnitt gehören.",
       "canvasState": {
-        "highlightedObjects": [
-          "beam",
+        "visibleObjects": [
           "supportA",
           "supportB",
-          "centerLoad",
-          "pointA",
-          "pointB",
           "pointLoad",
           "dimensionAtoLoad",
-          "dimensionLoadToB"
+          "dimensionLoadToB",
+          "centerLoad"
         ]
       },
       "interaction": {
         "type": "checkbox",
         "options": [
-          { "id": "reactionAx", "label": "A_x", "latex": "A_x" },
-          { "id": "reactionAy", "label": "A_y", "latex": "A_y" },
-          { "id": "momentA", "label": "M_A", "latex": "M_A" },
-          { "id": "reactionBx", "label": "B_x", "latex": "B_x" },
-          { "id": "reactionBy", "label": "B_y", "latex": "B_y" },
-          { "id": "momentB", "label": "M_B", "latex": "M_B" }
+          {
+            "id": "reactionAx",
+            "label": "A_x",
+            "latex": "A_x"
+          },
+          {
+            "id": "reactionAy",
+            "label": "A_y",
+            "latex": "A_y"
+          },
+          {
+            "id": "momentA",
+            "label": "M_A",
+            "latex": "M_A"
+          },
+          {
+            "id": "reactionBx",
+            "label": "B_x",
+            "latex": "B_x"
+          },
+          {
+            "id": "reactionBy",
+            "label": "B_y",
+            "latex": "B_y"
+          },
+          {
+            "id": "momentB",
+            "label": "M_B",
+            "latex": "M_B"
+          }
         ],
-        "correctOptionIds": ["reactionAx", "reactionAy", "reactionBy"]
+        "correctOptionIds": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy"
+        ]
       },
       "feedback": {
         "correct": "Richtig. Das Festlager bei A liefert A_x und A_y, das Loslager bei B liefert B_y.",
         "genericIncorrect": "Prüfe, welche Bewegungen die einzelnen Lager verhindern können.",
         "mistakes": [
-          { "id": "selected:momentA", "text": "Ein Festlager kann kein Stützmoment übertragen." },
-          { "id": "selected:reactionBx", "text": "Ein Loslager erzeugt keine horizontale Lagerreaktion." },
-          { "id": "selected:momentB", "text": "Ein Loslager kann kein Moment übertragen." },
-          { "id": "missing:reactionAx", "text": "Das Festlager bei A kann horizontale Bewegung verhindern, daher ist A_x unbekannt." },
-          { "id": "missing:reactionAy", "text": "Das Festlager bei A kann vertikale Bewegung verhindern, daher ist A_y unbekannt." },
-          { "id": "missing:reactionBy", "text": "Das Loslager bei B erzeugt die vertikale Lagerreaktion B_y." }
+          {
+            "id": "selected:momentA",
+            "text": "Ein Festlager kann kein Stützmoment übertragen."
+          },
+          {
+            "id": "selected:reactionBx",
+            "text": "Ein Loslager erzeugt keine horizontale Lagerreaktion."
+          },
+          {
+            "id": "selected:momentB",
+            "text": "Ein Loslager kann kein Moment übertragen."
+          },
+          {
+            "id": "missing:reactionAx",
+            "text": "Das Festlager bei A kann horizontale Bewegung verhindern, daher ist A_x unbekannt."
+          },
+          {
+            "id": "missing:reactionAy",
+            "text": "Das Festlager bei A kann vertikale Bewegung verhindern, daher ist A_y unbekannt."
+          },
+          {
+            "id": "missing:reactionBy",
+            "text": "Das Loslager bei B erzeugt die vertikale Lagerreaktion B_y."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Ein Festlager hat zwei Kraftkomponenten." },
-        { "level": 2, "text": "Ein Loslager hat eine Reaktion normal zur Auflagerfläche." },
-        { "level": 3, "text": "Keines der Lager ist eine Einspannung, daher tritt kein Stützmoment auf." }
+        {
+          "level": 1,
+          "text": "Ein Festlager hat zwei Kraftkomponenten."
+        },
+        {
+          "level": 2,
+          "text": "Ein Loslager hat eine Reaktion normal zur Auflagerfläche."
+        },
+        {
+          "level": 3,
+          "text": "Keines der Lager ist eine Einspannung, daher tritt kein Stützmoment auf."
+        }
       ],
       "successResult": {
-        "revealObjects": ["reactionAx", "reactionAy", "reactionBy"]
+        "revealObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy"
+        ]
       }
     },
     {
@@ -58,32 +114,70 @@
       "goal": "Klicke in der Zeichenfläche den Punkt an, mit dem du B_y direkt aus der Momentengleichung erhältst.",
       "instructions": "Setze die Auswahl in der Zeichenfläche und prüfe danach den Schritt.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["pointA", "pointLoad", "pointB"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "pointLoad",
+          "centerLoad"
+        ]
       },
       "interaction": {
         "type": "canvas-click",
-        "selectableIds": ["pointA", "pointLoad", "pointB"],
-        "correctSelectableIds": ["pointA"],
+        "selectableIds": [
+          "pointA",
+          "pointLoad",
+          "pointB"
+        ],
+        "correctSelectableIds": [
+          "pointA"
+        ],
         "labels": [
-          { "id": "pointA", "label": "A" },
-          { "id": "pointLoad", "label": "Mitte" },
-          { "id": "pointB", "label": "B" }
+          {
+            "id": "pointA",
+            "label": "A"
+          },
+          {
+            "id": "pointLoad",
+            "label": "Mitte"
+          },
+          {
+            "id": "pointB",
+            "label": "B"
+          }
         ]
       },
       "feedback": {
         "correct": "Richtig. Um A haben A_x und A_y den Hebelarm null, daher liefert die Gleichung direkt B_y.",
         "genericIncorrect": "Wähle einen Punkt, der möglichst viele unbekannte Lagerreaktionen aus der Momentengleichung entfernt.",
         "mistakes": [
-          { "id": "selected:pointLoad", "text": "Die Mitte ist möglich, aber ungünstig: F fällt weg und beide Lagerreaktionen bleiben erhalten." },
-          { "id": "selected:pointB", "text": "Punkt B ist möglich, berechnet aber zuerst A_y. Punkt A liefert B_y direkt." },
-          { "id": "missing:pointA", "text": "Verwende Punkt A, damit die Reaktionen bei A den Hebelarm null haben." }
+          {
+            "id": "selected:pointLoad",
+            "text": "Die Mitte ist möglich, aber ungünstig: F fällt weg und beide Lagerreaktionen bleiben erhalten."
+          },
+          {
+            "id": "selected:pointB",
+            "text": "Punkt B ist möglich, berechnet aber zuerst A_y. Punkt A liefert B_y direkt."
+          },
+          {
+            "id": "missing:pointA",
+            "text": "Verwende Punkt A, damit die Reaktionen bei A den Hebelarm null haben."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Eine Kraft durch den Momentenpunkt erzeugt kein Moment." },
-        { "level": 2, "text": "Momente um A entfernen sowohl A_x als auch A_y." },
-        { "level": 3, "text": "Um A bleiben nur F und B_y in der Momentengleichung." }
+        {
+          "level": 1,
+          "text": "Eine Kraft durch den Momentenpunkt erzeugt kein Moment."
+        },
+        {
+          "level": 2,
+          "text": "Momente um A entfernen sowohl A_x als auch A_y."
+        },
+        {
+          "level": 3,
+          "text": "Um A bleiben nur F und B_y in der Momentengleichung."
+        }
       ]
     },
     {
@@ -91,22 +185,55 @@
       "title": "Hebelarme um A zuordnen",
       "goal": "Ordne jeder Kraft den senkrechten Hebelarm um Punkt A zu.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["pointA", "centerLoad", "reactionBy", "dimensionAtoLoad", "dimensionLoadToB"],
-        "dimmedObjects": ["reactionAx", "reactionAy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "dimensionAtoLoad",
+          "dimensionLoadToB",
+          "centerLoad"
+        ]
       },
       "interaction": {
         "type": "matching",
         "leftItems": [
-          { "id": "reactionAx", "label": "A_x", "latex": "A_x" },
-          { "id": "reactionAy", "label": "A_y", "latex": "A_y" },
-          { "id": "centerLoad", "label": "F", "latex": "F" },
-          { "id": "reactionBy", "label": "B_y", "latex": "B_y" }
+          {
+            "id": "reactionAx",
+            "label": "A_x",
+            "latex": "A_x"
+          },
+          {
+            "id": "reactionAy",
+            "label": "A_y",
+            "latex": "A_y"
+          },
+          {
+            "id": "centerLoad",
+            "label": "F",
+            "latex": "F"
+          },
+          {
+            "id": "reactionBy",
+            "label": "B_y",
+            "latex": "B_y"
+          }
         ],
         "rightItems": [
-          { "id": "zero", "label": "0", "latex": "0" },
-          { "id": "halfLength", "label": "L/2", "latex": "\\frac{L}{2}" },
-          { "id": "fullLength", "label": "L", "latex": "L" }
+          {
+            "id": "zero",
+            "label": "0",
+            "latex": "0"
+          },
+          {
+            "id": "halfLength",
+            "label": "L/2",
+            "latex": "\\frac{L}{2}"
+          },
+          {
+            "id": "fullLength",
+            "label": "L",
+            "latex": "L"
+          }
         ],
         "correctPairs": {
           "reactionAx": "zero",
@@ -117,39 +244,90 @@
       },
       "feedback": {
         "correct": [
-          { "type": "paragraph", "text": "Richtig. Die Reaktionen bei A haben Hebelarm null. Die Last wirkt bei:" },
-          { "type": "math", "latex": "\\frac{L}{2}" },
-          { "type": "paragraph", "text": "$B_y$ wirkt bei:" },
-          { "type": "math", "latex": "L" }
+          {
+            "type": "paragraph",
+            "text": "Richtig. Die Reaktionen bei A haben Hebelarm null. Die Last wirkt bei:"
+          },
+          {
+            "type": "math",
+            "latex": "\\frac{L}{2}"
+          },
+          {
+            "type": "paragraph",
+            "text": "$B_y$ wirkt bei:"
+          },
+          {
+            "type": "math",
+            "latex": "L"
+          }
         ],
         "genericIncorrect": "Miss jeden Hebelarm von Punkt A bis zur Wirkungslinie der Kraft.",
         "mistakes": [
-          { "id": "wrong:reactionAx", "text": "A_x greift in A an, daher ist der Hebelarm um A null." },
-          { "id": "wrong:reactionAy", "text": "A_y greift in A an, daher ist der Hebelarm um A null." },
+          {
+            "id": "wrong:reactionAx",
+            "text": "A_x greift in A an, daher ist der Hebelarm um A null."
+          },
+          {
+            "id": "wrong:reactionAy",
+            "text": "A_y greift in A an, daher ist der Hebelarm um A null."
+          },
           {
             "id": "wrong:centerLoad",
             "content": [
-              { "type": "paragraph", "text": "$F$ greift in der Mitte an, daher ist der Hebelarm:" },
-              { "type": "math", "latex": "\\frac{L}{2}" }
+              {
+                "type": "paragraph",
+                "text": "$F$ greift in der Mitte an, daher ist der Hebelarm:"
+              },
+              {
+                "type": "math",
+                "latex": "\\frac{L}{2}"
+              }
             ]
           },
-          { "id": "wrong:reactionBy", "text": "B_y greift bei B an, daher ist der Hebelarm von A aus L." },
-          { "id": "missing:reactionAx", "text": "A_x greift in A an, daher ist der Hebelarm um A null." },
-          { "id": "missing:reactionAy", "text": "A_y greift in A an, daher ist der Hebelarm um A null." },
+          {
+            "id": "wrong:reactionBy",
+            "text": "B_y greift bei B an, daher ist der Hebelarm von A aus L."
+          },
+          {
+            "id": "missing:reactionAx",
+            "text": "A_x greift in A an, daher ist der Hebelarm um A null."
+          },
+          {
+            "id": "missing:reactionAy",
+            "text": "A_y greift in A an, daher ist der Hebelarm um A null."
+          },
           {
             "id": "missing:centerLoad",
             "content": [
-              { "type": "paragraph", "text": "$F$ greift in der Mitte an, daher ist der Hebelarm:" },
-              { "type": "math", "latex": "\\frac{L}{2}" }
+              {
+                "type": "paragraph",
+                "text": "$F$ greift in der Mitte an, daher ist der Hebelarm:"
+              },
+              {
+                "type": "math",
+                "latex": "\\frac{L}{2}"
+              }
             ]
           },
-          { "id": "missing:reactionBy", "text": "B_y greift bei B an, daher ist der Hebelarm von A aus L." }
+          {
+            "id": "missing:reactionBy",
+            "text": "B_y greift bei B an, daher ist der Hebelarm von A aus L."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Der Hebelarm ist der Abstand von A zur Wirkungslinie der Kraft." },
-        { "level": 2, "text": "Kräfte, die genau in A angreifen, erzeugen um A kein Moment." },
-        { "level": 3, "text": "Die Last liegt in der Mitte, das Lager B liegt eine ganze Spannweite von A entfernt." }
+        {
+          "level": 1,
+          "text": "Der Hebelarm ist der Abstand von A zur Wirkungslinie der Kraft."
+        },
+        {
+          "level": 2,
+          "text": "Kräfte, die genau in A angreifen, erzeugen um A kein Moment."
+        },
+        {
+          "level": 3,
+          "text": "Die Last liegt in der Mitte, das Lager B liegt eine ganze Spannweite von A entfernt."
+        }
       ]
     },
     {
@@ -157,18 +335,38 @@
       "title": "Momentenvorzeichen bestimmen",
       "goal": "Nutze die Konvention: gegen den Uhrzeigersinn ist positiv.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["pointA", "centerLoad", "reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "centerLoad"
+        ]
       },
       "interaction": {
         "type": "matching",
         "leftItems": [
-          { "id": "termByL", "label": "B_y · L", "latex": "B_y \\cdot L" },
-          { "id": "termFL2", "label": "F · L/2", "latex": "F \\cdot \\frac{L}{2}" }
+          {
+            "id": "termByL",
+            "label": "B_y · L",
+            "latex": "B_y \\cdot L"
+          },
+          {
+            "id": "termFL2",
+            "label": "F · L/2",
+            "latex": "F \\cdot \\frac{L}{2}"
+          }
         ],
         "rightItems": [
-          { "id": "positive", "label": "+", "latex": "+" },
-          { "id": "negative", "label": "-", "latex": "-" }
+          {
+            "id": "positive",
+            "label": "+",
+            "latex": "+"
+          },
+          {
+            "id": "negative",
+            "label": "-",
+            "latex": "-"
+          }
         ],
         "correctPairs": {
           "termByL": "positive",
@@ -179,16 +377,37 @@
         "correct": "Richtig. B_y dreht um A gegen den Uhrzeigersinn, F im Uhrzeigersinn.",
         "genericIncorrect": "Wende die Vorzeichenkonvention an: gegen den Uhrzeigersinn ist positiv.",
         "mistakes": [
-          { "id": "wrong:termByL", "text": "B_y bei B dreht um A gegen den Uhrzeigersinn und ist daher positiv." },
-          { "id": "wrong:termFL2", "text": "F in der Mitte dreht um A im Uhrzeigersinn und ist daher negativ." },
-          { "id": "missing:termByL", "text": "B_y bei B dreht um A gegen den Uhrzeigersinn und ist daher positiv." },
-          { "id": "missing:termFL2", "text": "F in der Mitte dreht um A im Uhrzeigersinn und ist daher negativ." }
+          {
+            "id": "wrong:termByL",
+            "text": "B_y bei B dreht um A gegen den Uhrzeigersinn und ist daher positiv."
+          },
+          {
+            "id": "wrong:termFL2",
+            "text": "F in der Mitte dreht um A im Uhrzeigersinn und ist daher negativ."
+          },
+          {
+            "id": "missing:termByL",
+            "text": "B_y bei B dreht um A gegen den Uhrzeigersinn und ist daher positiv."
+          },
+          {
+            "id": "missing:termFL2",
+            "text": "F in der Mitte dreht um A im Uhrzeigersinn und ist daher negativ."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Stell dir vor, der Balken dreht sich um A." },
-        { "level": 2, "text": "Eine nach oben gerichtete Kraft bei B hebt das rechte Ende und dreht gegen den Uhrzeigersinn." },
-        { "level": 3, "text": "Die Last nach unten drückt die Mitte nach unten und dreht im Uhrzeigersinn." }
+        {
+          "level": 1,
+          "text": "Stell dir vor, der Balken dreht sich um A."
+        },
+        {
+          "level": 2,
+          "text": "Eine nach oben gerichtete Kraft bei B hebt das rechte Ende und dreht gegen den Uhrzeigersinn."
+        },
+        {
+          "level": 3,
+          "text": "Die Last nach unten drückt die Mitte nach unten und dreht im Uhrzeigersinn."
+        }
       ]
     },
     {
@@ -196,76 +415,203 @@
       "title": "Momentengleichung aufstellen",
       "goal": "Wähle die Terme für die Momentengleichgewichtsbedingung um A.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["pointA", "centerLoad", "reactionBy", "dimensionAtoLoad", "dimensionLoadToB"],
-        "dimmedObjects": ["reactionAx", "reactionAy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "dimensionAtoLoad",
+          "dimensionLoadToB",
+          "centerLoad"
+        ]
       },
       "interaction": {
         "type": "equation-builder",
         "equationTarget": "sumMoment",
         "aboutPoint": "A",
         "availableTerms": [
-          { "id": "byLPositive", "latex": "+ B_y \\cdot L", "semantic": { "variable": "B_y", "sign": "+", "factor": "L", "momentAbout": "A" } },
-          { "id": "byLNegative", "latex": "- B_y \\cdot L", "semantic": { "variable": "B_y", "sign": "-", "factor": "L", "momentAbout": "A" } },
-          { "id": "fHalfPositive", "latex": "+ F \\cdot \\frac{L}{2}", "semantic": { "variable": "F", "sign": "+", "factor": "L/2", "momentAbout": "A" } },
-          { "id": "fHalfNegative", "latex": "- F \\cdot \\frac{L}{2}", "semantic": { "variable": "F", "sign": "-", "factor": "L/2", "momentAbout": "A" } },
-          { "id": "fFullNegative", "latex": "- F \\cdot L", "semantic": { "variable": "F", "sign": "-", "factor": "L", "momentAbout": "A" } },
-          { "id": "ayZero", "latex": "+ A_y \\cdot 0", "semantic": { "variable": "A_y", "sign": "+", "factor": "0", "momentAbout": "A" } },
-          { "id": "axZero", "latex": "+ A_x \\cdot 0", "semantic": { "variable": "A_x", "sign": "+", "factor": "0", "momentAbout": "A" } }
+          {
+            "id": "byLPositive",
+            "latex": "+ B_y \\cdot L",
+            "semantic": {
+              "variable": "B_y",
+              "sign": "+",
+              "factor": "L",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "byLNegative",
+            "latex": "- B_y \\cdot L",
+            "semantic": {
+              "variable": "B_y",
+              "sign": "-",
+              "factor": "L",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "fHalfPositive",
+            "latex": "+ F \\cdot \\frac{L}{2}",
+            "semantic": {
+              "variable": "F",
+              "sign": "+",
+              "factor": "L/2",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "fHalfNegative",
+            "latex": "- F \\cdot \\frac{L}{2}",
+            "semantic": {
+              "variable": "F",
+              "sign": "-",
+              "factor": "L/2",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "fFullNegative",
+            "latex": "- F \\cdot L",
+            "semantic": {
+              "variable": "F",
+              "sign": "-",
+              "factor": "L",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "ayZero",
+            "latex": "+ A_y \\cdot 0",
+            "semantic": {
+              "variable": "A_y",
+              "sign": "+",
+              "factor": "0",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "axZero",
+            "latex": "+ A_x \\cdot 0",
+            "semantic": {
+              "variable": "A_x",
+              "sign": "+",
+              "factor": "0",
+              "momentAbout": "A"
+            }
+          }
         ],
         "expectedEquation": {
           "equationType": "sumMoment",
           "aboutPoint": "A",
           "terms": [
-            { "variable": "B_y", "sign": "+", "factor": "L" },
-            { "variable": "F", "sign": "-", "factor": "L/2" }
+            {
+              "variable": "B_y",
+              "sign": "+",
+              "factor": "L"
+            },
+            {
+              "variable": "F",
+              "sign": "-",
+              "factor": "L/2"
+            }
           ],
           "rhs": "0"
         }
       },
       "feedback": {
         "correct": [
-          { "type": "paragraph", "text": "Richtig. Die Momentengleichung lautet:" },
-          { "type": "math", "latex": "B_y \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+          {
+            "type": "paragraph",
+            "text": "Richtig. Die Momentengleichung lautet:"
+          },
+          {
+            "type": "math",
+            "latex": "B_y \\cdot L - F \\cdot \\frac{L}{2} = 0"
+          }
         ],
         "genericIncorrect": "Behalte nur die nichtverschwindenden Momententerme um A und achte auf die Vorzeichen.",
         "mistakes": [
           {
             "id": "missing:B_y:+:l",
             "content": [
-              { "type": "paragraph", "text": "Dieser Term fehlt, weil $B_y$ um A ein Moment erzeugt:" },
-              { "type": "math", "latex": "B_y \\cdot L" }
+              {
+                "type": "paragraph",
+                "text": "Dieser Term fehlt, weil $B_y$ um A ein Moment erzeugt:"
+              },
+              {
+                "type": "math",
+                "latex": "B_y \\cdot L"
+              }
             ]
           },
           {
             "id": "missing:F:-:l/2",
             "content": [
-              { "type": "paragraph", "text": "Dieser Term fehlt, weil $F$ um A ein Moment erzeugt:" },
-              { "type": "math", "latex": "-F \\cdot \\frac{L}{2}" }
+              {
+                "type": "paragraph",
+                "text": "Dieser Term fehlt, weil $F$ um A ein Moment erzeugt:"
+              },
+              {
+                "type": "math",
+                "latex": "-F \\cdot \\frac{L}{2}"
+              }
             ]
           },
-          { "id": "wrongSign:F", "text": "F hat das falsche Vorzeichen: F dreht um A im Uhrzeigersinn und ist negativ." },
-          { "id": "wrongSign:B_y", "text": "B_y hat das falsche Vorzeichen: B_y dreht gegen den Uhrzeigersinn und ist positiv." },
+          {
+            "id": "wrongSign:F",
+            "text": "F hat das falsche Vorzeichen: F dreht um A im Uhrzeigersinn und ist negativ."
+          },
+          {
+            "id": "wrongSign:B_y",
+            "text": "B_y hat das falsche Vorzeichen: B_y dreht gegen den Uhrzeigersinn und ist positiv."
+          },
           {
             "id": "wrongFactor:F",
             "content": [
-              { "type": "paragraph", "text": "Die Last greift in der Mitte an, daher ist ihr Hebelarm um A:" },
-              { "type": "math", "latex": "\\frac{L}{2}" },
-              { "type": "paragraph", "text": "Die volle Länge $L$ wäre nur für eine Kraft bei B richtig." }
+              {
+                "type": "paragraph",
+                "text": "Die Last greift in der Mitte an, daher ist ihr Hebelarm um A:"
+              },
+              {
+                "type": "math",
+                "latex": "\\frac{L}{2}"
+              },
+              {
+                "type": "paragraph",
+                "text": "Die volle Länge $L$ wäre nur für eine Kraft bei B richtig."
+              }
             ]
           },
-          { "id": "zeroTerm:A_y", "text": "A_y greift in A an; der Hebelarm um A ist null, daher soll der Term weggelassen werden." },
-          { "id": "zeroTerm:A_x", "text": "A_x greift in A an; der Hebelarm um A ist null, daher soll der Term weggelassen werden." }
+          {
+            "id": "zeroTerm:A_y",
+            "text": "A_y greift in A an; der Hebelarm um A ist null, daher soll der Term weggelassen werden."
+          },
+          {
+            "id": "zeroTerm:A_x",
+            "text": "A_x greift in A an; der Hebelarm um A ist null, daher soll der Term weggelassen werden."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Nur F und B_y haben um A einen Hebelarm ungleich null." },
-        { "level": 2, "text": "B_y ist positiv, F ist bei gegen den Uhrzeigersinn positiv negativ." },
+        {
+          "level": 1,
+          "text": "Nur F und B_y haben um A einen Hebelarm ungleich null."
+        },
+        {
+          "level": 2,
+          "text": "B_y ist positiv, F ist bei gegen den Uhrzeigersinn positiv negativ."
+        },
         {
           "level": 3,
           "content": [
-            { "type": "paragraph", "text": "Die Gleichung hat die Form:" },
-            { "type": "math", "latex": "B_y \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+            {
+              "type": "paragraph",
+              "text": "Die Gleichung hat die Form:"
+            },
+            {
+              "type": "math",
+              "latex": "B_y \\cdot L - F \\cdot \\frac{L}{2} = 0"
+            }
           ]
         }
       ]
@@ -274,44 +620,90 @@
       "id": "solve-by",
       "title": "B_y berechnen",
       "goal": [
-        { "type": "paragraph", "text": "Löse die Momentengleichung nach $B_y$ auf." }
+        {
+          "type": "paragraph",
+          "text": "Löse die Momentengleichung nach $B_y$ auf."
+        }
       ],
       "instructions": [
-        { "type": "paragraph", "text": "Verwende die Gleichgewichtsbedingung aus dem vorherigen Schritt:" },
-        { "type": "math", "latex": "\\sum M_A = B_y \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+        {
+          "type": "paragraph",
+          "text": "Verwende die Gleichgewichtsbedingung aus dem vorherigen Schritt:"
+        },
+        {
+          "type": "math",
+          "latex": "\\sum M_A = B_y \\cdot L - F \\cdot \\frac{L}{2} = 0"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "centerLoad"
+        ]
       },
       "interaction": {
         "type": "expression-input",
         "variable": "B_y",
         "expectedExpression": "F/2",
-        "acceptedExpressions": ["F / 2", "0.5F", "0.5*F", "F*1/2", "B_y = F/2"]
+        "acceptedExpressions": [
+          "F / 2",
+          "0.5F",
+          "0.5*F",
+          "F*1/2",
+          "B_y = F/2"
+        ]
       },
       "feedback": {
         "correct": "Richtig. B_y trägt die Hälfte der mittigen Last.",
         "genericIncorrect": [
-          { "type": "paragraph", "text": "Starte mit der Momentengleichung und stelle nach $B_y$ um:" },
-          { "type": "math", "latex": "B_y \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+          {
+            "type": "paragraph",
+            "text": "Starte mit der Momentengleichung und stelle nach $B_y$ um:"
+          },
+          {
+            "type": "math",
+            "latex": "B_y \\cdot L - F \\cdot \\frac{L}{2} = 0"
+          }
         ],
         "mistakes": [
           {
             "id": "expressionEquals:F",
             "content": [
-              { "type": "paragraph", "text": "Dieses Ergebnis vergisst den Hebelarm der Last:" },
-              { "type": "math", "latex": "\\frac{L}{2}" }
+              {
+                "type": "paragraph",
+                "text": "Dieses Ergebnis vergisst den Hebelarm der Last:"
+              },
+              {
+                "type": "math",
+                "latex": "\\frac{L}{2}"
+              }
             ]
           },
-          { "id": "expressionContains:L", "text": "B_y ist eine Kraft; nach dem Dividieren durch L bleibt kein L übrig." },
-          { "id": "negativeExpression", "text": "Ein negatives Ergebnis weist auf ein vertauschtes Momentenvorzeichen hin." },
+          {
+            "id": "expressionContains:L",
+            "text": "B_y ist eine Kraft; nach dem Dividieren durch L bleibt kein L übrig."
+          },
+          {
+            "id": "negativeExpression",
+            "text": "Ein negatives Ergebnis weist auf ein vertauschtes Momentenvorzeichen hin."
+          },
           {
             "id": "expressionIncorrect",
             "content": [
-              { "type": "paragraph", "text": "Verschiebe das Lastmoment auf die andere Seite:" },
-              { "type": "math", "latex": "B_y \\cdot L = F \\cdot \\frac{L}{2}" },
-              { "type": "paragraph", "text": "Dividiere danach durch $L$." }
+              {
+                "type": "paragraph",
+                "text": "Verschiebe das Lastmoment auf die andere Seite:"
+              },
+              {
+                "type": "math",
+                "latex": "B_y \\cdot L = F \\cdot \\frac{L}{2}"
+              },
+              {
+                "type": "paragraph",
+                "text": "Dividiere danach durch $L$."
+              }
             ]
           }
         ]
@@ -320,22 +712,38 @@
         {
           "level": 1,
           "content": [
-            { "type": "paragraph", "text": "Bringe das Lastmoment auf die rechte Seite:" },
-            { "type": "math", "latex": "F \\cdot \\frac{L}{2}" }
+            {
+              "type": "paragraph",
+              "text": "Bringe das Lastmoment auf die rechte Seite:"
+            },
+            {
+              "type": "math",
+              "latex": "F \\cdot \\frac{L}{2}"
+            }
           ]
         },
-        { "level": 2, "text": "Dividiere anschließend die ganze Gleichung durch L." },
+        {
+          "level": 2,
+          "text": "Dividiere anschließend die ganze Gleichung durch L."
+        },
         {
           "level": 3,
           "content": [
-            { "type": "paragraph", "text": "$L$ kürzt sich heraus, es bleibt:" },
-            { "type": "math", "latex": "B_y = \\frac{F}{2}" }
+            {
+              "type": "paragraph",
+              "text": "$L$ kürzt sich heraus, es bleibt:"
+            },
+            {
+              "type": "math",
+              "latex": "B_y = \\frac{F}{2}"
+            }
           ]
         }
       ],
       "successResult": {
-        "solvedValues": { "reactionBy": "B_y = F/2" },
-        "markObjectsSolved": ["reactionBy"]
+        "revealObjects": [
+          "reactionBy"
+        ]
       }
     },
     {
@@ -343,68 +751,168 @@
       "title": "Vertikale Kräftegleichung aufstellen",
       "goal": "Wähle die Terme für das vertikale Kräftegleichgewicht.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["reactionAy", "reactionBy", "centerLoad"],
-        "dimmedObjects": ["reactionAx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "centerLoad"
+        ]
       },
       "interaction": {
         "type": "equation-builder",
         "equationTarget": "sumFy",
         "availableTerms": [
-          { "id": "ayPositive", "latex": "+ A_y", "semantic": { "variable": "A_y", "direction": "y", "sign": "+" } },
-          { "id": "byPositive", "latex": "+ B_y", "semantic": { "variable": "B_y", "direction": "y", "sign": "+" } },
-          { "id": "fPositive", "latex": "+ F", "semantic": { "variable": "F", "direction": "y", "sign": "+" } },
-          { "id": "fNegative", "latex": "- F", "semantic": { "variable": "F", "direction": "y", "sign": "-" } },
-          { "id": "axPositive", "latex": "+ A_x", "semantic": { "variable": "A_x", "direction": "x", "sign": "+" } }
+          {
+            "id": "ayPositive",
+            "latex": "+ A_y",
+            "semantic": {
+              "variable": "A_y",
+              "direction": "y",
+              "sign": "+"
+            }
+          },
+          {
+            "id": "byPositive",
+            "latex": "+ B_y",
+            "semantic": {
+              "variable": "B_y",
+              "direction": "y",
+              "sign": "+"
+            }
+          },
+          {
+            "id": "fPositive",
+            "latex": "+ F",
+            "semantic": {
+              "variable": "F",
+              "direction": "y",
+              "sign": "+"
+            }
+          },
+          {
+            "id": "fNegative",
+            "latex": "- F",
+            "semantic": {
+              "variable": "F",
+              "direction": "y",
+              "sign": "-"
+            }
+          },
+          {
+            "id": "axPositive",
+            "latex": "+ A_x",
+            "semantic": {
+              "variable": "A_x",
+              "direction": "x",
+              "sign": "+"
+            }
+          }
         ],
         "expectedEquation": {
           "equationType": "sumFy",
           "terms": [
-            { "variable": "A_y", "sign": "+" },
-            { "variable": "B_y", "sign": "+" },
-            { "variable": "F", "sign": "-" }
+            {
+              "variable": "A_y",
+              "sign": "+"
+            },
+            {
+              "variable": "B_y",
+              "sign": "+"
+            },
+            {
+              "variable": "F",
+              "sign": "-"
+            }
           ],
           "rhs": "0"
         }
       },
       "feedback": {
         "correct": [
-          { "type": "paragraph", "text": "Richtig. Die vertikale Gleichgewichtsbedingung lautet:" },
-          { "type": "math", "latex": "A_y + B_y - F = 0" }
+          {
+            "type": "paragraph",
+            "text": "Richtig. Die vertikale Gleichgewichtsbedingung lautet:"
+          },
+          {
+            "type": "math",
+            "latex": "A_y + B_y - F = 0"
+          }
         ],
         "genericIncorrect": [
-          { "type": "paragraph", "text": "In diese Gleichgewichtsbedingung gehören nur vertikale Kräfte:" },
-          { "type": "math", "latex": "\\sum F_y = 0" },
-          { "type": "paragraph", "text": "Nach oben ist positiv." }
+          {
+            "type": "paragraph",
+            "text": "In diese Gleichgewichtsbedingung gehören nur vertikale Kräfte:"
+          },
+          {
+            "type": "math",
+            "latex": "\\sum F_y = 0"
+          },
+          {
+            "type": "paragraph",
+            "text": "Nach oben ist positiv."
+          }
         ],
         "mistakes": [
           {
             "id": "missing:A_y:+:",
             "content": [
-              { "type": "paragraph", "text": "Die vertikale Lagerkraft bei A trägt zu dieser Bedingung bei:" },
-              { "type": "math", "latex": "\\sum F_y = 0" }
+              {
+                "type": "paragraph",
+                "text": "Die vertikale Lagerkraft bei A trägt zu dieser Bedingung bei:"
+              },
+              {
+                "type": "math",
+                "latex": "\\sum F_y = 0"
+              }
             ]
           },
           {
             "id": "missing:B_y:+:",
             "content": [
-              { "type": "paragraph", "text": "Die vertikale Lagerkraft bei B trägt zu dieser Bedingung bei:" },
-              { "type": "math", "latex": "\\sum F_y = 0" }
+              {
+                "type": "paragraph",
+                "text": "Die vertikale Lagerkraft bei B trägt zu dieser Bedingung bei:"
+              },
+              {
+                "type": "math",
+                "latex": "\\sum F_y = 0"
+              }
             ]
           },
-          { "id": "missing:F:-:", "text": "-F fehlt: Die äußere Kraft zeigt nach unten." },
-          { "id": "wrongSign:F", "text": "F zeigt nach unten und geht daher mit negativem Vorzeichen in die vertikale Gleichung ein." },
-          { "id": "extra:A_x", "text": "A_x ist horizontal und gehört nicht in das vertikale Kräftegleichgewicht." }
+          {
+            "id": "missing:F:-:",
+            "text": "-F fehlt: Die äußere Kraft zeigt nach unten."
+          },
+          {
+            "id": "wrongSign:F",
+            "text": "F zeigt nach unten und geht daher mit negativem Vorzeichen in die vertikale Gleichung ein."
+          },
+          {
+            "id": "extra:A_x",
+            "text": "A_x ist horizontal und gehört nicht in das vertikale Kräftegleichgewicht."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Verwende y positiv nach oben." },
-        { "level": 2, "text": "Beide Lagerreaktionen zeigen nach oben, F zeigt nach unten." },
+        {
+          "level": 1,
+          "text": "Verwende y positiv nach oben."
+        },
+        {
+          "level": 2,
+          "text": "Beide Lagerreaktionen zeigen nach oben, F zeigt nach unten."
+        },
         {
           "level": 3,
           "content": [
-            { "type": "paragraph", "text": "Die Gleichung soll lauten:" },
-            { "type": "math", "latex": "A_y + B_y - F = 0" }
+            {
+              "type": "paragraph",
+              "text": "Die Gleichung soll lauten:"
+            },
+            {
+              "type": "math",
+              "latex": "A_y + B_y - F = 0"
+            }
           ]
         }
       ]
@@ -413,51 +921,110 @@
       "id": "solve-ay",
       "title": "A_y berechnen",
       "goal": [
-        { "type": "paragraph", "text": "Setze den berechneten Wert für $B_y$ in das vertikale Gleichgewicht ein:" },
-        { "type": "math", "latex": "B_y = \\frac{F}{2}" },
-        { "type": "paragraph", "text": "Löse danach nach $A_y$ auf." }
+        {
+          "type": "paragraph",
+          "text": "Setze den berechneten Wert für $B_y$ in das vertikale Gleichgewicht ein:"
+        },
+        {
+          "type": "math",
+          "latex": "B_y = \\frac{F}{2}"
+        },
+        {
+          "type": "paragraph",
+          "text": "Löse danach nach $A_y$ auf."
+        }
       ],
       "instructions": [
-        { "type": "paragraph", "text": "Verwende die Gleichgewichtsbedingung aus dem vorherigen Schritt:" },
-        { "type": "math", "latex": "\\sum F_y = A_y + B_y - F = 0" }
+        {
+          "type": "paragraph",
+          "text": "Verwende die Gleichgewichtsbedingung aus dem vorherigen Schritt:"
+        },
+        {
+          "type": "math",
+          "latex": "\\sum F_y = A_y + B_y - F = 0"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["reactionAy"],
-        "solvedValues": { "reactionBy": "B_y = F/2" },
-        "solvedObjects": ["reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "centerLoad"
+        ]
       },
       "interaction": {
         "type": "expression-input",
         "variable": "A_y",
         "expectedExpression": "F/2",
-        "acceptedExpressions": ["F / 2", "0.5F", "0.5*F", "F*1/2", "A_y = F/2"]
+        "acceptedExpressions": [
+          "F / 2",
+          "0.5F",
+          "0.5*F",
+          "F*1/2",
+          "A_y = F/2"
+        ]
       },
       "feedback": {
         "correct": "Richtig. Auch A_y trägt die Hälfte der Last.",
         "genericIncorrect": [
-          { "type": "paragraph", "text": "Setze die berechnete Lagerkraft ein:" },
-          { "type": "math", "latex": "B_y = \\frac{F}{2}" },
-          { "type": "paragraph", "text": "Nutze dann das vertikale Gleichgewicht:" },
-          { "type": "math", "latex": "A_y + B_y - F = 0" }
+          {
+            "type": "paragraph",
+            "text": "Setze die berechnete Lagerkraft ein:"
+          },
+          {
+            "type": "math",
+            "latex": "B_y = \\frac{F}{2}"
+          },
+          {
+            "type": "paragraph",
+            "text": "Nutze dann das vertikale Gleichgewicht:"
+          },
+          {
+            "type": "math",
+            "latex": "A_y + B_y - F = 0"
+          }
         ],
         "mistakes": [
           {
             "id": "expressionEquals:F",
             "content": [
-              { "type": "paragraph", "text": "$B_y$ trägt bereits die Hälfte der Last:" },
-              { "type": "math", "latex": "B_y = \\frac{F}{2}" }
+              {
+                "type": "paragraph",
+                "text": "$B_y$ trägt bereits die Hälfte der Last:"
+              },
+              {
+                "type": "math",
+                "latex": "B_y = \\frac{F}{2}"
+              }
             ]
           },
-          { "id": "expressionEquals:0", "text": "A_y kann nicht null sein; das vertikale Gleichgewicht benötigt beide Lagerkräfte." },
-          { "id": "negativeExpression", "text": "A_y zeigt in der gewählten Richtung nach oben und ist daher positiv." },
+          {
+            "id": "expressionEquals:0",
+            "text": "A_y kann nicht null sein; das vertikale Gleichgewicht benötigt beide Lagerkräfte."
+          },
+          {
+            "id": "negativeExpression",
+            "text": "A_y zeigt in der gewählten Richtung nach oben und ist daher positiv."
+          },
           {
             "id": "expressionIncorrect",
             "content": [
-              { "type": "paragraph", "text": "Nach dem Einsetzen von $B_y$ wird das vertikale Gleichgewicht zu:" },
-              { "type": "math", "latex": "A_y + \\frac{F}{2} - F = 0" },
-              { "type": "paragraph", "text": "Daraus folgt:" },
-              { "type": "math", "latex": "A_y = \\frac{F}{2}" }
+              {
+                "type": "paragraph",
+                "text": "Nach dem Einsetzen von $B_y$ wird das vertikale Gleichgewicht zu:"
+              },
+              {
+                "type": "math",
+                "latex": "A_y + \\frac{F}{2} - F = 0"
+              },
+              {
+                "type": "paragraph",
+                "text": "Daraus folgt:"
+              },
+              {
+                "type": "math",
+                "latex": "A_y = \\frac{F}{2}"
+              }
             ]
           }
         ]
@@ -466,27 +1033,43 @@
         {
           "level": 1,
           "content": [
-            { "type": "paragraph", "text": "Setze ein:" },
-            { "type": "math", "latex": "B_y = \\frac{F}{2}" }
+            {
+              "type": "paragraph",
+              "text": "Setze ein:"
+            },
+            {
+              "type": "math",
+              "latex": "B_y = \\frac{F}{2}"
+            }
           ]
         },
         {
           "level": 2,
           "content": [
-            { "type": "math", "latex": "A_y + \\frac{F}{2} - F = 0" }
+            {
+              "type": "math",
+              "latex": "A_y + \\frac{F}{2} - F = 0"
+            }
           ]
         },
         {
           "level": 3,
           "content": [
-            { "type": "paragraph", "text": "Bringe die bekannte halbe Last auf die rechte Seite:" },
-            { "type": "math", "latex": "A_y = \\frac{F}{2}" }
+            {
+              "type": "paragraph",
+              "text": "Bringe die bekannte halbe Last auf die rechte Seite:"
+            },
+            {
+              "type": "math",
+              "latex": "A_y = \\frac{F}{2}"
+            }
           ]
         }
       ],
       "successResult": {
-        "solvedValues": { "reactionAy": "A_y = F/2" },
-        "markObjectsSolved": ["reactionAy"]
+        "revealObjects": [
+          "reactionAy"
+        ]
       }
     },
     {
@@ -494,14 +1077,12 @@
       "title": "Finale Gleichgewichtsprüfung",
       "goal": "Wähle die Aussage, die alle Gleichgewichtsbedingungen überprüft.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["reactionAx", "reactionAy", "reactionBy", "centerLoad"],
-        "solvedValues": {
-          "reactionAx": "A_x = 0",
-          "reactionAy": "A_y = F/2",
-          "reactionBy": "B_y = F/2"
-        },
-        "solvedObjects": ["reactionAx", "reactionAy", "reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "centerLoad"
+        ]
       },
       "interaction": {
         "type": "multiple-choice",
@@ -510,26 +1091,50 @@
             "id": "all-equations",
             "label": "Alle Gleichgewichtsbedingungen sind erfüllt.",
             "content": [
-              { "type": "paragraph", "text": "Alle Gleichgewichtsbedingungen sind erfüllt:" },
-              { "type": "math", "latex": "\\sum F_x = 0" },
-              { "type": "math", "latex": "\\sum F_y = \\frac{F}{2} + \\frac{F}{2} - F = 0" },
-              { "type": "math", "latex": "\\sum M_A = \\frac{F}{2} \\cdot L - F \\cdot \\frac{L}{2} = 0" }
+              {
+                "type": "paragraph",
+                "text": "Alle Gleichgewichtsbedingungen sind erfüllt:"
+              },
+              {
+                "type": "math",
+                "latex": "\\sum F_x = 0"
+              },
+              {
+                "type": "math",
+                "latex": "\\sum F_y = \\frac{F}{2} + \\frac{F}{2} - F = 0"
+              },
+              {
+                "type": "math",
+                "latex": "\\sum M_A = \\frac{F}{2} \\cdot L - F \\cdot \\frac{L}{2} = 0"
+              }
             ]
           },
           {
             "id": "vertical-only",
             "label": "Nur das vertikale Kräftegleichgewicht muss geprüft werden, weil der Balken horizontal ist.",
             "content": [
-              { "type": "paragraph", "text": "Nur diese Bedingung muss geprüft werden, weil der Balken horizontal ist:" },
-              { "type": "math", "latex": "\\sum F_y = 0" }
+              {
+                "type": "paragraph",
+                "text": "Nur diese Bedingung muss geprüft werden, weil der Balken horizontal ist:"
+              },
+              {
+                "type": "math",
+                "latex": "\\sum F_y = 0"
+              }
             ]
           },
           {
             "id": "moment-only",
             "label": "Nur das Momentengleichgewicht muss geprüft werden, weil damit B_y berechnet wurde.",
             "content": [
-              { "type": "paragraph", "text": "Nur diese Bedingung muss geprüft werden, weil damit $B_y$ berechnet wurde:" },
-              { "type": "math", "latex": "\\sum M_A = 0" }
+              {
+                "type": "paragraph",
+                "text": "Nur diese Bedingung muss geprüft werden, weil damit $B_y$ berechnet wurde:"
+              },
+              {
+                "type": "math",
+                "latex": "\\sum M_A = 0"
+              }
             ]
           }
         ],
@@ -537,37 +1142,75 @@
       },
       "feedback": {
         "correct": [
-          { "type": "paragraph", "text": "Die Lösung erfüllt alle Gleichgewichtsbedingungen. Die finalen Lagerkräfte sind:" },
-          { "type": "math", "latex": "A_x = 0", "tone": "result" },
-          { "type": "math", "latex": "B_y = \\frac{F}{2}", "tone": "result" },
-          { "type": "math", "latex": "A_y = \\frac{F}{2}", "tone": "result" }
+          {
+            "type": "paragraph",
+            "text": "Die Lösung erfüllt alle Gleichgewichtsbedingungen. Die finalen Lagerkräfte sind:"
+          },
+          {
+            "type": "math",
+            "latex": "A_x = 0",
+            "tone": "result"
+          },
+          {
+            "type": "math",
+            "latex": "B_y = \\frac{F}{2}",
+            "tone": "result"
+          },
+          {
+            "type": "math",
+            "latex": "A_y = \\frac{F}{2}",
+            "tone": "result"
+          }
         ],
         "genericIncorrect": "Eine Statiklösung muss Kräftegleichgewicht und Momentengleichgewicht erfüllen.",
         "mistakes": [
-          { "id": "selected:vertical-only", "text": "Das vertikale Kräftegleichgewicht ist notwendig, aber auch das Momentengleichgewicht muss erfüllt sein." },
-          { "id": "selected:moment-only", "text": "Das Momentengleichgewicht ist notwendig, aber auch das Kräftegleichgewicht muss erfüllt sein." }
+          {
+            "id": "selected:vertical-only",
+            "text": "Das vertikale Kräftegleichgewicht ist notwendig, aber auch das Momentengleichgewicht muss erfüllt sein."
+          },
+          {
+            "id": "selected:moment-only",
+            "text": "Das Momentengleichgewicht ist notwendig, aber auch das Kräftegleichgewicht muss erfüllt sein."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Prüfe jede unabhängige Gleichgewichtsbedingung." },
+        {
+          "level": 1,
+          "text": "Prüfe jede unabhängige Gleichgewichtsbedingung."
+        },
         {
           "level": 2,
           "content": [
-            { "type": "paragraph", "text": "Es gibt keine horizontale äußere Last, daher gilt:" },
-            { "type": "math", "latex": "A_x = 0" },
-            { "type": "paragraph", "text": "Damit ist diese Bedingung erfüllt:" },
-            { "type": "math", "latex": "\\sum F_x = 0" }
+            {
+              "type": "paragraph",
+              "text": "Es gibt keine horizontale äußere Last, daher gilt:"
+            },
+            {
+              "type": "math",
+              "latex": "A_x = 0"
+            },
+            {
+              "type": "paragraph",
+              "text": "Damit ist diese Bedingung erfüllt:"
+            },
+            {
+              "type": "math",
+              "latex": "\\sum F_x = 0"
+            }
           ]
         },
-        { "level": 3, "text": "Die beiden vertikalen Lagerkräfte addieren sich zu F, und ihr Moment um A gleicht das Lastmoment aus." }
+        {
+          "level": 3,
+          "text": "Die beiden vertikalen Lagerkräfte addieren sich zu F, und ihr Moment um A gleicht das Lastmoment aus."
+        }
       ],
       "successResult": {
-        "solvedValues": {
-          "reactionAx": "A_x = 0",
-          "reactionAy": "A_y = F/2",
-          "reactionBy": "B_y = F/2"
-        },
-        "markObjectsSolved": ["reactionAx", "reactionAy", "reactionBy"]
+        "revealObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy"
+        ]
       }
     }
   ]

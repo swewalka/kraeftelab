@@ -419,26 +419,36 @@ export const BeamDiagramLayer = ({
   const isFreeBody = mode === "explain";
   const usesAuthoredCanvasState = canvasState !== undefined && (mode === "explain" || mode === "practice");
   const overlayState = createOverlayState({ canvasState, selectedObjectIds });
+  const hiddenBaseObjectIds = new Set(canvasState?.hiddenBaseObjects ?? []);
+  const baseObjectIds = new Set([
+    diagramConfig.beam.bodyId,
+    diagramConfig.beam.startPointId,
+    diagramConfig.beam.endPointId,
+  ]);
   const selectableIds = new Set(selectableObjectIds);
   const interactivePointIds = new Set(
     [...selectableIds, ...overlayState.selectedIds].filter((id) => problem.points.some((point) => point.id === id)),
   );
+  const isBaseObject = (objectId: string) => baseObjectIds.has(objectId);
+  const shouldShowBaseObject = (objectId: string) => !hiddenBaseObjectIds.has(objectId);
+  const shouldShowObject = (objectId: string) =>
+    isBaseObject(objectId)
+      ? shouldShowBaseObject(objectId)
+      : usesAuthoredCanvasState
+        ? overlayState.isVisible(objectId)
+        : true;
   const shouldShowReaction = (reactionId: string) =>
-    usesAuthoredCanvasState ? overlayState.isVisibleOrSolved(reactionId) : isFreeBody;
+    usesAuthoredCanvasState ? overlayState.isVisible(reactionId) : isFreeBody;
   const shouldShowOverlay = (objectId: string) =>
-    usesAuthoredCanvasState
-      ? overlayState.isVisibleOrSolved(objectId) || overlayState.importantIds.has(objectId)
-      : isFreeBody;
-  const supportReactionIds = (supportId: string) =>
-    problem.unknownReactions.filter((reaction) => reaction.supportId === supportId).map((reaction) => reaction.id);
-  const shouldShowSupport = (supportId: string) =>
-    !isFreeBody && !supportReactionIds(supportId).some((reactionId) => shouldShowReaction(reactionId));
+    usesAuthoredCanvasState ? overlayState.isVisible(objectId) : isFreeBody;
+  const shouldShowPoint = (pointId: string) => shouldShowObject(pointId) || interactivePointIds.has(pointId);
+  const shouldShowSupport = (supportId: string) => shouldShowObject(supportId);
   const beamPresentation = {
     ...overlayState.getPresentation(diagramConfig.beam.bodyId, diagramColors.neutral),
     opacity: 1,
   };
 
-  const supportLayer = !isFreeBody ? (
+  const supportLayer = (
     <>
       {diagramConfig.supports.map((supportAnnotation) => {
         if (!shouldShowSupport(supportAnnotation.supportId)) {
@@ -457,17 +467,19 @@ export const BeamDiagramLayer = ({
         );
       })}
     </>
-  ) : null;
+  );
 
   return (
     <Layer>
-      <Line
-        points={[beamStart.x, beamStart.y, beamEnd.x, beamEnd.y]}
-        stroke={beamPresentation.color}
-        strokeWidth={4}
-        lineCap="round"
-        opacity={beamPresentation.opacity}
-      />
+      {shouldShowObject(diagramConfig.beam.bodyId) ? (
+        <Line
+          points={[beamStart.x, beamStart.y, beamEnd.x, beamEnd.y]}
+          stroke={beamPresentation.color}
+          strokeWidth={4}
+          lineCap="round"
+          opacity={beamPresentation.opacity}
+        />
+      ) : null}
       <Circle
         x={beamStart.x}
         y={beamStart.y}
@@ -475,7 +487,7 @@ export const BeamDiagramLayer = ({
         fill={diagramColors.paper}
         stroke={diagramColors.neutral}
         strokeWidth={1.5}
-        opacity={overlayState.getPresentation(diagramConfig.beam.startPointId, diagramColors.neutral).opacity}
+        opacity={shouldShowPoint(diagramConfig.beam.startPointId) ? 1 : 0}
       />
       <Circle
         x={beamEnd.x}
@@ -484,10 +496,13 @@ export const BeamDiagramLayer = ({
         fill={diagramColors.paper}
         stroke={diagramColors.neutral}
         strokeWidth={1.5}
-        opacity={overlayState.getPresentation(diagramConfig.beam.endPointId, diagramColors.neutral).opacity}
+        opacity={shouldShowPoint(diagramConfig.beam.endPointId) ? 1 : 0}
       />
 
       {diagramConfig.loadArrows.map((loadArrow) => {
+        if (!shouldShowObject(loadArrow.loadId)) {
+          return null;
+        }
         const load = findLoad(problem, loadArrow.loadId);
         const loadPoint = worldToCanvas(findPoint(problem, loadArrow.pointId));
         const presentation = overlayState.getPresentation(loadArrow.loadId, loadArrow.color ?? diagramColors.externalForce);
@@ -612,6 +627,9 @@ export const BeamDiagramLayer = ({
       ) : null}
 
       {diagramConfig.pointLabels.map((pointLabel) => {
+        if (!shouldShowPoint(pointLabel.pointId)) {
+          return null;
+        }
         const point = worldToCanvas(findPoint(problem, pointLabel.pointId));
         const labelPoint = offsetPoint(point, pointLabel.offset);
         const presentation = overlayState.getPresentation(pointLabel.pointId, diagramColors.neutral);
@@ -631,6 +649,9 @@ export const BeamDiagramLayer = ({
 
       {diagramConfig.dimensions.map((dimension) => {
         const dimensionId = dimension.id ?? `${dimension.startPointId}-${dimension.endPointId}-${dimension.label}`;
+        if (!shouldShowObject(dimensionId)) {
+          return null;
+        }
         const presentation = overlayState.getPresentation(dimensionId, diagramColors.neutral);
         return (
           <DimensionLine
@@ -649,16 +670,15 @@ export const BeamDiagramLayer = ({
         const point = worldToCanvas(findPoint(problem, pointId));
         const presentation = overlayState.getPresentation(pointId, diagramColors.selection);
         const isSelected = presentation.isSelected;
-        const isImportant = presentation.isImportant;
         return (
           <Circle
             key={`hit-${pointId}`}
             x={point.x}
             y={point.y}
-            radius={isSelected || isImportant ? 19 : 15}
+            radius={isSelected ? 19 : 15}
             fill={isSelected ? "rgba(0, 106, 97, 0.16)" : "rgba(0, 106, 97, 0.04)"}
-            stroke={isSelected || isImportant ? diagramColors.selection : "rgba(0, 106, 97, 0.55)"}
-            strokeWidth={isSelected || isImportant ? 3 : 1.5}
+            stroke={isSelected ? diagramColors.selection : "rgba(0, 106, 97, 0.55)"}
+            strokeWidth={isSelected ? 3 : 1.5}
             onClick={() => onObjectSelect?.(pointId)}
             onTap={() => onObjectSelect?.(pointId)}
           />

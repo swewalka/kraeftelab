@@ -643,49 +643,30 @@ const parsePracticeInteraction = (value: unknown, context: string): PracticeInte
 
 const parseCanvasState = (value: unknown, context: string): CanvasState => {
   const record = requireRecord(value, context);
-  const solvedValues =
-    record.solvedValues === undefined
-      ? undefined
-      : Object.fromEntries(
-          Object.entries(requireRecord(record.solvedValues, `${context}.solvedValues`)).map(([objectId, label]) => {
-            if (typeof label !== "string" || label.length === 0) {
-              throw new Error(`${context}.solvedValues.${objectId} must be a non-empty string.`);
-            }
-            return [objectId, label];
-          }),
-        );
+  const deprecatedFields = ["highlightedObjects", "dimmedObjects", "solvedValues", "solvedObjects"] as const;
+  deprecatedFields.forEach((field) => {
+    if (record[field] !== undefined) {
+      throw new Error(`${context}.${field} is no longer supported. Put every shown diagram id in visibleObjects.`);
+    }
+  });
 
   const canvasState: {
     visibleObjects?: readonly string[];
-    highlightedObjects?: readonly string[];
-    dimmedObjects?: readonly string[];
+    hiddenBaseObjects?: readonly string[];
     annotations?: readonly string[];
-    solvedValues?: Record<string, string>;
-    solvedObjects?: readonly string[];
   } = {};
   const visibleObjects = parseOptionalStringArray(record, "visibleObjects", context);
-  const highlightedObjects = parseOptionalStringArray(record, "highlightedObjects", context);
-  const dimmedObjects = parseOptionalStringArray(record, "dimmedObjects", context);
+  const hiddenBaseObjects = parseOptionalStringArray(record, "hiddenBaseObjects", context);
   const annotations = parseOptionalStringArray(record, "annotations", context);
-  const solvedObjects = parseOptionalStringArray(record, "solvedObjects", context);
 
   if (visibleObjects !== undefined) {
     canvasState.visibleObjects = visibleObjects;
   }
-  if (highlightedObjects !== undefined) {
-    canvasState.highlightedObjects = highlightedObjects;
-  }
-  if (dimmedObjects !== undefined) {
-    canvasState.dimmedObjects = dimmedObjects;
+  if (hiddenBaseObjects !== undefined) {
+    canvasState.hiddenBaseObjects = hiddenBaseObjects;
   }
   if (annotations !== undefined) {
     canvasState.annotations = annotations;
-  }
-  if (solvedValues !== undefined) {
-    canvasState.solvedValues = solvedValues;
-  }
-  if (solvedObjects !== undefined) {
-    canvasState.solvedObjects = solvedObjects;
   }
 
   return canvasState;
@@ -729,19 +710,12 @@ const parsePractice = (raw: unknown): PracticeContent => {
       stepRecord.successResult === undefined
         ? undefined
         : requireRecord(stepRecord.successResult, `practice.steps[${index}].successResult`);
-    const solvedValues =
-      successResult?.solvedValues === undefined
-        ? undefined
-        : Object.fromEntries(
-            Object.entries(requireRecord(successResult.solvedValues, `practice.steps[${index}].successResult.solvedValues`)).map(
-              ([objectId, label]) => {
-                if (typeof label !== "string" || label.length === 0) {
-                  throw new Error(`practice.steps[${index}].successResult.solvedValues.${objectId} must be a non-empty string.`);
-                }
-                return [objectId, label];
-              },
-            ),
-          );
+    if (successResult?.solvedValues !== undefined) {
+      throw new Error(`practice.steps[${index}].successResult.solvedValues is no longer supported. Use revealObjects.`);
+    }
+    if (successResult?.markObjectsSolved !== undefined) {
+      throw new Error(`practice.steps[${index}].successResult.markObjectsSolved is no longer supported. Use revealObjects.`);
+    }
 
     return {
       id: requireString(stepRecord, "id", `practice.steps[${index}]`),
@@ -764,18 +738,9 @@ const parsePractice = (raw: unknown): PracticeContent => {
         ? {}
         : {
             successResult: {
-              ...(solvedValues === undefined ? {} : { solvedValues }),
               ...(successResult.revealObjects === undefined
                 ? {}
                 : { revealObjects: parseStringArray(successResult.revealObjects, `practice.steps[${index}].successResult.revealObjects`) }),
-              ...(successResult.markObjectsSolved === undefined
-                ? {}
-                : {
-                    markObjectsSolved: parseStringArray(
-                      successResult.markObjectsSolved,
-                      `practice.steps[${index}].successResult.markObjectsSolved`,
-                    ),
-                  }),
             },
           }),
     };

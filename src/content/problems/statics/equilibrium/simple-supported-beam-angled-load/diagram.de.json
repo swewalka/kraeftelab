@@ -38,8 +38,8 @@
       {
         "reactionId": "reactionAx",
         "pointId": "pointA",
-        "tailOffset": { "x": 94, "y": 2 },
-        "tipOffset": { "x": 6, "y": 2 },
+        "tailOffset": { "x": 6, "y": 2 },
+        "tipOffset": { "x": 94, "y": 2 },
         "labelOffset": { "x": 18, "y": 18 },
         "fontSize": 22,
         "color": "#ef4444"
@@ -93,13 +93,11 @@
     ],
     "pointLabels": [
       { "pointId": "pointA", "text": "A", "offset": { "x": -48, "y": -10 }, "fontSize": 34 },
-      { "pointId": "pointB", "text": "B", "offset": { "x": 20, "y": -10 }, "fontSize": 34 },
-      { "pointId": "pointLoad", "text": "F", "offset": { "x": -6, "y": 18 }, "fontSize": 18 }
+      { "pointId": "pointB", "text": "B", "offset": { "x": 20, "y": -10 }, "fontSize": 34 }
     ],
     "dimensions": [
       { "id": "dimensionTotal", "startPointId": "pointA", "endPointId": "pointB", "label": "L", "yOffset": 116 },
-      { "id": "dimensionAtoLoad", "startPointId": "pointA", "endPointId": "pointLoad", "label": "a", "yOffset": 76 },
-      { "id": "dimensionLoadToB", "startPointId": "pointLoad", "endPointId": "pointB", "label": "L-a", "yOffset": 76 }
+      { "id": "dimensionAtoLoad", "startPointId": "pointA", "endPointId": "pointLoad", "label": "a", "yOffset": 76 }
     ],
     "bounds": {
       "startPointId": "pointA",

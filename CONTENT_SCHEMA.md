@@ -70,19 +70,22 @@ Solution steps and practice steps may define `canvasState` to drive diagram visi
 focus.
 
 Canvas state may define:
-- `visibleObjects`
-- `highlightedObjects`, retained as the field name for important/full-opacity objects
-- `dimmedObjects`
+- `visibleObjects`: authored, step-specific diagram object ids to show
+- `hiddenBaseObjects`: optional ids for renderer-defined base objects to hide
 - `annotations`
-- `solvedValues`, keyed by canvas object id
-- `solvedObjects`
+
+Renderer-defined base objects are visible by default and should be limited to stable context that
+does not carry step-specific teaching meaning. In the current beam renderer, base objects always
+include the beam body id and the two beam endpoint point ids. Support symbols, external load
+arrows, reaction arrows, component arrows, dimensions, angle markers, and other overlays are not
+base objects; include them in `visibleObjects` when a Solve or Practice step should show them.
 
 Solution-step canvas states are self-contained. They are not cumulative unless the content repeats
-previously revealed objects, solved objects, or solved values in the later step.
+previously revealed objects in the later step.
 
-Canvas `solvedValues` may mark an object as solved or visible, but diagram arrows should keep
-stable object labels such as force or reaction names. Exact formulas belong in explanation and
-practice feedback content, not in canvas arrow labels.
+Practice-step `successResult.revealObjects` may make objects visible after a completed step. Exact
+formulas belong in explanation and practice feedback content, not in canvas arrow labels or canvas
+state.
 
 Beam diagram configs may define `angleMarkers` for arc-based angle annotations. Each marker uses a
 diagram object id, anchor point id, label, radius, start/end angles in canvas degrees, label offset,
@@ -103,9 +106,10 @@ Problem registration compares `en` and `de` mechanics-critical structure. Keep t
 - ids and numeric values for parameters, points, bodies, supports, loads, reactions, and
   force decompositions
 - solver config and generated equation ids
-- solution equation ids, step ids, and canvas object id arrays
+- solution equation ids, step ids, and canvas object id arrays, including `visibleObjects` and
+  `hiddenBaseObjects`
 - practice step ids, interaction ids, expected equation semantics, correct ids, and canvas object
-  id arrays
+  id arrays, including `visibleObjects`, `hiddenBaseObjects`, and `revealObjects`
 - diagram object references such as load ids, reaction ids, component ids, point ids, and dimension
   endpoint ids
 

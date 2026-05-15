@@ -36,9 +36,7 @@ export type PracticeStep = Readonly<{
   }>;
   hints?: readonly PracticeHint[];
   successResult?: Readonly<{
-    solvedValues?: Record<string, string>;
     revealObjects?: readonly string[];
-    markObjectsSolved?: readonly string[];
   }>;
 }>;
 

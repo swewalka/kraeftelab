@@ -4,9 +4,9 @@ import type { TranslationKey } from "../../i18n/translations";
 export type AppMode = "explore" | "explain" | "practice";
 
 const modes: readonly { id: AppMode; labelKey: TranslationKey }[] = [
-  { id: "explore", labelKey: "modes.explore" },
   { id: "explain", labelKey: "modes.explain" },
   { id: "practice", labelKey: "modes.practice" },
+  { id: "explore", labelKey: "modes.explore" },
 ];
 
 type ModeTabsProps = Readonly<{
@@ -19,7 +19,7 @@ export const ModeTabs = ({ activeMode, onModeChange }: ModeTabsProps) => {
 
   return (
     <div
-      className="grid h-12 w-full grid-cols-3 rounded-md border border-line/55 bg-muted p-1 shadow-tool"
+      className="grid h-10 w-full grid-cols-3 rounded-md border border-line/55 bg-muted p-1 shadow-tool"
       role="tablist"
       aria-label={t("modes.ariaLabel")}
     >
@@ -33,7 +33,7 @@ export const ModeTabs = ({ activeMode, onModeChange }: ModeTabsProps) => {
             role="tab"
             aria-selected={isActive}
             className={[
-              "ui-focus flex min-h-9 items-center justify-center rounded font-display text-sm font-bold leading-none tracking-[0.14em] transition",
+              "ui-focus flex min-h-7 items-center justify-center rounded font-display text-sm font-bold leading-none tracking-normal transition",
               isActive ? "bg-white text-signal shadow-tool" : "text-ink hover:bg-white/60 hover:text-signal",
             ].join(" ")}
             onClick={() => onModeChange(mode.id)}

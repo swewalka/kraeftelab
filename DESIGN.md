@@ -153,7 +153,7 @@ This design system uses **Tonal Layering** and **Low-Contrast Outlines** rather 
 - **Level 1 (Cards/Containers):** Pure white background with a 1px border (#E5E7EB). Shadows are avoided here to keep the "flat notebook" feel.
 - **Level 2 (Floating Controls):** Used for pan/zoom tools and mode selectors. These feature a very soft, diffused shadow (0px 4px 20px rgba(0,0,0,0.05)) to suggest they are "tools" resting on top of the paper.
 - **Active State:** Elements being dragged or interacted with gain a slightly sharper border using the Technical Teal accent.
-- **Canvas Focus:** Diagram focus should be expressed through visibility and opacity, not by recoloring mechanics objects. Important objects stay fully visible; contextual objects may be dimmed.
+- **Canvas Focus:** Diagram focus should be expressed through binary visibility, not by recoloring or dimming mechanics objects. Authored Solve and Practice canvas objects are either visible at normal opacity or not rendered.
 
 ## Shapes
 

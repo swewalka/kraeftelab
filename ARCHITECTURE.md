@@ -37,15 +37,22 @@ behavior.
 React components render already-parsed content and solver results. They should not contain curated
 mechanics solution facts.
 
+The app opens on a simple catalog landing page built from `problemCatalog`. It groups problems by
+the structured problem `topic`, shows localized problem metadata from content, and then hands the
+selected problem id to the existing single-problem learning workspace. There is intentionally no
+separate routing layer yet.
+
 The beam diagram renderer remains beam-specific, but shared diagram overlay helpers own reusable
-force-arrow, component-arrow, angle-marker, label, dimension, opacity, and solved-state styling.
+force-arrow, component-arrow, angle-marker, label, dimension, and visibility styling.
 Beam diagram files still own beam-specific placement offsets and visibility ids. Decomposition
 overlay labels are resolved from force component ids.
 
-Solve and Practice mode share the same neutral canvas-state contract for visible objects,
-important objects, dimming, solved objects, and solved value ids. Solve mode consumes authored
-per-solution-step canvas state directly. Practice mode builds its canvas state from the active
-practice step plus completed-step success results; interaction, validation, hints, and accumulated
-progress remain practice-specific. `highlightedObjects` is retained as the content field name for
-backward compatibility, but renderers treat it as the set of important full-opacity objects rather
-than as a colored highlight request.
+Solve and Practice mode share the same neutral canvas-state contract. Renderers may define a small,
+stable set of base context objects that are visible by default; the current beam renderer's base set
+is the beam body plus endpoint markers/labels for A and B. Authored `visibleObjects` controls
+step-specific teaching objects such as supports, loads, reactions, component arrows, dimensions,
+angle markers, and other overlays. `hiddenBaseObjects` is an optional escape hatch for hiding base
+objects. Solve mode consumes authored per-solution-step canvas state directly. Practice mode builds
+its canvas state from the active practice step plus completed-step `revealObjects`; interaction,
+validation, hints, and accumulated progress remain practice-specific. Diagram focus is binary:
+authored objects are visible at normal opacity or not rendered.

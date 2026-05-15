@@ -32,6 +32,11 @@ listed item, delete that item from this file during the same handoff.
 - Decide how Explore Mode will show real numeric values without leaking numeric display into Solve
   or Practice.
 
+## UI/UX
+
+- Rework the workspace header layout: the current problem title and mode toggle placement is
+  functional but not final, and needs better spacing/responsiveness.
+
 ## Mechanics Domain Model
 
 - Introduce a more general physical entity model for bodies, forces, supports, contact forces,
@@ -48,7 +53,6 @@ listed item, delete that item from this file during the same handoff.
   aligned across locales.
 - Reduce duplicated localized JSON structure where possible without mixing localized prose into
   generic mechanics logic.
-- Add a problem preview/catalog panel once the content library grows beyond a few problems.
 - Keep adding new beam problems only if they fit the current fixed-path beam reaction pattern; do
   not use near-duplicate content growth as a substitute for the semantic equation and diagram work
   above.

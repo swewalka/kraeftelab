@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "../components/layout/AppShell";
 import { ModeTabs, type AppMode } from "../components/layout/ModeTabs";
 import { MechanicsCanvas } from "../components/diagram/MechanicsCanvas";
+import { ProblemCatalogLanding } from "../components/landing/ProblemCatalogLanding";
 import { ProblemOverview } from "../components/problem/ProblemOverview";
 import { SolutionPanel } from "../components/equations/SolutionPanel";
 import { PracticePanel } from "../components/practice/PracticePanel";
@@ -21,13 +22,13 @@ export const App = () => {
   const [activeMode, setActiveMode] = useState<AppMode>("explain");
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [activeProblemId, setActiveProblemId] = useState(() => getDefaultProblem(locale).problem.id);
+  const [isCatalogOpen, setIsCatalogOpen] = useState(true);
   const problemContent = getProblemById(activeProblemId, locale);
   const { diagram, explore, practice, problem, solution } = problemContent;
   const [practiceSession, setPracticeSession] = useState(() => createInitialPracticeSession(practice.steps));
   const solverResult = useMemo(() => solveProblem(problem), [problem]);
   const solutionSteps = useMemo(() => buildSolutionSteps(solution, solverResult), [solution, solverResult]);
   const stageLabel = activeMode === "explain" ? diagram.stageLabels.solution : diagram.stageLabels.default;
-  const canvasMode: AppMode = activeMode === "explain" && activeStepIndex === 0 ? "explore" : activeMode;
   const activePracticeStep = getActivePracticeStep(practice, practiceSession);
   const solutionCanvasState = activeMode === "explain" ? solutionSteps[activeStepIndex]?.canvasState : undefined;
   const practiceCanvasState = activeMode === "practice" ? buildPracticeCanvasState(practice, practiceSession) : undefined;
@@ -55,6 +56,11 @@ export const App = () => {
     if (mode === "explain") {
       setActiveStepIndex(0);
     }
+  };
+
+  const handleProblemSelect = (problemId: string) => {
+    setActiveProblemId(problemId);
+    setIsCatalogOpen(false);
   };
 
   const handleCanvasObjectSelect = (objectId: string) => {
@@ -86,19 +92,22 @@ export const App = () => {
 
   const topicEyebrow = `${t("topic.statics")}: ${solution.title}`;
 
+  if (isCatalogOpen) {
+    return <ProblemCatalogLanding problems={problemCatalog[locale]} onProblemSelect={handleProblemSelect} />;
+  }
+
   return (
     <AppShell
       problemTitle={problem.title}
-      problems={problemCatalog[locale].map((entry) => ({ id: entry.problem.id, title: entry.problem.title }))}
-      activeProblemId={problem.id}
-      onProblemChange={setActiveProblemId}
+      modeNavigation={<ModeTabs activeMode={activeMode} onModeChange={handleModeChange} />}
+      onCatalogOpen={() => setIsCatalogOpen(true)}
     >
       <div className="grid h-full grid-cols-[minmax(680px,1fr)_560px]">
         <MechanicsCanvas
           problem={problem}
           solverResult={solverResult}
           diagram={diagram}
-          mode={canvasMode}
+          mode={activeMode}
           stageLabel={stageLabel}
           canvasState={activeCanvasState}
           selectableObjectIds={selectableObjectIds}
@@ -107,10 +116,6 @@ export const App = () => {
         />
 
         <aside className="flex min-h-0 flex-col border-l border-line/75 bg-surface">
-          <div className="px-14 pt-16">
-            <ModeTabs activeMode={activeMode} onModeChange={handleModeChange} />
-          </div>
-
           {activeMode === "explore" ? (
             <div className="min-h-0 flex-1 overflow-y-auto px-14 pb-10 pt-12">
               <ProblemOverview problem={problem} eyebrow={topicEyebrow} />

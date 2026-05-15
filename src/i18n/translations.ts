@@ -18,6 +18,16 @@ export type TranslationKey =
   | "canvas.zoomOut"
   | "canvas.resetView"
   | "topic.statics"
+  | "topic.staticsEquilibrium"
+  | "landing.eyebrow"
+  | "landing.title"
+  | "landing.subtitle"
+  | "landing.availableProblems"
+  | "landing.problemCount"
+  | "landing.startProblem"
+  | "landing.openProblem"
+  | "landing.problemType"
+  | "landing.backToCatalog"
   | "problem.current"
   | "problem.select"
   | "progress.step"
@@ -63,6 +73,16 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "canvas.zoomOut": "Zoom out",
     "canvas.resetView": "Reset view",
     "topic.statics": "Statics",
+    "topic.staticsEquilibrium": "Statics: equilibrium",
+    "landing.eyebrow": "Mechanics practice",
+    "landing.title": "Choose a statics problem",
+    "landing.subtitle": "Pick a topic and start one of the currently implemented interactive examples.",
+    "landing.availableProblems": "Available problems",
+    "landing.problemCount": "{count} problems",
+    "landing.startProblem": "Start problem",
+    "landing.openProblem": "Open {title}",
+    "landing.problemType": "Problem type",
+    "landing.backToCatalog": "Overview",
     "problem.current": "Current problem",
     "problem.select": "Problem",
     "progress.step": "Step {current} of {total}",
@@ -97,9 +117,9 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "language.en": "EN",
     "language.de": "DE",
     "modes.ariaLabel": "Lernmodi",
-    "modes.explore": "Explore",
-    "modes.explain": "Solve",
-    "modes.practice": "Practice",
+    "modes.explore": "Erkunden",
+    "modes.explain": "Erklären",
+    "modes.practice": "Üben",
     "canvas.defaultLabel": "Mechanik-Zeichenfläche",
     "canvas.engineLabel": "Konva-Zeichenfläche",
     "canvas.controls": "Zeichenflächen-Steuerung",
@@ -107,6 +127,16 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "canvas.zoomOut": "Verkleinern",
     "canvas.resetView": "Ansicht zurücksetzen",
     "topic.statics": "Statik",
+    "topic.staticsEquilibrium": "Statik: Gleichgewicht",
+    "landing.eyebrow": "Mechanik-Training",
+    "landing.title": "Wähle eine Statik-Aufgabe",
+    "landing.subtitle": "Wähle ein Thema und starte eines der aktuell umgesetzten interaktiven Beispiele.",
+    "landing.availableProblems": "Verfügbare Aufgaben",
+    "landing.problemCount": "{count} Aufgaben",
+    "landing.startProblem": "Aufgabe starten",
+    "landing.openProblem": "{title} öffnen",
+    "landing.problemType": "Aufgabentyp",
+    "landing.backToCatalog": "Übersicht",
     "problem.current": "Aktuelle Aufgabe",
     "problem.select": "Aufgabe",
     "progress.step": "Schritt {current} von {total}",

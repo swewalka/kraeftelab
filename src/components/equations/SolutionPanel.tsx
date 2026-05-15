@@ -51,14 +51,16 @@ export const SolutionPanel = ({ eyebrow, solution, steps, activeStepIndex, onSte
           ) : null}
         </article>
 
-        <section className="mt-8 rounded-lg border border-line/80 bg-white p-6">
-          <h3 className="technical-label text-steel">{t("solution.assumptions")}</h3>
-          <ul className="mt-4 space-y-3 text-base leading-7 text-steel">
-            {solution.assumptions.map((assumption) => (
-              <li key={assumption}>{assumption}</li>
-            ))}
-          </ul>
-        </section>
+        {isFirstStep ? (
+          <section className="mt-8 rounded-lg border border-load/30 bg-loadMist p-6 shadow-tool">
+            <h3 className="technical-label text-load">{t("solution.assumptions")}</h3>
+            <ul className="mt-4 space-y-3 text-base leading-7 text-steel">
+              {solution.assumptions.map((assumption) => (
+                <li key={assumption}>{assumption}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-[1fr_1fr_1.4fr] gap-3 pt-8">

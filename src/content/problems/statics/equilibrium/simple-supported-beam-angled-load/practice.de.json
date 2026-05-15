@@ -7,69 +7,157 @@
       "title": "Lagerreaktionen bestimmen",
       "goal": "Wähle alle unbekannten Lagerreaktionen, die in den Freischnitt gehören.",
       "canvasState": {
-        "highlightedObjects": [
-          "beam",
+        "visibleObjects": [
           "supportA",
           "supportB",
           "angledLoad",
-          "pointA",
-          "pointB",
           "pointLoad",
           "dimensionTotal",
-          "dimensionAtoLoad",
-          "dimensionLoadToB"
+          "dimensionAtoLoad"
         ]
       },
       "interaction": {
         "type": "checkbox",
         "options": [
-          { "id": "reactionAx", "label": "A_x", "latex": "A_x" },
-          { "id": "reactionAy", "label": "A_y", "latex": "A_y" },
-          { "id": "momentA", "label": "M_A", "latex": "M_A" },
-          { "id": "reactionBx", "label": "B_x", "latex": "B_x" },
-          { "id": "reactionBy", "label": "B_y", "latex": "B_y" },
-          { "id": "momentB", "label": "M_B", "latex": "M_B" }
+          {
+            "id": "reactionAx",
+            "label": "A_x",
+            "latex": "A_x"
+          },
+          {
+            "id": "reactionAy",
+            "label": "A_y",
+            "latex": "A_y"
+          },
+          {
+            "id": "momentA",
+            "label": "M_A",
+            "latex": "M_A"
+          },
+          {
+            "id": "reactionBx",
+            "label": "B_x",
+            "latex": "B_x"
+          },
+          {
+            "id": "reactionBy",
+            "label": "B_y",
+            "latex": "B_y"
+          },
+          {
+            "id": "momentB",
+            "label": "M_B",
+            "latex": "M_B"
+          }
         ],
-        "correctOptionIds": ["reactionAx", "reactionAy", "reactionBy"]
+        "correctOptionIds": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy"
+        ]
       },
       "feedback": {
         "correct": "Richtig. Das Festlager A liefert A_x und A_y, das Loslager B liefert B_y.",
         "genericIncorrect": "Prüfe, welche Bewegungen die Lager verhindern können.",
         "mistakes": [
-          { "id": "selected:momentA", "text": "Ein Festlager überträgt kein Lagermoment." },
-          { "id": "selected:reactionBx", "text": "Das Loslager B erzeugt keine horizontale Lagerkraft." },
-          { "id": "selected:momentB", "text": "Ein Loslager überträgt kein Moment." },
-          { "id": "missing:reactionAx", "text": "Das Festlager A verhindert horizontale Bewegung, daher ist A_x unbekannt." },
-          { "id": "missing:reactionAy", "text": "Das Festlager A verhindert vertikale Bewegung, daher ist A_y unbekannt." },
-          { "id": "missing:reactionBy", "text": "Das Loslager B erzeugt die vertikale Lagerkraft B_y." }
+          {
+            "id": "selected:momentA",
+            "text": "Ein Festlager überträgt kein Lagermoment."
+          },
+          {
+            "id": "selected:reactionBx",
+            "text": "Das Loslager B erzeugt keine horizontale Lagerkraft."
+          },
+          {
+            "id": "selected:momentB",
+            "text": "Ein Loslager überträgt kein Moment."
+          },
+          {
+            "id": "missing:reactionAx",
+            "text": "Das Festlager A verhindert horizontale Bewegung, daher ist A_x unbekannt."
+          },
+          {
+            "id": "missing:reactionAy",
+            "text": "Das Festlager A verhindert vertikale Bewegung, daher ist A_y unbekannt."
+          },
+          {
+            "id": "missing:reactionBy",
+            "text": "Das Loslager B erzeugt die vertikale Lagerkraft B_y."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Ein Festlager hat zwei Kraftkomponenten." },
-        { "level": 2, "text": "Ein Loslager hat eine Reaktion normal zur Auflagerfläche." },
-        { "level": 3, "text": "Keines der Lager ist eine Einspannung, daher gibt es kein Lagermoment." }
+        {
+          "level": 1,
+          "text": "Ein Festlager hat zwei Kraftkomponenten."
+        },
+        {
+          "level": 2,
+          "text": "Ein Loslager hat eine Reaktion normal zur Auflagerfläche."
+        },
+        {
+          "level": 3,
+          "text": "Keines der Lager ist eine Einspannung, daher gibt es kein Lagermoment."
+        }
       ],
-      "successResult": { "revealObjects": ["reactionAx", "reactionAy", "reactionBy"] }
+      "successResult": {
+        "revealObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy"
+        ]
+      }
     },
     {
       "id": "decompose-force",
       "title": "Schräge Kraft zerlegen",
       "goal": "Ordne jede Komponenten-Aussage dem passenden Ausdruck zu.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy", "angleAlpha"],
-        "highlightedObjects": ["angledLoad", "componentFx", "componentFy", "angleAlpha"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy",
+          "angleAlpha",
+          "angledLoad"
+        ]
       },
       "interaction": {
         "type": "matching",
         "leftItems": [
-          { "id": "horizontalComponent", "label": "horizontale Komponente", "latex": "F_x" },
-          { "id": "verticalMagnitude", "label": "Betrag der vertikalen Komponente", "latex": "|F_y|" },
-          { "id": "verticalSigned", "label": "Beitrag in der vertikalen Gleichung", "latex": "F_y" }
+          {
+            "id": "horizontalComponent",
+            "label": "horizontale Komponente",
+            "latex": "F_x"
+          },
+          {
+            "id": "verticalMagnitude",
+            "label": "Betrag der vertikalen Komponente",
+            "latex": "|F_y|"
+          },
+          {
+            "id": "verticalSigned",
+            "label": "Beitrag in der vertikalen Gleichung",
+            "latex": "F_y"
+          }
         ],
         "rightItems": [
-          { "id": "fCos", "label": "F cos(alpha)", "latex": "F\\cos(\\alpha)" },
-          { "id": "fSin", "label": "F sin(alpha)", "latex": "F\\sin(\\alpha)" },
-          { "id": "negativeFSin", "label": "-F sin(alpha)", "latex": "-F\\sin(\\alpha)" }
+          {
+            "id": "fCos",
+            "label": "F cos(alpha)",
+            "latex": "F\\cos(\\alpha)"
+          },
+          {
+            "id": "fSin",
+            "label": "F sin(alpha)",
+            "latex": "F\\sin(\\alpha)"
+          },
+          {
+            "id": "negativeFSin",
+            "label": "-F sin(alpha)",
+            "latex": "-F\\sin(\\alpha)"
+          }
         ],
         "correctPairs": {
           "horizontalComponent": "fCos",
@@ -79,20 +167,49 @@
       },
       "feedback": {
         "correct": [
-          { "type": "paragraph", "text": "Richtig. Der Betrag der vertikalen Komponente ist positiv, ihr Vorzeichen in der Gleichung ist aber negativ:" },
-          { "type": "math", "latex": "F_y = -F\\sin(\\alpha)" }
+          {
+            "type": "paragraph",
+            "text": "Richtig. Der Betrag der vertikalen Komponente ist positiv, ihr Vorzeichen in der Gleichung ist aber negativ:"
+          },
+          {
+            "type": "math",
+            "latex": "F_y = -F\\sin(\\alpha)"
+          }
         ],
         "genericIncorrect": "Trenne den Komponentenbetrag vom vorzeichenbehafteten Beitrag in der Gleichgewichtsbedingung.",
         "mistakes": [
-          { "id": "wrong:horizontalComponent", "text": "Da alpha von der x-Achse gemessen wird, gehört zur horizontalen Komponente der Kosinus." },
-          { "id": "wrong:verticalMagnitude", "text": "Der Betrag der vertikalen Komponente ist positiv." },
-          { "id": "wrong:verticalSigned", "text": "Die Kraft zeigt nach unten, daher ist der y-Beitrag negativ." }
+          {
+            "id": "wrong:horizontalComponent",
+            "text": "Da alpha von der x-Achse gemessen wird, gehört zur horizontalen Komponente der Kosinus."
+          },
+          {
+            "id": "wrong:verticalMagnitude",
+            "text": "Der Betrag der vertikalen Komponente ist positiv."
+          },
+          {
+            "id": "wrong:verticalSigned",
+            "text": "Die Kraft zeigt nach unten, daher ist der y-Beitrag negativ."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Die an alpha anliegende Komponente verwendet den Kosinus." },
-        { "level": 2, "text": "Die vertikale Komponente zeigt nach unten." },
-        { "level": 3, "content": [{ "type": "math", "latex": "F_x=F\\cos(\\alpha),\\quad F_y=-F\\sin(\\alpha)" }] }
+        {
+          "level": 1,
+          "text": "Die an alpha anliegende Komponente verwendet den Kosinus."
+        },
+        {
+          "level": 2,
+          "text": "Die vertikale Komponente zeigt nach unten."
+        },
+        {
+          "level": 3,
+          "content": [
+            {
+              "type": "math",
+              "latex": "F_x=F\\cos(\\alpha),\\quad F_y=-F\\sin(\\alpha)"
+            }
+          ]
+        }
       ]
     },
     {
@@ -100,52 +217,159 @@
       "title": "Horizontales Kräftegleichgewicht aufstellen",
       "goal": "Wähle die Terme für das horizontale Kräftegleichgewicht.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy", "angleAlpha"],
-        "highlightedObjects": ["reactionAx", "componentFx"],
-        "dimmedObjects": ["reactionAy", "reactionBy", "componentFy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy",
+          "angleAlpha"
+        ]
       },
       "interaction": {
         "type": "equation-builder",
         "equationTarget": "sumFx",
         "availableTerms": [
-          { "id": "axPositive", "latex": "+ A_x", "semantic": { "variable": "A_x", "direction": "x", "sign": "+" } },
-          { "id": "axNegative", "latex": "- A_x", "semantic": { "variable": "A_x", "direction": "x", "sign": "-" } },
-          { "id": "fCosPositive", "latex": "+ F\\cos(\\alpha)", "semantic": { "variable": "F", "direction": "x", "sign": "+", "factor": "cos(alpha)", "componentId": "angledLoadFx" } },
-          { "id": "fCosNegative", "latex": "- F\\cos(\\alpha)", "semantic": { "variable": "F", "direction": "x", "sign": "-", "factor": "cos(alpha)", "componentId": "angledLoadFx" } },
-          { "id": "fSinNegative", "latex": "- F\\sin(\\alpha)", "semantic": { "variable": "F", "direction": "y", "sign": "-", "factor": "sin(alpha)", "componentId": "angledLoadFy" } }
+          {
+            "id": "axPositive",
+            "latex": "+ A_x",
+            "semantic": {
+              "variable": "A_x",
+              "direction": "x",
+              "sign": "+"
+            }
+          },
+          {
+            "id": "axNegative",
+            "latex": "- A_x",
+            "semantic": {
+              "variable": "A_x",
+              "direction": "x",
+              "sign": "-"
+            }
+          },
+          {
+            "id": "fCosPositive",
+            "latex": "+ F\\cos(\\alpha)",
+            "semantic": {
+              "variable": "F",
+              "direction": "x",
+              "sign": "+",
+              "factor": "cos(alpha)",
+              "componentId": "angledLoadFx"
+            }
+          },
+          {
+            "id": "fCosNegative",
+            "latex": "- F\\cos(\\alpha)",
+            "semantic": {
+              "variable": "F",
+              "direction": "x",
+              "sign": "-",
+              "factor": "cos(alpha)",
+              "componentId": "angledLoadFx"
+            }
+          },
+          {
+            "id": "fSinNegative",
+            "latex": "- F\\sin(\\alpha)",
+            "semantic": {
+              "variable": "F",
+              "direction": "y",
+              "sign": "-",
+              "factor": "sin(alpha)",
+              "componentId": "angledLoadFy"
+            }
+          }
         ],
         "expectedEquation": {
           "equationType": "sumFx",
           "terms": [
-            { "variable": "A_x", "sign": "+" },
-            { "variable": "F", "sign": "+", "factor": "cos(alpha)", "componentId": "angledLoadFx" }
+            {
+              "variable": "A_x",
+              "sign": "+"
+            },
+            {
+              "variable": "F",
+              "sign": "+",
+              "factor": "cos(alpha)",
+              "componentId": "angledLoadFx"
+            }
           ],
           "rhs": "0"
         }
       },
       "feedback": {
         "correct": [
-          { "type": "paragraph", "text": "Richtig. Aus dem horizontalen Gleichgewicht folgt:" },
-          { "type": "math", "latex": "A_x + F\\cos(\\alpha) = 0" },
-          { "type": "math", "latex": "A_x = -F\\cos(\\alpha)" }
+          {
+            "type": "paragraph",
+            "text": "Richtig. Aus dem horizontalen Gleichgewicht folgt:"
+          },
+          {
+            "type": "math",
+            "latex": "A_x + F\\cos(\\alpha) = 0"
+          },
+          {
+            "type": "math",
+            "latex": "A_x = -F\\cos(\\alpha)"
+          },
+          {
+            "type": "paragraph",
+            "text": "Das negative Vorzeichen bedeutet: Die tatsächliche Lagerkraft wirkt entgegen der angenommenen positiven Pfeilrichtung."
+          }
         ],
         "genericIncorrect": "In das horizontale Kräftegleichgewicht gehören nur Terme in x-Richtung.",
         "mistakes": [
-          { "id": "wrongSign:F", "text": "Die horizontale Komponente zeigt nach rechts und ist daher positiv." },
-          { "id": "wrongSign:A_x", "text": "Setze A_x zuerst mit positiver angenommener Richtung an." },
-          { "id": "extra:F", "text": "Verwende die horizontale Komponente, nicht die vertikale." },
-          { "id": "missing:A_x:+:", "text": "A_x muss im horizontalen Gleichgewicht enthalten sein." },
-          { "id": "missing:F:+:cos(alpha)", "text": "Die horizontale Komponente ist F cos(alpha)." }
+          {
+            "id": "wrongSign:F",
+            "text": "Die horizontale Komponente zeigt nach rechts und ist daher positiv."
+          },
+          {
+            "id": "wrongSign:A_x",
+            "text": "Setze A_x zuerst mit positiver angenommener Richtung an."
+          },
+          {
+            "id": "extra:F",
+            "text": "Verwende die horizontale Komponente, nicht die vertikale."
+          },
+          {
+            "id": "missing:A_x:+:",
+            "text": "A_x muss im horizontalen Gleichgewicht enthalten sein."
+          },
+          {
+            "id": "missing:F:+:cos(alpha)",
+            "text": "Die horizontale Komponente ist F cos(alpha)."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Das Loslager B hat keine horizontale Reaktion." },
-        { "level": 2, "content": [{ "type": "math", "latex": "\\sum F_x = A_x + F\\cos(\\alpha)" }] },
-        { "level": 3, "content": [{ "type": "math", "latex": "A_x = -F\\cos(\\alpha)" }] }
+        {
+          "level": 1,
+          "text": "Das Loslager B hat keine horizontale Reaktion."
+        },
+        {
+          "level": 2,
+          "content": [
+            {
+              "type": "math",
+              "latex": "\\sum F_x = A_x + F\\cos(\\alpha)"
+            }
+          ]
+        },
+        {
+          "level": 3,
+          "content": [
+            {
+              "type": "math",
+              "latex": "A_x = -F\\cos(\\alpha)"
+            }
+          ]
+        }
       ],
       "successResult": {
-        "solvedValues": { "reactionAx": "A_x = -F cos(α)" },
-        "markObjectsSolved": ["reactionAx"]
+        "revealObjects": [
+          "reactionAx"
+        ]
       }
     },
     {
@@ -154,32 +378,71 @@
       "goal": "Klicke in der Zeichenfläche auf den Punkt, mit dem die Momentengleichung B_y direkt liefert.",
       "instructions": "Wähle den Punkt in der Zeichenfläche und prüfe dann deine Antwort.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["pointA", "pointLoad", "pointB"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy",
+          "pointLoad"
+        ]
       },
       "interaction": {
         "type": "canvas-click",
-        "selectableIds": ["pointA", "pointLoad", "pointB"],
-        "correctSelectableIds": ["pointA"],
+        "selectableIds": [
+          "pointA",
+          "pointLoad",
+          "pointB"
+        ],
+        "correctSelectableIds": [
+          "pointA"
+        ],
         "labels": [
-          { "id": "pointA", "label": "A" },
-          { "id": "pointLoad", "label": "Kraftangriffspunkt" },
-          { "id": "pointB", "label": "B" }
+          {
+            "id": "pointA",
+            "label": "A"
+          },
+          {
+            "id": "pointLoad",
+            "label": "Kraftangriffspunkt"
+          },
+          {
+            "id": "pointB",
+            "label": "B"
+          }
         ]
       },
       "feedback": {
         "correct": "Richtig. Um A haben A_x und A_y den Hebelarm null, daher lässt sich B_y direkt bestimmen.",
         "genericIncorrect": "Wähle einen Punkt, der möglichst viele unbekannte Lagerreaktionen aus der Momentengleichung entfernt.",
         "mistakes": [
-          { "id": "selected:pointLoad", "text": "Der Kraftangriffspunkt entfernt die Last, aber beide Lagerreaktionen bleiben erhalten." },
-          { "id": "selected:pointB", "text": "Punkt B ist möglich, liefert aber zuerst A_y. Punkt A liefert B_y direkt." },
-          { "id": "missing:pointA", "text": "Verwende Punkt A, damit die Reaktionen bei A keinen Hebelarm haben." }
+          {
+            "id": "selected:pointLoad",
+            "text": "Der Kraftangriffspunkt entfernt die Last, aber beide Lagerreaktionen bleiben erhalten."
+          },
+          {
+            "id": "selected:pointB",
+            "text": "Punkt B ist möglich, liefert aber zuerst A_y. Punkt A liefert B_y direkt."
+          },
+          {
+            "id": "missing:pointA",
+            "text": "Verwende Punkt A, damit die Reaktionen bei A keinen Hebelarm haben."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Eine Kraft durch den Momentenpunkt erzeugt kein Moment." },
-        { "level": 2, "text": "Momente um A entfernen A_x und A_y." },
-        { "level": 3, "text": "Um A bleiben nur die vertikale Lastkomponente und B_y übrig." }
+        {
+          "level": 1,
+          "text": "Eine Kraft durch den Momentenpunkt erzeugt kein Moment."
+        },
+        {
+          "level": 2,
+          "text": "Momente um A entfernen A_x und A_y."
+        },
+        {
+          "level": 3,
+          "text": "Um A bleiben nur die vertikale Lastkomponente und B_y übrig."
+        }
       ]
     },
     {
@@ -187,23 +450,61 @@
       "title": "Hebelarme um A bestimmen",
       "goal": "Ordne jeder Kraft oder Komponente den senkrechten Hebelarm um A zu.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["pointA", "componentFy", "reactionBy", "dimensionAtoLoad", "dimensionTotal"],
-        "dimmedObjects": ["reactionAx", "reactionAy", "componentFx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy",
+          "dimensionAtoLoad",
+          "dimensionTotal"
+        ]
       },
       "interaction": {
         "type": "matching",
         "leftItems": [
-          { "id": "reactionAx", "label": "A_x", "latex": "A_x" },
-          { "id": "reactionAy", "label": "A_y", "latex": "A_y" },
-          { "id": "componentFx", "label": "F cos(alpha)", "latex": "F\\cos(\\alpha)" },
-          { "id": "componentFy", "label": "F sin(alpha)", "latex": "F\\sin(\\alpha)" },
-          { "id": "reactionBy", "label": "B_y", "latex": "B_y" }
+          {
+            "id": "reactionAx",
+            "label": "A_x",
+            "latex": "A_x"
+          },
+          {
+            "id": "reactionAy",
+            "label": "A_y",
+            "latex": "A_y"
+          },
+          {
+            "id": "componentFx",
+            "label": "F cos(alpha)",
+            "latex": "F\\cos(\\alpha)"
+          },
+          {
+            "id": "componentFy",
+            "label": "F sin(alpha)",
+            "latex": "F\\sin(\\alpha)"
+          },
+          {
+            "id": "reactionBy",
+            "label": "B_y",
+            "latex": "B_y"
+          }
         ],
         "rightItems": [
-          { "id": "zero", "label": "0", "latex": "0" },
-          { "id": "a", "label": "a", "latex": "a" },
-          { "id": "length", "label": "L", "latex": "L" }
+          {
+            "id": "zero",
+            "label": "0",
+            "latex": "0"
+          },
+          {
+            "id": "a",
+            "label": "a",
+            "latex": "a"
+          },
+          {
+            "id": "length",
+            "label": "L",
+            "latex": "L"
+          }
         ],
         "correctPairs": {
           "reactionAx": "zero",
@@ -217,15 +518,38 @@
         "correct": "Richtig. Die horizontale Komponente liegt in diesem Zeichenmodell auf der Balkenachse und hat um A den Hebelarm null.",
         "genericIncorrect": "Miss den senkrechten Abstand von A zur jeweiligen Wirkungslinie.",
         "mistakes": [
-          { "id": "wrong:componentFx", "text": "Die Kraft greift auf der Balkenachse an, daher hat F cos(alpha) um A kein Moment." },
-          { "id": "wrong:componentFy", "text": "Die vertikale Komponente greift im Abstand a von A an." },
-          { "id": "wrong:reactionBy", "text": "B_y greift bei B an, also im Abstand L von A." }
+          {
+            "id": "wrong:componentFx",
+            "text": "Die Kraft greift auf der Balkenachse an, daher hat F cos(alpha) um A kein Moment."
+          },
+          {
+            "id": "wrong:componentFy",
+            "text": "Die vertikale Komponente greift im Abstand a von A an."
+          },
+          {
+            "id": "wrong:reactionBy",
+            "text": "B_y greift bei B an, also im Abstand L von A."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Kräfte am Punkt A haben Hebelarm null." },
-        { "level": 2, "text": "Die horizontale Komponente wirkt entlang der Balkenachse." },
-        { "level": 3, "content": [{ "type": "math", "latex": "r_{F\\sin(\\alpha)}=a,\\quad r_{B_y}=L" }] }
+        {
+          "level": 1,
+          "text": "Kräfte am Punkt A haben Hebelarm null."
+        },
+        {
+          "level": 2,
+          "text": "Die horizontale Komponente wirkt entlang der Balkenachse."
+        },
+        {
+          "level": 3,
+          "content": [
+            {
+              "type": "math",
+              "latex": "r_{F\\sin(\\alpha)}=a,\\quad r_{B_y}=L"
+            }
+          ]
+        }
       ]
     },
     {
@@ -233,33 +557,72 @@
       "title": "Momentenvorzeichen bestimmen",
       "goal": "Verwende gegen den Uhrzeigersinn positiv und ordne jedem Momententerm sein Vorzeichen zu.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["pointA", "componentFy", "reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       },
       "interaction": {
         "type": "matching",
         "leftItems": [
-          { "id": "termByL", "label": "B_y · L", "latex": "B_y\\cdot L" },
-          { "id": "termFSinA", "label": "F sin(alpha) · a", "latex": "F\\sin(\\alpha)\\cdot a" }
+          {
+            "id": "termByL",
+            "label": "B_y · L",
+            "latex": "B_y\\cdot L"
+          },
+          {
+            "id": "termFSinA",
+            "label": "F sin(alpha) · a",
+            "latex": "F\\sin(\\alpha)\\cdot a"
+          }
         ],
         "rightItems": [
-          { "id": "positive", "label": "+", "latex": "+" },
-          { "id": "negative", "label": "-", "latex": "-" }
+          {
+            "id": "positive",
+            "label": "+",
+            "latex": "+"
+          },
+          {
+            "id": "negative",
+            "label": "-",
+            "latex": "-"
+          }
         ],
-        "correctPairs": { "termByL": "positive", "termFSinA": "negative" }
+        "correctPairs": {
+          "termByL": "positive",
+          "termFSinA": "negative"
+        }
       },
       "feedback": {
         "correct": "Richtig. B_y dreht um A gegen den Uhrzeigersinn, die nach unten gerichtete Komponente im Uhrzeigersinn.",
         "genericIncorrect": "Wende die Vorzeichenregel an: gegen den Uhrzeigersinn ist positiv.",
         "mistakes": [
-          { "id": "wrong:termByL", "text": "B_y bei B dreht um A gegen den Uhrzeigersinn." },
-          { "id": "wrong:termFSinA", "text": "Die nach unten gerichtete vertikale Komponente dreht um A im Uhrzeigersinn." }
+          {
+            "id": "wrong:termByL",
+            "text": "B_y bei B dreht um A gegen den Uhrzeigersinn."
+          },
+          {
+            "id": "wrong:termFSinA",
+            "text": "Die nach unten gerichtete vertikale Komponente dreht um A im Uhrzeigersinn."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Stelle dir die Drehung des Balkens um A vor." },
-        { "level": 2, "text": "Eine nach oben gerichtete Kraft bei B hebt das rechte Ende." },
-        { "level": 3, "text": "Eine nach unten gerichtete Kraft am Angriffspunkt drückt die rechte Seite nach unten." }
+        {
+          "level": 1,
+          "text": "Stelle dir die Drehung des Balkens um A vor."
+        },
+        {
+          "level": 2,
+          "text": "Eine nach oben gerichtete Kraft bei B hebt das rechte Ende."
+        },
+        {
+          "level": 3,
+          "text": "Eine nach unten gerichtete Kraft am Angriffspunkt drückt die rechte Seite nach unten."
+        }
       ]
     },
     {
@@ -267,62 +630,196 @@
       "title": "Momentengleichung aufstellen",
       "goal": "Wähle die Terme für das Momentengleichgewicht um A.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["pointA", "componentFy", "reactionBy", "dimensionAtoLoad", "dimensionTotal"],
-        "dimmedObjects": ["reactionAx", "reactionAy", "componentFx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy",
+          "dimensionAtoLoad",
+          "dimensionTotal"
+        ]
       },
       "interaction": {
         "type": "equation-builder",
         "equationTarget": "sumMoment",
         "aboutPoint": "A",
         "availableTerms": [
-          { "id": "byLPositive", "latex": "+ B_y\\cdot L", "semantic": { "variable": "B_y", "sign": "+", "factor": "L", "momentAbout": "A" } },
-          { "id": "byLNegative", "latex": "- B_y\\cdot L", "semantic": { "variable": "B_y", "sign": "-", "factor": "L", "momentAbout": "A" } },
-          { "id": "fSinAPositive", "latex": "+ F\\sin(\\alpha)\\cdot a", "semantic": { "variable": "F", "sign": "+", "factor": "sin(alpha)*a", "componentId": "angledLoadFy", "momentAbout": "A" } },
-          { "id": "fSinANegative", "latex": "- F\\sin(\\alpha)\\cdot a", "semantic": { "variable": "F", "sign": "-", "factor": "sin(alpha)*a", "componentId": "angledLoadFy", "momentAbout": "A" } },
-          { "id": "fCosAZero", "latex": "+ F\\cos(\\alpha)\\cdot 0", "semantic": { "variable": "F_x", "sign": "+", "factor": "0", "componentId": "angledLoadFx", "momentAbout": "A" } },
-          { "id": "ayZero", "latex": "+ A_y\\cdot 0", "semantic": { "variable": "A_y", "sign": "+", "factor": "0", "momentAbout": "A" } },
-          { "id": "axZero", "latex": "+ A_x\\cdot 0", "semantic": { "variable": "A_x", "sign": "+", "factor": "0", "momentAbout": "A" } }
+          {
+            "id": "byLPositive",
+            "latex": "+ B_y\\cdot L",
+            "semantic": {
+              "variable": "B_y",
+              "sign": "+",
+              "factor": "L",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "byLNegative",
+            "latex": "- B_y\\cdot L",
+            "semantic": {
+              "variable": "B_y",
+              "sign": "-",
+              "factor": "L",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "fSinAPositive",
+            "latex": "+ F\\sin(\\alpha)\\cdot a",
+            "semantic": {
+              "variable": "F",
+              "sign": "+",
+              "factor": "sin(alpha)*a",
+              "componentId": "angledLoadFy",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "fSinANegative",
+            "latex": "- F\\sin(\\alpha)\\cdot a",
+            "semantic": {
+              "variable": "F",
+              "sign": "-",
+              "factor": "sin(alpha)*a",
+              "componentId": "angledLoadFy",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "fCosAZero",
+            "latex": "+ F\\cos(\\alpha)\\cdot 0",
+            "semantic": {
+              "variable": "F_x",
+              "sign": "+",
+              "factor": "0",
+              "componentId": "angledLoadFx",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "ayZero",
+            "latex": "+ A_y\\cdot 0",
+            "semantic": {
+              "variable": "A_y",
+              "sign": "+",
+              "factor": "0",
+              "momentAbout": "A"
+            }
+          },
+          {
+            "id": "axZero",
+            "latex": "+ A_x\\cdot 0",
+            "semantic": {
+              "variable": "A_x",
+              "sign": "+",
+              "factor": "0",
+              "momentAbout": "A"
+            }
+          }
         ],
         "expectedEquation": {
           "equationType": "sumMoment",
           "aboutPoint": "A",
           "terms": [
-            { "variable": "B_y", "sign": "+", "factor": "L" },
-            { "variable": "F", "sign": "-", "factor": "sin(alpha)*a", "componentId": "angledLoadFy" }
+            {
+              "variable": "B_y",
+              "sign": "+",
+              "factor": "L"
+            },
+            {
+              "variable": "F",
+              "sign": "-",
+              "factor": "sin(alpha)*a",
+              "componentId": "angledLoadFy"
+            }
           ],
           "rhs": "0"
         }
       },
       "feedback": {
         "correct": [
-          { "type": "paragraph", "text": "Richtig. Die Momentengleichung lautet:" },
-          { "type": "math", "latex": "B_y\\cdot L - F\\sin(\\alpha)\\cdot a = 0" }
+          {
+            "type": "paragraph",
+            "text": "Richtig. Die Momentengleichung lautet:"
+          },
+          {
+            "type": "math",
+            "latex": "B_y\\cdot L - F\\sin(\\alpha)\\cdot a = 0"
+          }
         ],
         "genericIncorrect": "Behalte nur Momententerme mit nichtverschwindendem Hebelarm und richtigem Vorzeichen.",
         "mistakes": [
-          { "id": "wrongSign:F", "text": "Die vertikale Lastkomponente dreht um A im Uhrzeigersinn und ist negativ." },
-          { "id": "wrongSign:B_y", "text": "B_y dreht um A gegen den Uhrzeigersinn und ist positiv." },
-          { "id": "wrongFactor:F", "text": "Verwende die vertikale Komponente und den Hebelarm a." },
-          { "id": "zeroTerm:A_y", "text": "A_y greift in A an, der Hebelarm ist null." },
-          { "id": "zeroTerm:A_x", "text": "A_x greift in A an, der Hebelarm ist null." },
-          { "id": "zeroTerm:F_x", "text": "Die horizontale Komponente liegt auf der Balkenachse und hat um A kein Moment." }
+          {
+            "id": "wrongSign:F",
+            "text": "Die vertikale Lastkomponente dreht um A im Uhrzeigersinn und ist negativ."
+          },
+          {
+            "id": "wrongSign:B_y",
+            "text": "B_y dreht um A gegen den Uhrzeigersinn und ist positiv."
+          },
+          {
+            "id": "wrongFactor:F",
+            "text": "Verwende die vertikale Komponente und den Hebelarm a."
+          },
+          {
+            "id": "zeroTerm:A_y",
+            "text": "A_y greift in A an, der Hebelarm ist null."
+          },
+          {
+            "id": "zeroTerm:A_x",
+            "text": "A_x greift in A an, der Hebelarm ist null."
+          },
+          {
+            "id": "zeroTerm:F_x",
+            "text": "Die horizontale Komponente liegt auf der Balkenachse und hat um A kein Moment."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Nur die vertikale Lastkomponente und B_y haben um A ein Moment." },
-        { "level": 2, "text": "B_y ist positiv, die Lastkomponente negativ." },
-        { "level": 3, "content": [{ "type": "math", "latex": "B_y\\cdot L - F\\sin(\\alpha)\\cdot a = 0" }] }
+        {
+          "level": 1,
+          "text": "Nur die vertikale Lastkomponente und B_y haben um A ein Moment."
+        },
+        {
+          "level": 2,
+          "text": "B_y ist positiv, die Lastkomponente negativ."
+        },
+        {
+          "level": 3,
+          "content": [
+            {
+              "type": "math",
+              "latex": "B_y\\cdot L - F\\sin(\\alpha)\\cdot a = 0"
+            }
+          ]
+        }
       ]
     },
     {
       "id": "solve-by",
       "title": "Nach B_y lösen",
-      "goal": [{ "type": "paragraph", "text": "Löse die Momentengleichung nach $B_y$." }],
-      "instructions": [{ "type": "math", "latex": "B_y\\cdot L - F\\sin(\\alpha)\\cdot a = 0" }],
+      "goal": [
+        {
+          "type": "paragraph",
+          "text": "Löse die Momentengleichung nach $B_y$."
+        }
+      ],
+      "instructions": [
+        {
+          "type": "math",
+          "latex": "B_y\\cdot L - F\\sin(\\alpha)\\cdot a = 0"
+        }
+      ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       },
       "interaction": {
         "type": "expression-input",
@@ -338,23 +835,58 @@
       "feedback": {
         "correct": "Richtig. B_y ist die vertikale Komponente mal Lastabstand, dividiert durch die Spannweite.",
         "genericIncorrect": [
-          { "type": "paragraph", "text": "Starte mit:" },
-          { "type": "math", "latex": "B_y\\cdot L = F\\sin(\\alpha)\\cdot a" },
-          { "type": "paragraph", "text": "Dann durch L dividieren." }
+          {
+            "type": "paragraph",
+            "text": "Starte mit:"
+          },
+          {
+            "type": "math",
+            "latex": "B_y\\cdot L = F\\sin(\\alpha)\\cdot a"
+          },
+          {
+            "type": "paragraph",
+            "text": "Dann durch L dividieren."
+          }
         ],
         "mistakes": [
-          { "id": "negativeExpression", "text": "Ein negatives B_y deutet auf ein vertauschtes Momentenvorzeichen hin." },
-          { "id": "expressionIncorrect", "text": "Behalte die vertikale Komponente F sin(alpha), den Hebelarm a und dividiere durch L." }
+          {
+            "id": "negativeExpression",
+            "text": "Ein negatives B_y deutet auf ein vertauschtes Momentenvorzeichen hin."
+          },
+          {
+            "id": "expressionIncorrect",
+            "text": "Behalte die vertikale Komponente F sin(alpha), den Hebelarm a und dividiere durch L."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "content": [{ "type": "math", "latex": "B_y\\cdot L = F\\sin(\\alpha)\\cdot a" }] },
-        { "level": 2, "text": "Dividiere die ganze Gleichung durch L." },
-        { "level": 3, "content": [{ "type": "math", "latex": "B_y=\\frac{F\\sin(\\alpha)a}{L}" }] }
+        {
+          "level": 1,
+          "content": [
+            {
+              "type": "math",
+              "latex": "B_y\\cdot L = F\\sin(\\alpha)\\cdot a"
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "text": "Dividiere die ganze Gleichung durch L."
+        },
+        {
+          "level": 3,
+          "content": [
+            {
+              "type": "math",
+              "latex": "B_y=\\frac{F\\sin(\\alpha)a}{L}"
+            }
+          ]
+        }
       ],
       "successResult": {
-        "solvedValues": { "reactionBy": "B_y = F sin(α) a/L" },
-        "markObjectsSolved": ["reactionBy"]
+        "revealObjects": [
+          "reactionBy"
+        ]
       }
     },
     {
@@ -362,63 +894,173 @@
       "title": "Vertikales Kräftegleichgewicht aufstellen",
       "goal": "Wähle die Terme für das vertikale Kräftegleichgewicht.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["reactionAy", "reactionBy", "componentFy"],
-        "dimmedObjects": ["reactionAx", "componentFx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       },
       "interaction": {
         "type": "equation-builder",
         "equationTarget": "sumFy",
         "availableTerms": [
-          { "id": "ayPositive", "latex": "+ A_y", "semantic": { "variable": "A_y", "direction": "y", "sign": "+" } },
-          { "id": "byPositive", "latex": "+ B_y", "semantic": { "variable": "B_y", "direction": "y", "sign": "+" } },
-          { "id": "fSinPositive", "latex": "+ F\\sin(\\alpha)", "semantic": { "variable": "F", "direction": "y", "sign": "+", "factor": "sin(alpha)", "componentId": "angledLoadFy" } },
-          { "id": "fSinNegative", "latex": "- F\\sin(\\alpha)", "semantic": { "variable": "F", "direction": "y", "sign": "-", "factor": "sin(alpha)", "componentId": "angledLoadFy" } },
-          { "id": "fCosPositive", "latex": "+ F\\cos(\\alpha)", "semantic": { "variable": "F", "direction": "x", "sign": "+", "factor": "cos(alpha)", "componentId": "angledLoadFx" } }
+          {
+            "id": "ayPositive",
+            "latex": "+ A_y",
+            "semantic": {
+              "variable": "A_y",
+              "direction": "y",
+              "sign": "+"
+            }
+          },
+          {
+            "id": "byPositive",
+            "latex": "+ B_y",
+            "semantic": {
+              "variable": "B_y",
+              "direction": "y",
+              "sign": "+"
+            }
+          },
+          {
+            "id": "fSinPositive",
+            "latex": "+ F\\sin(\\alpha)",
+            "semantic": {
+              "variable": "F",
+              "direction": "y",
+              "sign": "+",
+              "factor": "sin(alpha)",
+              "componentId": "angledLoadFy"
+            }
+          },
+          {
+            "id": "fSinNegative",
+            "latex": "- F\\sin(\\alpha)",
+            "semantic": {
+              "variable": "F",
+              "direction": "y",
+              "sign": "-",
+              "factor": "sin(alpha)",
+              "componentId": "angledLoadFy"
+            }
+          },
+          {
+            "id": "fCosPositive",
+            "latex": "+ F\\cos(\\alpha)",
+            "semantic": {
+              "variable": "F",
+              "direction": "x",
+              "sign": "+",
+              "factor": "cos(alpha)",
+              "componentId": "angledLoadFx"
+            }
+          }
         ],
         "expectedEquation": {
           "equationType": "sumFy",
           "terms": [
-            { "variable": "A_y", "sign": "+" },
-            { "variable": "B_y", "sign": "+" },
-            { "variable": "F", "sign": "-", "factor": "sin(alpha)", "componentId": "angledLoadFy" }
+            {
+              "variable": "A_y",
+              "sign": "+"
+            },
+            {
+              "variable": "B_y",
+              "sign": "+"
+            },
+            {
+              "variable": "F",
+              "sign": "-",
+              "factor": "sin(alpha)",
+              "componentId": "angledLoadFy"
+            }
           ],
           "rhs": "0"
         }
       },
       "feedback": {
         "correct": [
-          { "type": "paragraph", "text": "Richtig. Die vertikale Gleichgewichtsbedingung lautet:" },
-          { "type": "math", "latex": "A_y+B_y-F\\sin(\\alpha)=0" }
+          {
+            "type": "paragraph",
+            "text": "Richtig. Die vertikale Gleichgewichtsbedingung lautet:"
+          },
+          {
+            "type": "math",
+            "latex": "A_y+B_y-F\\sin(\\alpha)=0"
+          }
         ],
         "genericIncorrect": "In das vertikale Kräftegleichgewicht gehören nur vertikale Kräfte.",
         "mistakes": [
-          { "id": "wrongSign:F", "text": "Die vertikale Komponente zeigt nach unten und hat ein negatives Vorzeichen." },
-          { "id": "extra:F", "text": "Verwende die vertikale Komponente, nicht die horizontale." },
-          { "id": "missing:A_y:+:", "text": "A_y muss enthalten sein." },
-          { "id": "missing:B_y:+:", "text": "B_y muss enthalten sein." },
-          { "id": "missing:F:-:sin(alpha)", "text": "Der nach unten gerichtete vertikale Beitrag ist -F sin(alpha)." }
+          {
+            "id": "wrongSign:F",
+            "text": "Die vertikale Komponente zeigt nach unten und hat ein negatives Vorzeichen."
+          },
+          {
+            "id": "extra:F",
+            "text": "Verwende die vertikale Komponente, nicht die horizontale."
+          },
+          {
+            "id": "missing:A_y:+:",
+            "text": "A_y muss enthalten sein."
+          },
+          {
+            "id": "missing:B_y:+:",
+            "text": "B_y muss enthalten sein."
+          },
+          {
+            "id": "missing:F:-:sin(alpha)",
+            "text": "Der nach unten gerichtete vertikale Beitrag ist -F sin(alpha)."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Positive y-Richtung ist nach oben." },
-        { "level": 2, "text": "Beide Lagerkräfte sind positiv; der vertikale Lastbeitrag ist negativ." },
-        { "level": 3, "content": [{ "type": "math", "latex": "A_y+B_y-F\\sin(\\alpha)=0" }] }
+        {
+          "level": 1,
+          "text": "Positive y-Richtung ist nach oben."
+        },
+        {
+          "level": 2,
+          "text": "Beide Lagerkräfte sind positiv; der vertikale Lastbeitrag ist negativ."
+        },
+        {
+          "level": 3,
+          "content": [
+            {
+              "type": "math",
+              "latex": "A_y+B_y-F\\sin(\\alpha)=0"
+            }
+          ]
+        }
       ]
     },
     {
       "id": "solve-ay",
       "title": "Nach A_y lösen",
-      "goal": [{ "type": "paragraph", "text": "Setze den gelösten Wert für $B_y$ ein und löse nach $A_y$." }],
+      "goal": [
+        {
+          "type": "paragraph",
+          "text": "Setze den gelösten Wert für $B_y$ ein und löse nach $A_y$."
+        }
+      ],
       "instructions": [
-        { "type": "math", "latex": "A_y+B_y-F\\sin(\\alpha)=0" },
-        { "type": "math", "latex": "B_y=\\frac{F\\sin(\\alpha)a}{L}" }
+        {
+          "type": "math",
+          "latex": "A_y+B_y-F\\sin(\\alpha)=0"
+        },
+        {
+          "type": "math",
+          "latex": "B_y=\\frac{F\\sin(\\alpha)a}{L}"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["reactionAy"],
-        "solvedValues": { "reactionBy": "B_y = F sin(α) a/L" },
-        "solvedObjects": ["reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       },
       "interaction": {
         "type": "expression-input",
@@ -434,22 +1076,59 @@
       "feedback": {
         "correct": "Richtig. A_y übernimmt den verbleibenden Anteil der vertikalen Lastkomponente.",
         "genericIncorrect": [
-          { "type": "paragraph", "text": "Setze B_y in das vertikale Gleichgewicht ein:" },
-          { "type": "math", "latex": "A_y=F\\sin(\\alpha)-\\frac{F\\sin(\\alpha)a}{L}" }
+          {
+            "type": "paragraph",
+            "text": "Setze B_y in das vertikale Gleichgewicht ein:"
+          },
+          {
+            "type": "math",
+            "latex": "A_y=F\\sin(\\alpha)-\\frac{F\\sin(\\alpha)a}{L}"
+          }
         ],
         "mistakes": [
-          { "id": "negativeExpression", "text": "A_y sollte für diese Geometrie und Lastrichtung positiv sein." },
-          { "id": "expressionIncorrect", "text": "Ziehe den Anteil B_y von der gesamten vertikalen Komponente ab." }
+          {
+            "id": "negativeExpression",
+            "text": "A_y sollte für diese Geometrie und Lastrichtung positiv sein."
+          },
+          {
+            "id": "expressionIncorrect",
+            "text": "Ziehe den Anteil B_y von der gesamten vertikalen Komponente ab."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "content": [{ "type": "math", "latex": "A_y=F\\sin(\\alpha)-B_y" }] },
-        { "level": 2, "content": [{ "type": "math", "latex": "A_y=F\\sin(\\alpha)-\\frac{F\\sin(\\alpha)a}{L}" }] },
-        { "level": 3, "content": [{ "type": "math", "latex": "A_y=\\frac{F\\sin(\\alpha)(L-a)}{L}" }] }
+        {
+          "level": 1,
+          "content": [
+            {
+              "type": "math",
+              "latex": "A_y=F\\sin(\\alpha)-B_y"
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "content": [
+            {
+              "type": "math",
+              "latex": "A_y=F\\sin(\\alpha)-\\frac{F\\sin(\\alpha)a}{L}"
+            }
+          ]
+        },
+        {
+          "level": 3,
+          "content": [
+            {
+              "type": "math",
+              "latex": "A_y=\\frac{F\\sin(\\alpha)(L-a)}{L}"
+            }
+          ]
+        }
       ],
       "successResult": {
-        "solvedValues": { "reactionAy": "A_y = F sin(α)(L-a)/L" },
-        "markObjectsSolved": ["reactionAy"]
+        "revealObjects": [
+          "reactionAy"
+        ]
       }
     },
     {
@@ -457,14 +1136,13 @@
       "title": "Finale Prüfung",
       "goal": "Wähle die Aussage, mit der alle Gleichgewichtsbedingungen geprüft werden.",
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "solvedValues": {
-          "reactionAx": "A_x = -F cos(α)",
-          "reactionAy": "A_y = F sin(α)(L-a)/L",
-          "reactionBy": "B_y = F sin(α) a/L"
-        },
-        "solvedObjects": ["reactionAx", "reactionAy", "reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       },
       "interaction": {
         "type": "multiple-choice",
@@ -473,42 +1151,94 @@
             "id": "all-equations",
             "label": "Alle Gleichgewichtsbedingungen sind erfüllt.",
             "content": [
-              { "type": "paragraph", "text": "Alle Gleichgewichtsbedingungen sind erfüllt:" },
-              { "type": "math", "latex": "A_x+F\\cos(\\alpha)=0" },
-              { "type": "math", "latex": "B_yL-F\\sin(\\alpha)a=0" },
-              { "type": "math", "latex": "A_y+B_y-F\\sin(\\alpha)=0" }
+              {
+                "type": "paragraph",
+                "text": "Alle Gleichgewichtsbedingungen sind erfüllt:"
+              },
+              {
+                "type": "math",
+                "latex": "A_x+F\\cos(\\alpha)=0"
+              },
+              {
+                "type": "math",
+                "latex": "B_yL-F\\sin(\\alpha)a=0"
+              },
+              {
+                "type": "math",
+                "latex": "A_y+B_y-F\\sin(\\alpha)=0"
+              }
             ]
           },
-          { "id": "vertical-only", "label": "Nur das vertikale Gleichgewicht muss geprüft werden." },
-          { "id": "moment-only", "label": "Nur das Momentengleichgewicht muss geprüft werden." }
+          {
+            "id": "vertical-only",
+            "label": "Nur das vertikale Gleichgewicht muss geprüft werden."
+          },
+          {
+            "id": "moment-only",
+            "label": "Nur das Momentengleichgewicht muss geprüft werden."
+          }
         ],
         "correctOptionId": "all-equations"
       },
       "feedback": {
         "correct": [
-          { "type": "paragraph", "text": "Richtig. Die finalen Lagerkräfte sind:" },
-          { "type": "math", "latex": "A_x=-F\\cos(\\alpha)", "tone": "result" },
-          { "type": "math", "latex": "B_y=\\frac{F\\sin(\\alpha)a}{L}", "tone": "result" },
-          { "type": "math", "latex": "A_y=\\frac{F\\sin(\\alpha)(L-a)}{L}", "tone": "result" }
+          {
+            "type": "paragraph",
+            "text": "Richtig. Die finalen Lagerkräfte sind:"
+          },
+          {
+            "type": "math",
+            "latex": "A_x=-F\\cos(\\alpha)",
+            "tone": "result"
+          },
+          {
+            "type": "math",
+            "latex": "B_y=\\frac{F\\sin(\\alpha)a}{L}",
+            "tone": "result"
+          },
+          {
+            "type": "math",
+            "latex": "A_y=\\frac{F\\sin(\\alpha)(L-a)}{L}",
+            "tone": "result"
+          }
         ],
         "genericIncorrect": "Eine Statik-Lösung muss Kräftegleichgewicht und Momentengleichgewicht erfüllen.",
         "mistakes": [
-          { "id": "selected:vertical-only", "text": "Vertikales Kräftegleichgewicht ist notwendig, aber nicht ausreichend." },
-          { "id": "selected:moment-only", "text": "Momentengleichgewicht ist notwendig, aber nicht ausreichend." }
+          {
+            "id": "selected:vertical-only",
+            "text": "Vertikales Kräftegleichgewicht ist notwendig, aber nicht ausreichend."
+          },
+          {
+            "id": "selected:moment-only",
+            "text": "Momentengleichgewicht ist notwendig, aber nicht ausreichend."
+          }
         ]
       },
       "hints": [
-        { "level": 1, "text": "Prüfe jede unabhängige Gleichgewichtsbedingung." },
-        { "level": 2, "text": "Verwende den vorzeichenbehafteten vertikalen Beitrag, nicht nur den Betrag." },
-        { "level": 3, "content": [{ "type": "math", "latex": "A_x=-F\\cos(\\alpha),\\quad B_y=\\frac{F\\sin(\\alpha)a}{L},\\quad A_y=\\frac{F\\sin(\\alpha)(L-a)}{L}" }] }
+        {
+          "level": 1,
+          "text": "Prüfe jede unabhängige Gleichgewichtsbedingung."
+        },
+        {
+          "level": 2,
+          "text": "Verwende den vorzeichenbehafteten vertikalen Beitrag, nicht nur den Betrag."
+        },
+        {
+          "level": 3,
+          "content": [
+            {
+              "type": "math",
+              "latex": "A_x=-F\\cos(\\alpha),\\quad B_y=\\frac{F\\sin(\\alpha)a}{L},\\quad A_y=\\frac{F\\sin(\\alpha)(L-a)}{L}"
+            }
+          ]
+        }
       ],
       "successResult": {
-        "solvedValues": {
-          "reactionAx": "A_x = -F cos(α)",
-          "reactionAy": "A_y = F sin(α)(L-a)/L",
-          "reactionBy": "B_y = F sin(α) a/L"
-        },
-        "markObjectsSolved": ["reactionAx", "reactionAy", "reactionBy"]
+        "revealObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy"
+        ]
       }
     }
   ]

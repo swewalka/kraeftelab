@@ -12,11 +12,8 @@ const ids = (items: readonly { id: string }[]) => items.map((item) => item.id);
 
 const canvasStateSnapshot = (canvasState: CanvasState | undefined) => ({
   visibleObjects: canvasState?.visibleObjects ?? [],
-  highlightedObjects: canvasState?.highlightedObjects ?? [],
-  dimmedObjects: canvasState?.dimmedObjects ?? [],
+  hiddenBaseObjects: canvasState?.hiddenBaseObjects ?? [],
   annotations: canvasState?.annotations ?? [],
-  solvedValueIds: Object.keys(canvasState?.solvedValues ?? {}),
-  solvedObjects: canvasState?.solvedObjects ?? [],
 });
 
 const interactionSnapshot = (interaction: LoadedProblemContent["practice"]["steps"][number]["interaction"]) => {
@@ -182,9 +179,7 @@ const mechanicsSnapshot = (content: LoadedProblemContent) => ({
       canvasState: canvasStateSnapshot(step.canvasState),
       interaction: interactionSnapshot(step.interaction),
       successResult: {
-        solvedValueIds: Object.keys(step.successResult?.solvedValues ?? {}),
         revealObjects: step.successResult?.revealObjects ?? [],
-        markObjectsSolved: step.successResult?.markObjectsSolved ?? [],
       },
     })),
   },

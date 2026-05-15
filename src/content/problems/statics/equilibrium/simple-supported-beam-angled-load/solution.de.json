@@ -13,24 +13,42 @@
       "id": "sum-force-x",
       "title": "Horizontales Kräftegleichgewicht",
       "explanation": [
-        { "type": "paragraph", "text": "Die horizontale Lastkomponente zeigt nach rechts, daher zeigt die Lagerkraft bei A nach links." },
-        { "type": "math", "latex": "A_x = -F\\cos(\\alpha)" }
+        {
+          "type": "paragraph",
+          "text": "Die horizontale Lastkomponente zeigt nach rechts, daher zeigt die Lagerkraft bei A nach links."
+        },
+        {
+          "type": "math",
+          "latex": "A_x = -F\\cos(\\alpha)"
+        }
       ]
     },
     {
       "id": "sum-moment-a",
       "title": "Momentengleichgewicht um A",
       "explanation": [
-        { "type": "paragraph", "text": "Momente um A eliminieren $A_x$ und $A_y$. Weil die Kraft auf der Balkenachse angreift, trägt nur die vertikale Komponente zum Moment bei." },
-        { "type": "math", "latex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}" }
+        {
+          "type": "paragraph",
+          "text": "Momente um A eliminieren $A_x$ und $A_y$. Weil die Kraft auf der Balkenachse angreift, trägt nur die vertikale Komponente zum Moment bei."
+        },
+        {
+          "type": "math",
+          "latex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}"
+        }
       ]
     },
     {
       "id": "sum-force-y",
       "title": "Vertikales Kräftegleichgewicht",
       "explanation": [
-        { "type": "paragraph", "text": "Die vertikale Komponente hat den Betrag $F\\sin(\\alpha)$, geht aber mit negativem Vorzeichen in die Gleichgewichtsbedingung ein." },
-        { "type": "math", "latex": "A_y = F\\sin(\\alpha) - B_y" }
+        {
+          "type": "paragraph",
+          "text": "Die vertikale Komponente hat den Betrag $F\\sin(\\alpha)$, geht aber mit negativem Vorzeichen in die Gleichgewichtsbedingung ein."
+        },
+        {
+          "type": "math",
+          "latex": "A_y = F\\sin(\\alpha) - B_y"
+        }
       ]
     }
   ],
@@ -39,20 +57,19 @@
       "id": "identify-unknowns",
       "title": "1. Lagerreaktionen bestimmen",
       "body": [
-        { "type": "paragraph", "text": "Das Festlager A kann $A_x$ und $A_y$ aufnehmen. Das Loslager B liefert nur $B_y$." }
+        {
+          "type": "paragraph",
+          "text": "Das Festlager A kann $A_x$ und $A_y$ aufnehmen. Das Loslager B liefert nur $B_y$."
+        }
       ],
       "canvasState": {
-        "highlightedObjects": [
-          "beam",
+        "visibleObjects": [
           "supportA",
           "supportB",
           "angledLoad",
-          "pointA",
-          "pointB",
           "pointLoad",
           "dimensionTotal",
-          "dimensionAtoLoad",
-          "dimensionLoadToB"
+          "dimensionAtoLoad"
         ]
       }
     },
@@ -60,163 +77,306 @@
       "id": "decompose-force",
       "title": "2. Schräge Kraft zerlegen",
       "body": [
-        { "type": "paragraph", "text": "Die Kraft zeigt nach rechts unten. Wird alpha von der positiven x-Achse gemessen, ergeben sich die Komponenten:" },
-        { "type": "math", "latex": "F_x = F\\cos(\\alpha)" },
-        { "type": "math", "latex": "F_y = -F\\sin(\\alpha)" },
-        { "type": "paragraph", "text": "Der Betrag der vertikalen Komponente ist:" },
-        { "type": "math", "latex": "F\\sin(\\alpha)" }
+        {
+          "type": "paragraph",
+          "text": "Die Kraft zeigt nach rechts unten. Wird alpha von der positiven x-Achse gemessen, ergeben sich die Komponenten:"
+        },
+        {
+          "type": "math",
+          "latex": "F_x = F\\cos(\\alpha)"
+        },
+        {
+          "type": "math",
+          "latex": "F_y = -F\\sin(\\alpha)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Der Betrag der vertikalen Komponente ist:"
+        },
+        {
+          "type": "math",
+          "latex": "F\\sin(\\alpha)"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["componentFx", "componentFy", "angleAlpha"],
-        "highlightedObjects": ["angledLoad", "componentFx", "componentFy", "angleAlpha"]
+        "visibleObjects": [
+          "componentFx",
+          "componentFy",
+          "angleAlpha",
+          "angledLoad"
+        ]
       }
     },
     {
       "id": "equilibrium-x",
       "title": "3. Horizontales Kräftegleichgewicht aufstellen",
       "body": [
-        { "type": "paragraph", "text": "In x-Richtung wirken nur $A_x$ und die horizontale Lastkomponente." },
-        { "type": "math", "latex": "A_x + F\\cos(\\alpha) = 0" }
+        {
+          "type": "paragraph",
+          "text": "In x-Richtung wirken nur $A_x$ und die horizontale Lastkomponente."
+        },
+        {
+          "type": "math",
+          "latex": "A_x + F\\cos(\\alpha) = 0"
+        }
       ],
-      "equationIds": ["sum-force-x"],
+      "equationIds": [
+        "sum-force-x"
+      ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["reactionAx", "componentFx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       }
     },
     {
       "id": "solve-ax",
       "title": "4. Nach A_x lösen",
       "body": [
-        { "type": "paragraph", "text": "Die Lastkomponente wird auf die andere Seite gebracht." },
-        { "type": "math", "latex": "A_x = -F\\cos(\\alpha)" }
+        {
+          "type": "paragraph",
+          "text": "Die Lastkomponente wird auf die andere Seite gebracht."
+        },
+        {
+          "type": "math",
+          "latex": "A_x = -F\\cos(\\alpha)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Das negative Vorzeichen bedeutet: Die tatsächliche Lagerkraft wirkt entgegen der angenommenen positiven Pfeilrichtung."
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["reactionAx", "componentFx"],
-        "solvedValues": { "reactionAx": "A_x = -F cos(α)" },
-        "solvedObjects": ["reactionAx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       }
     },
     {
       "id": "choose-moment-point",
       "title": "5. Momentenpunkt A wählen",
       "body": [
-        { "type": "paragraph", "text": "Momente um A entfernen beide Lagerkräfte bei A, weil ihre Hebelarme null sind." },
-        { "type": "math", "latex": "r_{A_x} = 0" },
-        { "type": "math", "latex": "r_{A_y} = 0" }
+        {
+          "type": "paragraph",
+          "text": "Momente um A entfernen beide Lagerkräfte bei A, weil ihre Hebelarme null sind."
+        },
+        {
+          "type": "math",
+          "latex": "r_{A_x} = 0"
+        },
+        {
+          "type": "math",
+          "latex": "r_{A_y} = 0"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["pointA", "pointLoad", "pointB"],
-        "solvedValues": { "reactionAx": "A_x = -F cos(α)" },
-        "solvedObjects": ["reactionAx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy",
+          "pointLoad"
+        ]
       }
     },
     {
       "id": "lever-arms",
       "title": "6. Hebelarme bestimmen",
       "body": [
-        { "type": "paragraph", "text": "Die Kraft greift auf der Balkenachse an. Die horizontale Komponente wirkt deshalb entlang der Balkenachse und erzeugt um A kein Moment." },
-        { "type": "math", "latex": "r_{F\\cos(\\alpha)} = 0" },
-        { "type": "math", "latex": "r_{F\\sin(\\alpha)} = a" },
-        { "type": "math", "latex": "r_{B_y} = L" }
+        {
+          "type": "paragraph",
+          "text": "Die Kraft greift auf der Balkenachse an. Die horizontale Komponente wirkt deshalb entlang der Balkenachse und erzeugt um A kein Moment."
+        },
+        {
+          "type": "math",
+          "latex": "r_{F\\cos(\\alpha)} = 0"
+        },
+        {
+          "type": "math",
+          "latex": "r_{F\\sin(\\alpha)} = a"
+        },
+        {
+          "type": "math",
+          "latex": "r_{B_y} = L"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["pointA", "componentFx", "componentFy", "reactionBy", "dimensionAtoLoad", "dimensionTotal"],
-        "solvedValues": { "reactionAx": "A_x = -F cos(α)" },
-        "solvedObjects": ["reactionAx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy",
+          "dimensionAtoLoad",
+          "dimensionTotal"
+        ]
       }
     },
     {
       "id": "moment-signs",
       "title": "7. Momentenvorzeichen festlegen",
       "body": [
-        { "type": "paragraph", "text": "$B_y$ bei B dreht den Balken um A gegen den Uhrzeigersinn. Die nach unten gerichtete vertikale Lastkomponente dreht im Uhrzeigersinn." },
-        { "type": "math", "latex": "+B_y\\cdot L" },
-        { "type": "math", "latex": "-F\\sin(\\alpha)\\cdot a" }
+        {
+          "type": "paragraph",
+          "text": "$B_y$ bei B dreht den Balken um A gegen den Uhrzeigersinn. Die nach unten gerichtete vertikale Lastkomponente dreht im Uhrzeigersinn."
+        },
+        {
+          "type": "math",
+          "latex": "+B_y\\cdot L"
+        },
+        {
+          "type": "math",
+          "latex": "-F\\sin(\\alpha)\\cdot a"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["pointA", "componentFy", "reactionBy"],
-        "solvedValues": { "reactionAx": "A_x = -F cos(α)" },
-        "solvedObjects": ["reactionAx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       }
     },
     {
       "id": "moment-a",
       "title": "8. Momentengleichgewicht um A aufstellen",
       "body": [
-        { "type": "paragraph", "text": "Es bleiben nur die Momententerme mit nichtverschwindendem Hebelarm." },
-        { "type": "math", "latex": "B_y\\cdot L - F\\sin(\\alpha)\\cdot a = 0" }
+        {
+          "type": "paragraph",
+          "text": "Es bleiben nur die Momententerme mit nichtverschwindendem Hebelarm."
+        },
+        {
+          "type": "math",
+          "latex": "B_y\\cdot L - F\\sin(\\alpha)\\cdot a = 0"
+        }
       ],
-      "equationIds": ["sum-moment-a"],
+      "equationIds": [
+        "sum-moment-a"
+      ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["pointA", "componentFy", "reactionBy", "dimensionAtoLoad", "dimensionTotal"],
-        "solvedValues": { "reactionAx": "A_x = -F cos(α)" },
-        "solvedObjects": ["reactionAx"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy",
+          "dimensionAtoLoad",
+          "dimensionTotal"
+        ]
       }
     },
     {
       "id": "solve-by",
       "title": "9. Nach B_y lösen",
       "body": [
-        { "type": "paragraph", "text": "Das Lastmoment wird auf die rechte Seite gebracht und durch L dividiert." },
-        { "type": "math", "latex": "B_y\\cdot L = F\\sin(\\alpha)\\cdot a" },
-        { "type": "math", "latex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}" }
+        {
+          "type": "paragraph",
+          "text": "Das Lastmoment wird auf die rechte Seite gebracht und durch L dividiert."
+        },
+        {
+          "type": "math",
+          "latex": "B_y\\cdot L = F\\sin(\\alpha)\\cdot a"
+        },
+        {
+          "type": "math",
+          "latex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["reactionBy"],
-        "solvedValues": {
-          "reactionAx": "A_x = -F cos(α)",
-          "reactionBy": "B_y = F sin(α) a/L"
-        },
-        "solvedObjects": ["reactionAx", "reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       }
     },
     {
       "id": "equilibrium-y",
       "title": "10. Vertikales Kräftegleichgewicht aufstellen",
       "body": [
-        { "type": "paragraph", "text": "Die Lagerkräfte zeigen nach oben. Der vertikale Beitrag der äußeren Kraft zeigt nach unten." },
-        { "type": "math", "latex": "A_y + B_y - F\\sin(\\alpha) = 0" }
-      ],
-      "equationIds": ["sum-force-y"],
-      "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["reactionAy", "reactionBy", "componentFy"],
-        "solvedValues": {
-          "reactionAx": "A_x = -F cos(α)",
-          "reactionBy": "B_y = F sin(α) a/L"
+        {
+          "type": "paragraph",
+          "text": "Die Lagerkräfte zeigen nach oben. Der vertikale Beitrag der äußeren Kraft zeigt nach unten."
         },
-        "solvedObjects": ["reactionAx", "reactionBy"]
+        {
+          "type": "math",
+          "latex": "A_y + B_y - F\\sin(\\alpha) = 0"
+        }
+      ],
+      "equationIds": [
+        "sum-force-y"
+      ],
+      "canvasState": {
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       }
     },
     {
       "id": "solve-ay",
       "title": "11. Nach A_y lösen und prüfen",
       "body": [
-        { "type": "paragraph", "text": "Der Ausdruck für $B_y$ wird eingesetzt." },
-        { "type": "math", "latex": "A_y = F\\sin(\\alpha) - \\frac{F\\sin(\\alpha)\\,a}{L}" },
-        { "type": "math", "latex": "A_y = F\\sin(\\alpha)\\left(1 - \\frac{a}{L}\\right)" },
-        { "type": "math", "latex": "A_y = \\frac{F\\sin(\\alpha)(L-a)}{L}" },
-        { "type": "paragraph", "text": "Finale Lagerkräfte:" },
-        { "type": "math", "latex": "A_x = -F\\cos(\\alpha)", "tone": "result" },
-        { "type": "math", "latex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}", "tone": "result" },
-        { "type": "math", "latex": "A_y = \\frac{F\\sin(\\alpha)(L-a)}{L}", "tone": "result" }
+        {
+          "type": "paragraph",
+          "text": "Der Ausdruck für $B_y$ wird eingesetzt."
+        },
+        {
+          "type": "math",
+          "latex": "A_y = F\\sin(\\alpha) - \\frac{F\\sin(\\alpha)\\,a}{L}"
+        },
+        {
+          "type": "math",
+          "latex": "A_y = F\\sin(\\alpha)\\left(1 - \\frac{a}{L}\\right)"
+        },
+        {
+          "type": "math",
+          "latex": "A_y = \\frac{F\\sin(\\alpha)(L-a)}{L}"
+        },
+        {
+          "type": "paragraph",
+          "text": "Finale Lagerkräfte:"
+        },
+        {
+          "type": "math",
+          "latex": "A_x = -F\\cos(\\alpha)",
+          "tone": "result"
+        },
+        {
+          "type": "math",
+          "latex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}",
+          "tone": "result"
+        },
+        {
+          "type": "math",
+          "latex": "A_y = \\frac{F\\sin(\\alpha)(L-a)}{L}",
+          "tone": "result"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "highlightedObjects": ["reactionAx", "reactionAy", "reactionBy", "componentFx", "componentFy"],
-        "solvedValues": {
-          "reactionAx": "A_x = -F cos(α)",
-          "reactionAy": "A_y = F sin(α)(L-a)/L",
-          "reactionBy": "B_y = F sin(α) a/L"
-        },
-        "solvedObjects": ["reactionAx", "reactionAy", "reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "componentFx",
+          "componentFy"
+        ]
       }
     }
   ]

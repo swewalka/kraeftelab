@@ -11,21 +11,30 @@
       "id": "sum-force-x",
       "title": "Horizontales Kräftegleichgewicht",
       "explanation": [
-        { "type": "paragraph", "text": "Es wirkt keine äußere horizontale Kraft, daher ist die horizontale Lagerkraft im Festlager gleich null." }
+        {
+          "type": "paragraph",
+          "text": "Es wirkt keine äußere horizontale Kraft, daher ist die horizontale Lagerkraft im Festlager gleich null."
+        }
       ]
     },
     {
       "id": "sum-moment-a",
       "title": "Momentengleichgewicht um A",
       "explanation": [
-        { "type": "paragraph", "text": "Wir bilden das Momentengleichgewicht um A. Dadurch fallen $A_x$ und $A_y$ weg, weil ihre Wirkungslinien durch den Punkt A gehen." }
+        {
+          "type": "paragraph",
+          "text": "Wir bilden das Momentengleichgewicht um A. Dadurch fallen $A_x$ und $A_y$ weg, weil ihre Wirkungslinien durch den Punkt A gehen."
+        }
       ]
     },
     {
       "id": "sum-force-y",
       "title": "Vertikales Kräftegleichgewicht",
       "explanation": [
-        { "type": "paragraph", "text": "Sobald $B_y$ bekannt ist, liefert das vertikale Kräftegleichgewicht die verbleibende vertikale Lagerkraft bei A." }
+        {
+          "type": "paragraph",
+          "text": "Sobald $B_y$ bekannt ist, liefert das vertikale Kräftegleichgewicht die verbleibende vertikale Lagerkraft bei A."
+        }
       ]
     }
   ],
@@ -34,19 +43,19 @@
       "id": "identify-unknowns",
       "title": "1. Unbekannte Lagerkräfte bestimmen",
       "body": [
-        { "type": "paragraph", "text": "Lager A ist ein Festlager und kann daher $A_x$ und $A_y$ aufnehmen. Lager B ist ein Loslager und liefert nur $B_y$." }
+        {
+          "type": "paragraph",
+          "text": "Lager A ist ein Festlager und kann daher $A_x$ und $A_y$ aufnehmen. Lager B ist ein Loslager und liefert nur $B_y$."
+        }
       ],
       "canvasState": {
-        "highlightedObjects": [
-          "beam",
+        "visibleObjects": [
           "supportA",
           "supportB",
-          "centerLoad",
-          "pointA",
-          "pointB",
           "pointLoad",
           "dimensionAtoLoad",
-          "dimensionLoadToB"
+          "dimensionLoadToB",
+          "centerLoad"
         ]
       }
     },
@@ -54,78 +63,133 @@
       "id": "free-body",
       "title": "2. Lager durch Reaktionskräfte ersetzen",
       "body": [
-        { "type": "paragraph", "text": "Der Balken wird freigeschnitten. Die Last $F$ wirkt nach unten in der Mitte:" },
-        { "type": "math", "latex": "x_F = \\frac{L}{2}" },
-        { "type": "paragraph", "text": "Die Lager werden durch ihre unbekannten Lagerkräfte ersetzt." }
+        {
+          "type": "paragraph",
+          "text": "Der Balken wird freigeschnitten. Die Last $F$ wirkt nach unten in der Mitte:"
+        },
+        {
+          "type": "math",
+          "latex": "x_F = \\frac{L}{2}"
+        },
+        {
+          "type": "paragraph",
+          "text": "Die Lager werden durch ihre unbekannten Lagerkräfte ersetzt."
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["reactionAx", "reactionAy", "reactionBy"]
+        "visibleObjects": [
+          "reactionAx",
+          "reactionAy",
+          "reactionBy",
+          "pointLoad",
+          "centerLoad"
+        ]
       }
     },
     {
       "id": "equilibrium-x",
       "title": "3. Horizontales Gleichgewicht anwenden",
       "body": [
-        { "type": "paragraph", "text": "Es gibt keine eingeprägten horizontalen Kräfte, daher hat das Festlager keine horizontale Reaktionskraft." }
+        {
+          "type": "paragraph",
+          "text": "Es gibt keine eingeprägten horizontalen Kräfte, daher hat das Festlager keine horizontale Reaktionskraft."
+        }
       ],
-      "equationIds": ["sum-force-x"],
+      "equationIds": [
+        "sum-force-x"
+      ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["reactionAx"],
-        "solvedValues": { "reactionAx": "A_x = 0" },
-        "solvedObjects": ["reactionAx"]
+        "visibleObjects": [
+          "reactionAy",
+          "reactionBy",
+          "centerLoad"
+        ]
       }
     },
     {
       "id": "moment-a",
       "title": "4. Momentengleichgewicht um A bilden",
       "body": [
-        { "type": "paragraph", "text": "Der Hebelarm von $B_y$ beträgt:" },
-        { "type": "math", "latex": "L" },
-        { "type": "paragraph", "text": "Der Hebelarm der Last beträgt:" },
-        { "type": "math", "latex": "\\frac{L}{2}" }
+        {
+          "type": "paragraph",
+          "text": "Der Hebelarm von $B_y$ beträgt:"
+        },
+        {
+          "type": "math",
+          "latex": "L"
+        },
+        {
+          "type": "paragraph",
+          "text": "Der Hebelarm der Last beträgt:"
+        },
+        {
+          "type": "math",
+          "latex": "\\frac{L}{2}"
+        }
       ],
-      "equationIds": ["sum-moment-a"],
+      "equationIds": [
+        "sum-moment-a"
+      ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["pointA", "centerLoad", "reactionBy", "dimensionAtoLoad", "dimensionLoadToB"],
-        "solvedValues": { "reactionAx": "A_x = 0" },
-        "solvedObjects": ["reactionAx"]
+        "visibleObjects": [
+          "reactionAy",
+          "reactionBy",
+          "dimensionAtoLoad",
+          "dimensionLoadToB",
+          "centerLoad"
+        ]
       }
     },
     {
       "id": "equilibrium-y",
       "title": "5. Vertikales Gleichgewicht anwenden",
       "body": [
-        { "type": "paragraph", "text": "Die nach oben gerichteten Lagerkräfte müssen die nach unten gerichtete Einzellast ausgleichen." }
+        {
+          "type": "paragraph",
+          "text": "Die nach oben gerichteten Lagerkräfte müssen die nach unten gerichtete Einzellast ausgleichen."
+        }
       ],
-      "equationIds": ["sum-force-y"],
+      "equationIds": [
+        "sum-force-y"
+      ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["reactionAy", "reactionBy", "centerLoad"],
-        "solvedValues": { "reactionAx": "A_x = 0", "reactionBy": "B_y = F/2" },
-        "solvedObjects": ["reactionAx", "reactionBy"]
+        "visibleObjects": [
+          "reactionAy",
+          "reactionBy",
+          "centerLoad"
+        ]
       }
     },
     {
       "id": "summary",
       "title": "6. Lagerkräfte zusammenfassen",
       "body": [
-        { "type": "paragraph", "text": "Die finalen Lagerkräfte sind unten angeführt." },
-        { "type": "math", "latex": "A_x = 0", "tone": "result" },
-        { "type": "math", "latex": "B_y = \\frac{F}{2}", "tone": "result" },
-        { "type": "math", "latex": "A_y = \\frac{F}{2}", "tone": "result" }
+        {
+          "type": "paragraph",
+          "text": "Die finalen Lagerkräfte sind unten angeführt."
+        },
+        {
+          "type": "math",
+          "latex": "A_x = 0",
+          "tone": "result"
+        },
+        {
+          "type": "math",
+          "latex": "B_y = \\frac{F}{2}",
+          "tone": "result"
+        },
+        {
+          "type": "math",
+          "latex": "A_y = \\frac{F}{2}",
+          "tone": "result"
+        }
       ],
       "canvasState": {
-        "visibleObjects": ["reactionAx", "reactionAy", "reactionBy"],
-        "highlightedObjects": ["reactionAx", "reactionAy", "reactionBy", "centerLoad"],
-        "solvedValues": {
-          "reactionAx": "A_x = 0",
-          "reactionAy": "A_y = F/2",
-          "reactionBy": "B_y = F/2"
-        },
-        "solvedObjects": ["reactionAx", "reactionAy", "reactionBy"]
+        "visibleObjects": [
+          "reactionAy",
+          "reactionBy",
+          "centerLoad"
+        ]
       }
     }
   ]
