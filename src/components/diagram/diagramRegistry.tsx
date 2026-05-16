@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import type { DiagramContent } from "../../content/problems/types";
+import { parseBeamDiagramConfig } from "../../mechanics/diagram/beamDiagramConfig";
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
 import type { SolverResult } from "../../mechanics/solvers/equilibrium2D/types";
 import {
   BeamDiagramLayer,
   getBeamDiagramWorldBounds,
-  parseBeamDiagramConfig,
   type WorldBounds,
 } from "./BeamDiagramLayer";
 import type { DiagramInteractionState, DiagramMode, WorldToCanvas } from "./types";

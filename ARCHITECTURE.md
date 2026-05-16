@@ -4,8 +4,8 @@
 
 Problem folders export localized `en` and `de` content through `parseLoadedProblemContent`.
 Parsing validates the generic problem shape, force-decomposition contracts, typed solver config,
-solution equation ids, solution/practice canvas state, practice component references, and diagram
-keys before the content reaches the app.
+solution equation ids, solution/practice canvas state, practice component references, diagram keys,
+diagram config references, and canvas object ids before the content reaches the app.
 
 `src/content/problems/catalog.ts` registers localized problem pairs and runs strict mechanics
 alignment checks between English and German. Locale validation compares ids, numeric mechanics
@@ -45,7 +45,9 @@ separate routing layer yet.
 The beam diagram renderer remains beam-specific, but shared diagram overlay helpers own reusable
 force-arrow, component-arrow, angle-marker, label, dimension, and visibility styling.
 Beam diagram files still own beam-specific placement offsets and visibility ids. Decomposition
-overlay labels are resolved from force component ids.
+overlay labels are resolved from force component ids. Beam diagram config parsing and object-id
+collection live in a pure mechanics diagram module so registration-time content validation can use
+the same renderer object contract without depending on React components.
 
 Solve and Practice mode share the same neutral canvas-state contract. Renderers may define a small,
 stable set of base context objects that are visible by default; the current beam renderer's base set
@@ -56,3 +58,6 @@ objects. Solve mode consumes authored per-solution-step canvas state directly. P
 its canvas state from the active practice step plus completed-step `revealObjects`; interaction,
 validation, hints, and accumulated progress remain practice-specific. Diagram focus is binary:
 authored objects are visible at normal opacity or not rendered.
+At content registration, authored `visibleObjects` and `revealObjects` ids must match known problem
+object ids, reaction ids, force-decomposition component ids, or renderer object ids. Authored
+`hiddenBaseObjects` ids must match renderer base object ids.

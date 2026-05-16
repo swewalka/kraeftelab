@@ -2,6 +2,7 @@ import { vector, type Vector2 } from "../../mechanics/core/vector";
 import type { ContentBlock } from "../../mechanics/content/types";
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
 import type { CanvasState } from "../../mechanics/model/canvasState";
+import { getDiagramObjectReferenceSet } from "../../mechanics/diagram/diagramObjectRegistry";
 import type {
   BodyDefinition,
   ForceDecomposition,
@@ -806,6 +807,89 @@ const validatePracticeComponentReferences = (problem: ProblemDefinition, practic
   });
 };
 
+const getProblemCanvasObjectIds = (problem: ProblemDefinition): ReadonlySet<string> =>
+  new Set([
+    ...problem.points.map((point) => point.id),
+    ...problem.bodies.map((body) => body.id),
+    ...problem.supports.map((support) => support.id),
+    ...problem.loads.map((load) => load.id),
+    ...problem.unknownReactions.map((reaction) => reaction.id),
+    ...problem.forceDecompositions.flatMap((decomposition) => [
+      decomposition.components.x.id,
+      decomposition.components.y.id,
+    ]),
+  ]);
+
+const validateIdArrayReferences = (
+  ids: readonly string[] | undefined,
+  knownIds: ReadonlySet<string>,
+  context: string,
+  expectedLabel: string,
+) => {
+  ids?.forEach((id, index) => {
+    if (!knownIds.has(id)) {
+      throw new Error(`${context}[${index}] references missing ${expectedLabel} "${id}".`);
+    }
+  });
+};
+
+const validateCanvasStateObjectReferences = (
+  canvasState: CanvasState | undefined,
+  visibleObjectIds: ReadonlySet<string>,
+  baseObjectIds: ReadonlySet<string>,
+  context: string,
+) => {
+  validateIdArrayReferences(
+    canvasState?.visibleObjects,
+    visibleObjectIds,
+    `${context}.visibleObjects`,
+    "canvas object id",
+  );
+  validateIdArrayReferences(
+    canvasState?.hiddenBaseObjects,
+    baseObjectIds,
+    `${context}.hiddenBaseObjects`,
+    "base canvas object id",
+  );
+};
+
+const validateCanvasObjectReferences = (
+  problem: ProblemDefinition,
+  diagram: DiagramContent,
+  solution: SolutionContent,
+  practice: PracticeContent,
+) => {
+  const diagramReferenceSet = getDiagramObjectReferenceSet(problem, diagram.diagramKey, diagram.config);
+  const visibleObjectIds = new Set([
+    ...getProblemCanvasObjectIds(problem),
+    ...diagramReferenceSet.rendererObjectIds,
+  ]);
+
+  solution.steps.forEach((step, index) =>
+    validateCanvasStateObjectReferences(
+      step.canvasState,
+      visibleObjectIds,
+      diagramReferenceSet.baseObjectIds,
+      `solution.steps[${index}].canvasState`,
+    ),
+  );
+
+  practice.steps.forEach((step, index) => {
+    validateCanvasStateObjectReferences(
+      step.canvasState,
+      visibleObjectIds,
+      diagramReferenceSet.baseObjectIds,
+      `practice.steps[${index}].canvasState`,
+    );
+    validateIdArrayReferences(
+      step.successResult?.revealObjects,
+      visibleObjectIds,
+      `practice.steps[${index}].successResult.revealObjects`,
+      "canvas object id",
+    );
+  });
+};
+
 export const parseLoadedProblemContent = (
   rawProblem: unknown,
   rawSolution: unknown,
@@ -815,14 +899,16 @@ export const parseLoadedProblemContent = (
   const { problem, explore } = parseProblem(rawProblem);
   const solution = parseSolution(rawSolution);
   const practice = parsePractice(rawPractice);
+  const diagram = parseDiagram(rawDiagram, problem);
   validateSolverConfigEquationIds(problem.solverConfig, new Set(solution.equations.map((equation) => equation.id)));
   validatePracticeComponentReferences(problem, practice);
+  validateCanvasObjectReferences(problem, diagram, solution, practice);
 
   return {
     problem,
     explore,
     solution,
-    diagram: parseDiagram(rawDiagram, problem),
+    diagram,
     practice,
   };
 };

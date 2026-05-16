@@ -87,9 +87,16 @@ Practice-step `successResult.revealObjects` may make objects visible after a com
 formulas belong in explanation and practice feedback content, not in canvas arrow labels or canvas
 state.
 
+`visibleObjects` and `revealObjects` are validated during content registration. Each id must match
+a declared problem object id, reaction id, force-decomposition component id, or renderer diagram
+object id. `hiddenBaseObjects` is stricter: each id must match a renderer-defined base object id.
+
 Beam diagram configs may define `angleMarkers` for arc-based angle annotations. Each marker uses a
 diagram object id, anchor point id, label, radius, start/end angles in canvas degrees, label offset,
 and font size.
+
+Beam diagram configs are also validated at registration time. Point, body, support, load, reaction,
+and force-component references in the diagram config must resolve to the parsed problem definition.
 
 ## Practice semantics
 

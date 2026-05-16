@@ -7,8 +7,6 @@ listed item, delete that item from this file during the same handoff.
 
 - Remove the temporary Practice Mode debug advance button once visual inspection of final result
   feedback is done.
-- Add validation that every `canvasState` object id references a known problem, diagram, or
-  renderer object id.
 - Improve locale-validation diagnostics so German/English mismatches report the exact path instead
   of a single generic mismatch.
 - Add a small authoring check for final result formulas: final support reactions should use

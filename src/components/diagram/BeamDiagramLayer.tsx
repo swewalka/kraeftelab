@@ -3,6 +3,12 @@ import { Circle, Layer, Line } from "react-konva";
 import type { ProblemDefinition } from "../../mechanics/model/problemDefinition";
 import type { LoadDefinition, PointDefinition, SupportDefinition } from "../../mechanics/model/types";
 import type { SolverResult } from "../../mechanics/solvers/equilibrium2D/types";
+import {
+  getBeamDiagramDimensionId,
+  type BeamDiagramConfig,
+  type DiagramOffset,
+  type OverlayArrowConfig,
+} from "../../mechanics/diagram/beamDiagramConfig";
 import { AngleMarker } from "./AngleMarker";
 import { DimensionLine } from "./DimensionLine";
 import { ForceArrow } from "./ForceArrow";
@@ -10,108 +16,6 @@ import { Label } from "./Label";
 import { createOverlayState, diagramColors } from "./overlayStyle";
 import { SupportSymbol } from "./SupportSymbol";
 import type { CanvasPoint, DiagramInteractionState, DiagramMode, WorldToCanvas } from "./types";
-
-type DiagramOffset = Readonly<{
-  x: number;
-  y: number;
-}>;
-
-type BeamReferenceConfig = Readonly<{
-  bodyId: string;
-  startPointId: string;
-  endPointId: string;
-}>;
-
-type SupportAnnotationConfig = Readonly<{
-  supportId: string;
-  pointId: string;
-}>;
-
-type LoadArrowConfig = Readonly<{
-  loadId: string;
-  pointId: string;
-  tailOffset: DiagramOffset;
-  tipOffset: DiagramOffset;
-  labelOffset: DiagramOffset;
-  fontSize: number;
-  color?: string;
-}>;
-
-type ReactionArrowConfig = Readonly<{
-  reactionId: string;
-  pointId: string;
-  tailOffset: DiagramOffset;
-  tipOffset: DiagramOffset;
-  labelOffset: DiagramOffset;
-  fontSize: number;
-  color?: string;
-}>;
-
-type PointLabelConfig = Readonly<{
-  pointId: string;
-  text: string;
-  offset: DiagramOffset;
-  fontSize: number;
-}>;
-
-type DimensionConfig = Readonly<{
-  id?: string;
-  startPointId: string;
-  endPointId: string;
-  label: string;
-  yOffset?: number;
-}>;
-
-type OverlayArrowConfig = Readonly<{
-  id: string;
-  pointId: string;
-  label?: string;
-  componentId?: string;
-  tailOffset: DiagramOffset;
-  tipOffset: DiagramOffset;
-  labelOffset: DiagramOffset;
-  fontSize: number;
-  color?: string;
-  strokeWidth?: number;
-}>;
-
-type PolylineMarkerConfig = Readonly<{
-  id: string;
-  pointId: string;
-  label: string;
-  offsets: readonly DiagramOffset[];
-  labelOffset: DiagramOffset;
-  fontSize: number;
-  color?: string;
-}>;
-
-type AngleMarkerConfig = Readonly<{
-  id: string;
-  pointId: string;
-  label: string;
-  radius: number;
-  startAngleDeg: number;
-  endAngleDeg: number;
-  labelOffset: DiagramOffset;
-  fontSize: number;
-  color?: string;
-}>;
-
-export type BeamDiagramConfig = Readonly<{
-  beam: BeamReferenceConfig;
-  supports: readonly SupportAnnotationConfig[];
-  loadArrows: readonly LoadArrowConfig[];
-  freeBodyReactions: readonly ReactionArrowConfig[];
-  overlayArrows: readonly OverlayArrowConfig[];
-  polylineMarkers: readonly PolylineMarkerConfig[];
-  angleMarkers: readonly AngleMarkerConfig[];
-  pointLabels: readonly PointLabelConfig[];
-  dimensions: readonly DimensionConfig[];
-  bounds: Readonly<{
-    startPointId: string;
-    endPointId: string;
-  }>;
-}>;
 
 type BeamDiagramLayerProps = Readonly<{
   problem: ProblemDefinition;
@@ -121,212 +25,12 @@ type BeamDiagramLayerProps = Readonly<{
   worldToCanvas: WorldToCanvas;
 }> & DiagramInteractionState;
 
-type JsonRecord = Record<string, unknown>;
-
 export type WorldBounds = Readonly<{
   minX: number;
   maxX: number;
   minY: number;
   maxY: number;
 }>;
-
-const isRecord = (value: unknown): value is JsonRecord =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
-
-const requireRecord = (value: unknown, context: string): JsonRecord => {
-  if (!isRecord(value)) {
-    throw new Error(`${context} must be an object.`);
-  }
-  return value;
-};
-
-const requireString = (record: JsonRecord, key: string, context: string): string => {
-  const value = record[key];
-  if (typeof value !== "string" || value.length === 0) {
-    throw new Error(`${context}.${key} must be a non-empty string.`);
-  }
-  return value;
-};
-
-const requireNumber = (record: JsonRecord, key: string, context: string): number => {
-  const value = record[key];
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new Error(`${context}.${key} must be a finite number.`);
-  }
-  return value;
-};
-
-const optionalString = (record: JsonRecord, key: string, context: string): string | undefined => {
-  const value = record[key];
-  if (value === undefined) {
-    return undefined;
-  }
-  if (typeof value !== "string" || value.length === 0) {
-    throw new Error(`${context}.${key} must be a non-empty string.`);
-  }
-  return value;
-};
-
-const optionalNumber = (record: JsonRecord, key: string, context: string): number | undefined => {
-  const value = record[key];
-  if (value === undefined) {
-    return undefined;
-  }
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new Error(`${context}.${key} must be a finite number.`);
-  }
-  return value;
-};
-
-const requireArray = (record: JsonRecord, key: string, context: string): readonly unknown[] => {
-  const value = record[key];
-  if (!Array.isArray(value)) {
-    throw new Error(`${context}.${key} must be an array.`);
-  }
-  return value;
-};
-
-const parseOffset = (value: unknown, context: string): DiagramOffset => {
-  const record = requireRecord(value, context);
-  return {
-    x: requireNumber(record, "x", context),
-    y: requireNumber(record, "y", context),
-  };
-};
-
-const parseArrowBase = (record: JsonRecord, context: string) => {
-  const color = optionalString(record, "color", context);
-  return {
-    pointId: requireString(record, "pointId", context),
-    tailOffset: parseOffset(record.tailOffset, `${context}.tailOffset`),
-    tipOffset: parseOffset(record.tipOffset, `${context}.tipOffset`),
-    labelOffset: parseOffset(record.labelOffset, `${context}.labelOffset`),
-    fontSize: requireNumber(record, "fontSize", context),
-    ...(color === undefined ? {} : { color }),
-  };
-};
-
-export const parseBeamDiagramConfig = (value: unknown): BeamDiagramConfig => {
-  const record = requireRecord(value, "beam diagram config");
-  const beam = requireRecord(record.beam, "beam diagram config.beam");
-  const bounds = requireRecord(record.bounds, "beam diagram config.bounds");
-
-  return {
-    beam: {
-      bodyId: requireString(beam, "bodyId", "beam diagram config.beam"),
-      startPointId: requireString(beam, "startPointId", "beam diagram config.beam"),
-      endPointId: requireString(beam, "endPointId", "beam diagram config.beam"),
-    },
-    supports: requireArray(record, "supports", "beam diagram config").map((item, index) => {
-      const support = requireRecord(item, `beam diagram config.supports[${index}]`);
-      return {
-        supportId: requireString(support, "supportId", `beam diagram config.supports[${index}]`),
-        pointId: requireString(support, "pointId", `beam diagram config.supports[${index}]`),
-      };
-    }),
-    loadArrows: requireArray(record, "loadArrows", "beam diagram config").map((item, index) => {
-      const arrow = requireRecord(item, `beam diagram config.loadArrows[${index}]`);
-      return {
-        loadId: requireString(arrow, "loadId", `beam diagram config.loadArrows[${index}]`),
-        ...parseArrowBase(arrow, `beam diagram config.loadArrows[${index}]`),
-      };
-    }),
-    freeBodyReactions: requireArray(record, "freeBodyReactions", "beam diagram config").map((item, index) => {
-      const arrow = requireRecord(item, `beam diagram config.freeBodyReactions[${index}]`);
-      return {
-        reactionId: requireString(arrow, "reactionId", `beam diagram config.freeBodyReactions[${index}]`),
-        ...parseArrowBase(arrow, `beam diagram config.freeBodyReactions[${index}]`),
-      };
-    }),
-    overlayArrows:
-      record.overlayArrows === undefined
-        ? []
-        : requireArray(record, "overlayArrows", "beam diagram config").map((item, index) => {
-            const arrow = requireRecord(item, `beam diagram config.overlayArrows[${index}]`);
-            const strokeWidth = optionalNumber(arrow, "strokeWidth", `beam diagram config.overlayArrows[${index}]`);
-            if (arrow.label === undefined && arrow.componentId === undefined) {
-              throw new Error(`beam diagram config.overlayArrows[${index}] requires label or componentId.`);
-            }
-            return {
-              id: requireString(arrow, "id", `beam diagram config.overlayArrows[${index}]`),
-              ...(arrow.label === undefined
-                ? {}
-                : { label: requireString(arrow, "label", `beam diagram config.overlayArrows[${index}]`) }),
-              ...(arrow.componentId === undefined
-                ? {}
-                : { componentId: requireString(arrow, "componentId", `beam diagram config.overlayArrows[${index}]`) }),
-              ...parseArrowBase(arrow, `beam diagram config.overlayArrows[${index}]`),
-              ...(strokeWidth === undefined ? {} : { strokeWidth }),
-            };
-          }),
-    polylineMarkers:
-      record.polylineMarkers === undefined
-        ? []
-        : requireArray(record, "polylineMarkers", "beam diagram config").map((item, index) => {
-            const marker = requireRecord(item, `beam diagram config.polylineMarkers[${index}]`);
-            const color = optionalString(marker, "color", `beam diagram config.polylineMarkers[${index}]`);
-            return {
-              id: requireString(marker, "id", `beam diagram config.polylineMarkers[${index}]`),
-              pointId: requireString(marker, "pointId", `beam diagram config.polylineMarkers[${index}]`),
-              label: requireString(marker, "label", `beam diagram config.polylineMarkers[${index}]`),
-              offsets: requireArray(marker, "offsets", `beam diagram config.polylineMarkers[${index}]`).map(
-                (offset, offsetIndex) =>
-                  parseOffset(offset, `beam diagram config.polylineMarkers[${index}].offsets[${offsetIndex}]`),
-              ),
-              labelOffset: parseOffset(marker.labelOffset, `beam diagram config.polylineMarkers[${index}].labelOffset`),
-              fontSize: requireNumber(marker, "fontSize", `beam diagram config.polylineMarkers[${index}]`),
-              ...(color === undefined ? {} : { color }),
-            };
-          }),
-    angleMarkers:
-      record.angleMarkers === undefined
-        ? []
-        : requireArray(record, "angleMarkers", "beam diagram config").map((item, index) => {
-            const marker = requireRecord(item, `beam diagram config.angleMarkers[${index}]`);
-            const color = optionalString(marker, "color", `beam diagram config.angleMarkers[${index}]`);
-            return {
-              id: requireString(marker, "id", `beam diagram config.angleMarkers[${index}]`),
-              pointId: requireString(marker, "pointId", `beam diagram config.angleMarkers[${index}]`),
-              label: requireString(marker, "label", `beam diagram config.angleMarkers[${index}]`),
-              radius: requireNumber(marker, "radius", `beam diagram config.angleMarkers[${index}]`),
-              startAngleDeg: requireNumber(marker, "startAngleDeg", `beam diagram config.angleMarkers[${index}]`),
-              endAngleDeg: requireNumber(marker, "endAngleDeg", `beam diagram config.angleMarkers[${index}]`),
-              labelOffset: parseOffset(marker.labelOffset, `beam diagram config.angleMarkers[${index}].labelOffset`),
-              fontSize: requireNumber(marker, "fontSize", `beam diagram config.angleMarkers[${index}]`),
-              ...(color === undefined ? {} : { color }),
-            };
-          }),
-    pointLabels: requireArray(record, "pointLabels", "beam diagram config").map((item, index) => {
-      const label = requireRecord(item, `beam diagram config.pointLabels[${index}]`);
-      return {
-        pointId: requireString(label, "pointId", `beam diagram config.pointLabels[${index}]`),
-        text: requireString(label, "text", `beam diagram config.pointLabels[${index}]`),
-        offset: parseOffset(label.offset, `beam diagram config.pointLabels[${index}].offset`),
-        fontSize: requireNumber(label, "fontSize", `beam diagram config.pointLabels[${index}]`),
-      };
-    }),
-    dimensions: requireArray(record, "dimensions", "beam diagram config").map((item, index) => {
-      const dimension = requireRecord(item, `beam diagram config.dimensions[${index}]`);
-      const yOffset =
-        dimension.yOffset === undefined
-          ? undefined
-          : requireNumber(dimension, "yOffset", `beam diagram config.dimensions[${index}]`);
-      const parsed = {
-        startPointId: requireString(dimension, "startPointId", `beam diagram config.dimensions[${index}]`),
-        endPointId: requireString(dimension, "endPointId", `beam diagram config.dimensions[${index}]`),
-        label: requireString(dimension, "label", `beam diagram config.dimensions[${index}]`),
-        ...(yOffset === undefined ? {} : { yOffset }),
-      };
-      return dimension.id === undefined
-        ? parsed
-        : { ...parsed, id: requireString(dimension, "id", `beam diagram config.dimensions[${index}]`) };
-    }),
-    bounds: {
-      startPointId: requireString(bounds, "startPointId", "beam diagram config.bounds"),
-      endPointId: requireString(bounds, "endPointId", "beam diagram config.bounds"),
-    },
-  };
-};
 
 const findPoint = (problem: ProblemDefinition, pointId: string): PointDefinition => {
   const point = problem.points.find((candidate) => candidate.id === pointId);
@@ -648,7 +352,7 @@ export const BeamDiagramLayer = ({
       })}
 
       {diagramConfig.dimensions.map((dimension) => {
-        const dimensionId = dimension.id ?? `${dimension.startPointId}-${dimension.endPointId}-${dimension.label}`;
+        const dimensionId = getBeamDiagramDimensionId(dimension);
         if (!shouldShowObject(dimensionId)) {
           return null;
         }
