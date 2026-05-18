@@ -20,35 +20,35 @@ should drive the architecture, but they should not be implemented as isolated sp
 
 ## Phase 0 - Problem Specs And Architecture Baseline
 
-- [ ] Capture canonical mechanics specs for the two target problems from the PDF and extracted
+- [x] Capture canonical mechanics specs for the two target problems from the PDF and extracted
   images in `docs/milestones/m02-multi-body-framework/resources/`:
   - articulated ladder with rope and eccentric load
   - belt tensioner / idler pulley equilibrium
-- [ ] Use `m2-mechanical-problems.pdf` as the durable source for the problem statements and use
+- [x] Use `m2-mechanical-problems.pdf` as the durable source for the problem statements and use
   the extracted PNGs as figure references.
-- [ ] Use the computational solution included for each PDF problem as reference material for
+- [x] Use the computational solution included for each PDF problem as reference material for
   mechanics checks, semantic equations, solver validation, and numeric expected values.
-- [ ] Ignore the graphical solution included with the Spannrolle/belt-tensioner material
+- [x] Ignore the graphical solution included with the Spannrolle/belt-tensioner material
   completely. It is not app source material and should not drive Solve, Practice, Explore, solver,
   or diagram implementation.
-- [ ] For each target problem, write down bodies, points, supports/contacts, joints, ropes/cables,
+- [x] For each target problem, write down bodies, points, supports/contacts, joints, ropes/cables,
   belt/contact force directions, known parameters, unknown quantities, sign conventions, and final
   requested results.
-- [ ] Decide target problem ids, folder names, localized titles, and catalog placement.
-- [ ] Specify the ladder learning sequence before implementation. At minimum, decide the intended
+- [x] Decide target problem ids, folder names, localized titles, and catalog placement.
+- [x] Specify the ladder learning sequence before implementation. At minimum, decide the intended
   free-body diagrams, where the hinge/rope forces appear, which moment points are taught, and which
   quantities Practice asks students to derive.
-- [ ] Specify the belt tensioner/idler learning sequence before implementation. At minimum, decide
+- [x] Specify the belt tensioner/idler learning sequence before implementation. At minimum, decide
   how belt/contact force directions are introduced, which body is isolated, and which reactions or
   tensions are final answers.
-- [ ] Define first-pass Explore controls and observed quantities for all four catalog problems:
+- [x] Define first-pass Explore controls and observed quantities for all four catalog problems:
   center-load beam, angled-load beam, ladder, and belt/idler.
 
 Exit criteria:
 
-- [ ] A short problem-spec note or report exists for M02 target mechanics.
-- [ ] The target specs are representable on paper using planned reusable model concepts.
-- [ ] No target problem implementation starts with unresolved final unknowns or ambiguous force
+- [x] A short problem-spec note or report exists for M02 target mechanics.
+- [x] The target specs are representable on paper using planned reusable model concepts.
+- [x] No target problem implementation starts with unresolved final unknowns or ambiguous force
   directions.
 
 ## Phase 1 - Semantic Equation Foundation
