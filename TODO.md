@@ -20,6 +20,8 @@ Current milestone state:
   `tone: "result"` and intermediate equations should not.
 - Rework the workspace header layout: the current problem title and mode toggle placement is
   functional but not final, and needs better spacing/responsiveness.
+- Add visual regression testing for representative Solve, Practice, and Explore canvas states after
+  the M02 mechanics, diagram, and Explore contracts have stabilized.
 - Plan support for distributed loads, internal force diagrams, additional multi-body systems beyond
   the M02 target problems, inclined planes, friction, and other future topics.
 - Add shared localized glossary snippets for recurring statics phrases while keeping mechanics ids

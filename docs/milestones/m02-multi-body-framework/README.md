@@ -38,8 +38,6 @@ M02 is complete when:
   minimum semantic equation model.
 - Diagram and canvas infrastructure supports non-beam rigid-body diagrams and authored visibility
   states for the M02 target problems.
-- Representative Solve, Practice, and Explore canvas states are covered by visual regression or
-  equivalent rendering checks.
 - `ARCHITECTURE.md`, `CONTENT_SCHEMA.md`, `CURRENT_STATE.md`, and milestone TODO/reporting are
   updated to reflect the final M02 contracts.
 
@@ -47,6 +45,22 @@ M02 is complete when:
 
 - Articulated ladder with rope and eccentric load.
 - Belt tensioner / idler pulley equilibrium.
+
+Reference material lives in `docs/milestones/m02-multi-body-framework/resources/`:
+
+- `m2-mechanical-problems.pdf` contains both M02 mechanics problem statements and related figures.
+- `ladder-graphic.png`, `ladder-graphic-free-body.png`, and
+  `ladder-graphic-free-body-components.png` are extracted ladder references.
+- `belt-tensioner-graphic.png` and `belt-tensioner-graphic-free-body.png` are extracted
+  Spannrolle/belt-tensioner references.
+
+Both problems in the PDF include a computational solution. Use those computational solutions as
+reference material for mechanics checks, equations, and numeric validation while extracting the
+final app problem specs.
+
+The Spannrolle problem material includes a graphical solution. Ignore that graphical solution
+completely when implementing the app problem; use only the problem statement, mechanics setup, and
+figure references plus the computational solution as source material.
 
 Both target problems must eventually include:
 
