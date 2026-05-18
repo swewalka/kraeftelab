@@ -18,7 +18,7 @@ mode behavior.
 - Center-load and angled-load Solve/Practice JSON content in German and English
 - `ARCHITECTURE.md`
 - `CONTENT_SCHEMA.md`
-- `docs/agent-reports/2026-05-15-canvas-base-visibility-contract.md`
+- `docs/milestones/m01-statics-mvp-foundation/reports/2026-05-15-canvas-base-visibility-contract.md`
 
 ## Implementation decisions
 

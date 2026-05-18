@@ -1,162 +1,100 @@
 # AGENTS.md
 
-## Project Context
+## Purpose
 
-KraefteLab is an interactive mechanics learning app for students. It combines visual mechanics problems, step-by-step solution explanations, and interactive practice workflows.
+This file is the workflow and context router for agents working on KraefteLab. Keep it concise.
+Product intent, current implementation state, architecture contracts, schema details, design rules,
+and milestone plans live in their own context files.
 
-The project should stay extensible beyond the current beam examples. Future content may include support reactions, angled forces, distributed loads, friction, internal forces, multi-body systems, and other mechanics topics.
+KraefteLab is still in early development. The current implementation is not the product vision.
+Current architecture, schemas, and UI patterns may and should change aggressively when they block the
+active milestone or finished product direction.
 
-German (`de`) and English (`en`) are supported. German is the default language.
+## Context Order
 
-## Core Agent Rule
+Before substantial work, read the relevant context in this order:
 
-Do not optimize only for the current task. Every substantial change must preserve a clean path for future mechanics problems, future interaction modes, and bilingual content.
+1. `PRODUCT_VISION.md` — finished product intent, target audience, learning modes, topic roadmap,
+   and unresolved long-term ideas.
+2. `docs/milestones/README.md` — milestone process, active milestone, and lifecycle rules.
+3. Active milestone `README.md` and `TODO.md` — current goals, scope, acceptance criteria, and task
+   ownership.
+4. `CURRENT_STATE.md` — implemented behavior and known current limitations.
+5. `ARCHITECTURE.md` — current application structure, boundaries, and data flow.
+6. `CONTENT_SCHEMA.md` — current content format and validation expectations.
+7. `DESIGN.md` — visual and UX rules, when the task affects UI.
+8. Root `TODO.md` — global or cross-milestone backlog only.
 
-Before implementation, inspect the existing structure and use the project context files as the source of truth.
+Reports under milestone `reports/` folders are historical evidence. Use them to understand why
+things changed, but they do not override root docs or the active milestone.
 
-Relevant context files:
-
-- `AGENTS.md` — agent workflow and project-level rules
-- `ARCHITECTURE.md` — application structure, boundaries, and data flow
-- `CONTENT_SCHEMA.md` — problem/content format and validation expectations
-- `DESIGN.md` — visual and UX rules, when present
-- `TODO.md` — durable next-step backlog and known follow-up work
-- `docs/agent-reports/` — implementation, review, and architecture reports written by agents
-
-If these files conflict, prefer the more specific file. For example, `CONTENT_SCHEMA.md` overrides generic content advice in this file.
+If files conflict, prefer the more specific and more current source: active milestone over closed
+milestone, schema over generic content advice, architecture/schema over old reports.
 
 ## Expected Workflow
 
-For non-trivial changes, follow this sequence:
+For non-trivial changes:
 
 1. Read the relevant context files.
 2. Inspect the existing implementation before editing.
-3. Identify the smallest clean change that satisfies the task.
+3. Identify the clean change that best serves the active milestone and product vision; avoid both
+   narrow patches that preserve bad temporary structure and broad rewrites outside scope.
 4. Write or mentally form a short plan before implementation.
 5. Implement within scope.
 6. Run available checks such as typecheck, lint, tests, or build.
 7. Review the change critically.
 8. Update relevant context files if the change affects future work.
-9. Write a report in `docs/agent-reports/` for substantial changes.
-
-Do not rewrite unrelated parts of the app. Do not introduce broad abstractions unless the current task clearly needs them.
+9. Write a report in the active milestone's `reports/` folder for substantial changes.
 
 ## Architecture Boundaries
 
-Keep these boundaries intact:
+Keep these boundaries intact unless the active milestone explicitly changes them:
 
 - Problem-specific teaching content belongs in `src/content/problems`.
 - Generic mechanics logic belongs in reusable mechanics/domain modules.
 - React components should not contain hardcoded mechanics solutions.
 - Solvers should not contain curated teaching prose.
-- Diagram renderers should consume structured problem and diagram data instead of hidden example constants.
+- Diagram renderers should consume structured problem and diagram data.
 - Generic UI strings belong in the i18n layer.
 - Localized educational text belongs in localized content files.
 
-When adding a new feature, ask whether the implementation would still make sense for a different mechanics problem type. If not, isolate the problem-specific part in content, a solver, a renderer adapter, or a clearly named domain module.
+When changing a boundary, update `ARCHITECTURE.md`, `CONTENT_SCHEMA.md`, or the active milestone
+docs in the same handoff.
 
-## Content Rules
+## Product And Content Rules
 
-Problem content should be structured, localized, and data-driven.
-
-Problem-specific content includes:
-
-- problem statements
-- given values and units
-- diagram annotations
-- solution steps
-- practice prompts
-- hints and feedback
-- localized labels
-- assumptions
-- result explanations
-
-Avoid hardcoding this content in React components or solver logic.
-
-Keep German and English versions mechanically aligned unless the task intentionally defines different problems. IDs, units, solver keys, diagram keys, point IDs, reaction IDs, and numeric values should remain consistent across locales.
-
-## Math and Explanation Rendering
-
-All mathematical notation shown in the UI should use the shared math/rendering components.
-
-General rules:
-
-- Use inline math only for short symbols inside prose.
-- Use separate math blocks for equations, substitutions, transformations, and final formulas.
-- Do not place full equations directly inside normal paragraph text in the explanation or practice panel.
+- German (`de`) is the default locale; English (`en`) is supported.
+- Keep German wording natural for HTL/TU-level mechanics learners.
+- Keep localized problem files mechanically aligned unless a task intentionally defines different
+  problems.
+- Use shared math/rendering components for mathematical notation.
 - Keep rendered LaTeX separate from answer validation.
-- Practice checking should use semantic expected-answer data, not visual LaTeX strings.
+- Practice checking should use semantic expected-answer data where the current schema supports it.
+- Internal mechanics calculations should use SI units and explicit 2D statics conventions unless a
+  problem defines otherwise.
 
-## Internationalization
+## Context Maintenance
 
-The app supports:
+After substantial feature, refactor, schema, solver, renderer, UX, or content-pattern changes:
 
-- `de` — German, default locale
-- `en` — English, fallback locale
+- Check root `TODO.md` and the active milestone `TODO.md`; remove or update completed items.
+- Update context files only when future agents need the changed rule, contract, limitation, or
+  decision.
+- Keep context concise, factual, and current.
 
-Rules:
+Every substantial handoff should state:
 
-- Do not hardcode visible UI strings in components.
-- Add generic UI labels to the i18n layer in both languages.
-- Keep problem-specific teaching copy in localized content files.
-- Do not duplicate components for different languages.
-- Check user-facing features in both German and English before handoff.
-
-German wording should be natural technical German suitable for HTL/TU-level students.
-
-## Implementation Standards
-
-Use strict, explicit TypeScript. Prefer clear domain names over vague generic names.
-
-Keep files focused. Keep mechanics calculations outside JSX. Keep rendering components mostly presentational. Add comments only when they explain non-obvious mechanics, numerical logic, or architecture boundaries.
-
-Do not add new dependencies unless they remove real complexity and are justified in the report.
-
-## Mechanics Conventions
-
-Use a consistent 2D statics convention unless a specific problem defines otherwise:
-
-- positive `x` points right
-- positive `y` points upward
-- counterclockwise moments are positive
-- internal calculations use SI units
-
-Display formatting may use student-friendly units such as `kN` or `kN m`, but stored data and solver calculations should remain consistent with the project schema.
-
-## Context File Maintenance
-
-After any substantial feature, refactor, architecture change, schema change, solver change, renderer change, or UX pattern change, check whether the context files need updates.
-
-Also check `TODO.md`. If a substantial task completes an item listed there, delete that item from
-`TODO.md` in the same change so the backlog stays current.
-
-Update context files when the change introduces or modifies:
-
-- architecture boundaries
-- folder structure
-- content schema
-- solver contracts
-- renderer contracts
-- math rendering rules
-- practice-mode behavior
-- bilingual content rules
-- reusable mechanics abstractions
-- design or interaction conventions
-- known limitations relevant to future agents
-
-Do not rewrite context files unnecessarily. Updates should be concise, durable, and based on actual code changes.
-
-Every substantial handoff must include a context-maintenance section stating:
-
-- which context files were checked
-- which context files were updated
-- which context files did not need updates and why
+1. What changed.
+2. How it was verified.
+3. What remains fragile.
+4. Which context files were checked or updated.
+5. Where the milestone report was written, if required.
 
 ## Agent Reports
 
-For substantial tasks, create a Markdown report in `docs/agent-reports/`.
+For substantial tasks, create a Markdown report in the active milestone's `reports/` folder.
 
-The report should include:
+Reports should include:
 
 - task summary
 - changed files
@@ -167,11 +105,11 @@ The report should include:
 - future recommendations
 - context file updates
 
-Reports should be factual and critical. Do not use them as marketing summaries.
+Reports are factual handoff notes, not marketing summaries.
 
 ## Do Not Do Without Explicit Request
 
-Do not add these unless directly requested or required by an approved plan:
+Do not add these unless directly requested or required by an approved milestone plan:
 
 - authentication
 - student accounts
@@ -183,15 +121,3 @@ Do not add these unless directly requested or required by an approved plan:
 - large routing changes
 - physics simulation engines
 - unrelated UI redesigns
-
-## Handoff Expectations
-
-At the end of a substantial task, provide a concise summary containing:
-
-1. What changed
-2. How it was verified
-3. What remains fragile
-4. Which context files were checked or updated
-5. Where the agent report was written
-
-Prefer honest partial completion over pretending a change is fully verified when checks were not run or failed.

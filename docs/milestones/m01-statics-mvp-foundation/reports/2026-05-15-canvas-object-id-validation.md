@@ -16,7 +16,7 @@ app.
 - `ARCHITECTURE.md`
 - `CONTENT_SCHEMA.md`
 - `TODO.md`
-- `docs/agent-reports/2026-05-15-canvas-object-id-validation.md`
+- `docs/milestones/m01-statics-mvp-foundation/reports/2026-05-15-canvas-object-id-validation.md`
 
 ## Implementation decisions
 
