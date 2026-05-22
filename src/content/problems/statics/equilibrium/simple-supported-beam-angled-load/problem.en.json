@@ -73,6 +73,129 @@
     { "id": "reactionAy", "label": "A_y", "supportId": "supportA", "component": "y", "direction": { "x": 0, "y": 1 } },
     { "id": "reactionBy", "label": "B_y", "supportId": "supportB", "component": "y", "direction": { "x": 0, "y": 1 } }
   ],
+  "semanticEquations": [
+    {
+      "id": "sum-force-x",
+      "purpose": "sumForceX",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": {
+        "terms": [
+          {
+            "id": "force-x-reaction-ax",
+            "sign": "+",
+            "unit": "N",
+            "quantityId": "reactionAx",
+            "mechanicsObjectIds": ["reactionAx"]
+          },
+          {
+            "id": "force-x-load-component",
+            "sign": "+",
+            "unit": "N",
+            "parameterId": "loadMagnitude",
+            "componentId": "angledLoadFx",
+            "factor": "cos(loadAngle)",
+            "mechanicsObjectIds": ["angledLoad", "angledLoadFx"],
+            "latex": "F\\cos(\\alpha)"
+          }
+        ]
+      },
+      "rhs": "0"
+    },
+    {
+      "id": "sum-moment-a",
+      "purpose": "sumMoment",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "momentPointId": "pointA",
+      "unit": "N*m",
+      "lhs": {
+        "terms": [
+          {
+            "id": "moment-a-reaction-by",
+            "sign": "+",
+            "unit": "N*m",
+            "quantityId": "reactionBy",
+            "factor": "beamLength",
+            "mechanicsObjectIds": ["reactionBy", "pointB"],
+            "latex": "B_y\\cdot L"
+          },
+          {
+            "id": "moment-a-load-y",
+            "sign": "-",
+            "unit": "N*m",
+            "parameterId": "loadMagnitude",
+            "componentId": "angledLoadFy",
+            "factor": "sin(loadAngle)*loadPosition",
+            "mechanicsObjectIds": ["angledLoad", "angledLoadFy", "pointLoad"],
+            "latex": "F\\sin(\\alpha)\\cdot a"
+          }
+        ]
+      },
+      "rhs": "0"
+    },
+    {
+      "id": "sum-force-y",
+      "purpose": "sumForceY",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": {
+        "terms": [
+          {
+            "id": "force-y-reaction-ay",
+            "sign": "+",
+            "unit": "N",
+            "quantityId": "reactionAy",
+            "mechanicsObjectIds": ["reactionAy"]
+          },
+          {
+            "id": "force-y-reaction-by",
+            "sign": "+",
+            "unit": "N",
+            "quantityId": "reactionBy",
+            "mechanicsObjectIds": ["reactionBy"]
+          },
+          {
+            "id": "force-y-load-component",
+            "sign": "-",
+            "unit": "N",
+            "parameterId": "loadMagnitude",
+            "componentId": "angledLoadFy",
+            "factor": "sin(loadAngle)",
+            "mechanicsObjectIds": ["angledLoad", "angledLoadFy"],
+            "latex": "F\\sin(\\alpha)"
+          }
+        ]
+      },
+      "rhs": "0"
+    },
+    {
+      "id": "result-reaction-ax",
+      "purpose": "derivedResult",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": "reactionAx",
+      "rhs": "-loadMagnitude*cos(loadAngle)",
+      "displayLatex": "A_x = -F\\cos(\\alpha)"
+    },
+    {
+      "id": "result-reaction-by",
+      "purpose": "derivedResult",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": "reactionBy",
+      "rhs": "loadMagnitude*sin(loadAngle)*loadPosition/beamLength",
+      "displayLatex": "B_y = \\frac{F\\sin(\\alpha)\\,a}{L}"
+    },
+    {
+      "id": "result-reaction-ay",
+      "purpose": "derivedResult",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": "reactionAy",
+      "rhs": "loadMagnitude*sin(loadAngle)*(beamLength-loadPosition)/beamLength",
+      "displayLatex": "A_y = \\frac{F\\sin(\\alpha)(L-a)}{L}"
+    }
+  ],
   "solverConfig": {
     "beamLengthParameterId": "beamLength",
     "loadId": "angledLoad",

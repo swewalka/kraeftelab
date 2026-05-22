@@ -91,6 +91,8 @@ export type EquationTerm = Readonly<{
   id: string;
   latex: string;
   semantic: Readonly<{
+    equationId?: string;
+    termId?: string;
     variable: string;
     direction?: "x" | "y";
     sign: "+" | "-";
@@ -103,7 +105,10 @@ export type EquationTerm = Readonly<{
 export type ExpectedEquation = Readonly<{
   equationType: "sumFx" | "sumFy" | "sumMoment";
   aboutPoint?: string;
+  semanticEquationId?: string;
   terms: readonly Readonly<{
+    equationId?: string;
+    termId?: string;
     variable: string;
     sign: "+" | "-";
     factor?: string;
@@ -117,6 +122,10 @@ export type ExpressionInputInteraction = Readonly<{
   variable: string;
   expectedExpression: string;
   acceptedExpressions?: readonly string[];
+  expectedSemanticEquation?: Readonly<{
+    equationId: string;
+    side: "rhs";
+  }>;
 }>;
 
 export type PracticeInteraction =

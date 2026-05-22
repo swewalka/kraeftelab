@@ -21,6 +21,12 @@ import {
   parseSolverConfig,
   validateSolverConfigEquationIds,
 } from "../../mechanics/solvers/solverConfigRegistry";
+import {
+  findSemanticEquationTerm,
+  parseSemanticEquations,
+} from "../../mechanics/semantic/parsing";
+import { renderSemanticExpression } from "../../mechanics/semantic/expression";
+import type { SemanticEquation, SemanticEquationTerm } from "../../mechanics/semantic/types";
 import type {
   DiagramContent,
   ExploreContent,
@@ -308,8 +314,16 @@ const parseExplore = (value: unknown): ExploreContent => {
   const record = requireRecord(value, "problem.explore");
   const noticeTitle = record.noticeTitle === undefined ? undefined : requireString(record, "noticeTitle", "problem.explore");
   const notices = parseStringArray(record.notices ?? [], "problem.explore.notices");
+  const observedQuantityIds =
+    record.observedQuantityIds === undefined
+      ? undefined
+      : parseStringArray(record.observedQuantityIds, "problem.explore.observedQuantityIds");
 
-  return noticeTitle === undefined ? { notices } : { noticeTitle, notices };
+  return {
+    ...(noticeTitle === undefined ? {} : { noticeTitle }),
+    notices,
+    ...(observedQuantityIds === undefined ? {} : { observedQuantityIds }),
+  };
 };
 
 const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: ExploreContent } => {
@@ -410,10 +424,13 @@ const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: Expl
     loads,
     forceDecompositions,
     unknownReactions,
-  } satisfies Omit<ProblemDefinition, "solverConfig">;
+  } satisfies Omit<ProblemDefinition, "solverConfig" | "semanticEquations">;
+
+  const semanticEquations = parseSemanticEquations(record.semanticEquations, baseProblem);
 
   const problem = {
     ...baseProblem,
+    semanticEquations,
     solverConfig: parseSolverConfig(record.solverConfig, baseProblem),
   };
 
@@ -494,6 +511,119 @@ const parseInteractionOptions = (value: unknown, context: string) =>
     };
   });
 
+const equationTypeFromPurpose = (purpose: SemanticEquation["purpose"], context: string): ExpectedEquation["equationType"] => {
+  if (purpose === "sumForceX") {
+    return "sumFx";
+  }
+  if (purpose === "sumForceY") {
+    return "sumFy";
+  }
+  if (purpose === "sumMoment") {
+    return "sumMoment";
+  }
+  throw new Error(`${context} must reference an equilibrium semantic equation.`);
+};
+
+const directionFromPurpose = (purpose: SemanticEquation["purpose"]): "x" | "y" | undefined => {
+  if (purpose === "sumForceX") {
+    return "x";
+  }
+  if (purpose === "sumForceY") {
+    return "y";
+  }
+  return undefined;
+};
+
+const getSemanticVariableLabel = (
+  term: SemanticEquationTerm,
+  problem: ProblemDefinition,
+): string => {
+  const id = term.quantityId ?? term.parameterId ?? term.componentId;
+  if (id === undefined) {
+    return term.id;
+  }
+
+  const reaction = problem.unknownReactions.find((candidate) => candidate.id === id);
+  if (reaction) {
+    return reaction.label;
+  }
+  const parameter = problem.parameters.find((candidate) => candidate.id === id);
+  if (parameter) {
+    return parameter.label.replaceAll("\\", "").replaceAll("{", "").replaceAll("}", "");
+  }
+  const component = problem.forceDecompositions
+    .flatMap((decomposition) => [decomposition.components.x, decomposition.components.y])
+    .find((candidate) => candidate.id === id);
+  return component?.latex ?? id;
+};
+
+const sanitizePracticeFactor = (latex: string): string =>
+  latex
+    .replaceAll("\\cdot", "*")
+    .replaceAll("\\alpha", "alpha")
+    .replaceAll("\\", "")
+    .replaceAll("{", "")
+    .replaceAll("}", "")
+    .replaceAll(" ", "");
+
+const practiceFactorFromSemanticTerm = (
+  term: SemanticEquationTerm,
+  problem: ProblemDefinition,
+): string | undefined => {
+  if (term.factor === undefined) {
+    return undefined;
+  }
+  const labels = new Map<string, string>();
+  problem.parameters.forEach((parameter) => labels.set(parameter.id, parameter.label));
+  problem.unknownReactions.forEach((reaction) => labels.set(reaction.id, reaction.label));
+  return sanitizePracticeFactor(renderSemanticExpression(term.factor, labels));
+};
+
+const expectedTermFromSemanticTerm = (
+  semanticEquation: SemanticEquation,
+  term: SemanticEquationTerm,
+  problem: ProblemDefinition,
+): ExpectedEquation["terms"][number] => {
+  const factor = practiceFactorFromSemanticTerm(term, problem);
+  return {
+    equationId: semanticEquation.id,
+    termId: term.id,
+    variable: getSemanticVariableLabel(term, problem),
+    sign: term.sign,
+    ...(factor === undefined ? {} : { factor }),
+    ...(term.componentId === undefined ? {} : { componentId: term.componentId }),
+  };
+};
+
+const parseExpectedSemanticEquation = (
+  value: unknown,
+  problem: ProblemDefinition,
+  context: string,
+): ExpectedEquation => {
+  const record = requireRecord(value, context);
+  const equationId = requireString(record, "equationId", context);
+  const equation = problem.semanticEquations.find((candidate) => candidate.id === equationId);
+  if (!equation) {
+    throw new Error(`${context}.equationId references missing semantic equation "${equationId}".`);
+  }
+  const termIds = parseStringArray(record.termIds, `${context}.termIds`);
+  if (termIds.length === 0) {
+    throw new Error(`${context}.termIds must contain at least one term id.`);
+  }
+
+  return {
+    equationType: equationTypeFromPurpose(equation.purpose, `${context}.equationId`),
+    ...(equation.momentPointId === undefined ? {} : { aboutPoint: equation.momentPointId }),
+    semanticEquationId: equation.id,
+    terms: termIds.map((termId) => expectedTermFromSemanticTerm(
+      equation,
+      findSemanticEquationTerm(problem.semanticEquations, equation.id, termId),
+      problem,
+    )),
+    rhs: "0",
+  };
+};
+
 const parseExpectedEquation = (value: unknown, context: string): ExpectedEquation => {
   const record = requireRecord(value, context);
   const rawEquationType = requireString(record, "equationType", context);
@@ -513,12 +643,16 @@ const parseExpectedEquation = (value: unknown, context: string): ExpectedEquatio
       throw new Error(`${context}.terms[${index}].sign must be "+" or "-".`);
     }
     const sign: "+" | "-" = rawSign;
+    const equationId = term.equationId === undefined ? undefined : requireString(term, "equationId", `${context}.terms[${index}]`);
+    const termId = term.termId === undefined ? undefined : requireString(term, "termId", `${context}.terms[${index}]`);
     const parsed = {
       variable: requireString(term, "variable", `${context}.terms[${index}]`),
       sign,
     };
     return {
       ...parsed,
+      ...(equationId === undefined ? {} : { equationId }),
+      ...(termId === undefined ? {} : { termId }),
       ...(term.factor === undefined
         ? {}
         : { factor: requireString(term, "factor", `${context}.terms[${index}]`) }),
@@ -533,8 +667,35 @@ const parseExpectedEquation = (value: unknown, context: string): ExpectedEquatio
     : { equationType, aboutPoint: requireString(record, "aboutPoint", context), terms, rhs };
 };
 
-const parseEquationTerm = (value: unknown, context: string): EquationTerm => {
+const parseEquationTerm = (value: unknown, problem: ProblemDefinition, context: string): EquationTerm => {
   const record = requireRecord(value, context);
+  if (record.semanticTerm !== undefined) {
+    const semanticTermReference = requireRecord(record.semanticTerm, `${context}.semanticTerm`);
+    const equationId = requireString(semanticTermReference, "equationId", `${context}.semanticTerm`);
+    const termId = requireString(semanticTermReference, "termId", `${context}.semanticTerm`);
+    const semanticEquation = problem.semanticEquations.find((candidate) => candidate.id === equationId);
+    if (!semanticEquation) {
+      throw new Error(`${context}.semanticTerm.equationId references missing semantic equation "${equationId}".`);
+    }
+    const semanticTerm = findSemanticEquationTerm(problem.semanticEquations, equationId, termId);
+    const direction = directionFromPurpose(semanticEquation.purpose);
+    const factor = practiceFactorFromSemanticTerm(semanticTerm, problem);
+    return {
+      id: requireString(record, "id", context),
+      latex: record.latex === undefined ? semanticTerm.latex ?? termId : requireString(record, "latex", context),
+      semantic: {
+        equationId,
+        termId,
+        variable: getSemanticVariableLabel(semanticTerm, problem),
+        ...(direction === undefined ? {} : { direction }),
+        sign: semanticTerm.sign,
+        ...(factor === undefined ? {} : { factor }),
+        ...(semanticTerm.componentId === undefined ? {} : { componentId: semanticTerm.componentId }),
+        ...(semanticEquation.momentPointId === undefined ? {} : { momentAbout: semanticEquation.momentPointId }),
+      },
+    };
+  }
+
   const semantic = requireRecord(record.semantic, `${context}.semantic`);
   const sign = requireString(semantic, "sign", `${context}.semantic`);
   if (sign !== "+" && sign !== "-") {
@@ -549,6 +710,10 @@ const parseEquationTerm = (value: unknown, context: string): EquationTerm => {
     id: requireString(record, "id", context),
     latex: requireString(record, "latex", context),
     semantic: {
+      ...(semantic.equationId === undefined
+        ? {}
+        : { equationId: requireString(semantic, "equationId", `${context}.semantic`) }),
+      ...(semantic.termId === undefined ? {} : { termId: requireString(semantic, "termId", `${context}.semantic`) }),
       variable: requireString(semantic, "variable", `${context}.semantic`),
       sign,
       ...(direction === undefined ? {} : { direction }),
@@ -563,7 +728,7 @@ const parseEquationTerm = (value: unknown, context: string): EquationTerm => {
   };
 };
 
-const parsePracticeInteraction = (value: unknown, context: string): PracticeInteraction => {
+const parsePracticeInteraction = (value: unknown, problem: ProblemDefinition, context: string): PracticeInteraction => {
   const record = requireRecord(value, context);
   const type = requireString(record, "type", context);
 
@@ -619,9 +784,12 @@ const parsePracticeInteraction = (value: unknown, context: string): PracticeInte
       type,
       equationTarget,
       availableTerms: requireArray(record, "availableTerms", context).map((item, index) =>
-        parseEquationTerm(item, `${context}.availableTerms[${index}]`),
+        parseEquationTerm(item, problem, `${context}.availableTerms[${index}]`),
       ),
-      expectedEquation: parseExpectedEquation(record.expectedEquation, `${context}.expectedEquation`),
+      expectedEquation:
+        record.expectedSemanticEquation === undefined
+          ? parseExpectedEquation(record.expectedEquation, `${context}.expectedEquation`)
+          : parseExpectedSemanticEquation(record.expectedSemanticEquation, problem, `${context}.expectedSemanticEquation`),
     };
     return record.aboutPoint === undefined
       ? parsed
@@ -629,6 +797,22 @@ const parsePracticeInteraction = (value: unknown, context: string): PracticeInte
   }
 
   if (type === "expression-input") {
+    const expectedSemanticEquation =
+      record.expectedSemanticEquation === undefined
+        ? undefined
+        : requireRecord(record.expectedSemanticEquation, `${context}.expectedSemanticEquation`);
+    if (expectedSemanticEquation !== undefined) {
+      const equationId = requireString(expectedSemanticEquation, "equationId", `${context}.expectedSemanticEquation`);
+      const equation = problem.semanticEquations.find((candidate) => candidate.id === equationId);
+      if (!equation) {
+        throw new Error(`${context}.expectedSemanticEquation.equationId references missing semantic equation "${equationId}".`);
+      }
+      const side = requireString(expectedSemanticEquation, "side", `${context}.expectedSemanticEquation`);
+      if (side !== "rhs") {
+        throw new Error(`${context}.expectedSemanticEquation.side must be "rhs".`);
+      }
+    }
+
     return {
       type,
       variable: requireString(record, "variable", context),
@@ -636,6 +820,14 @@ const parsePracticeInteraction = (value: unknown, context: string): PracticeInte
       ...(record.acceptedExpressions === undefined
         ? {}
         : { acceptedExpressions: parseStringArray(record.acceptedExpressions, `${context}.acceptedExpressions`) }),
+      ...(expectedSemanticEquation === undefined
+        ? {}
+        : {
+            expectedSemanticEquation: {
+              equationId: requireString(expectedSemanticEquation, "equationId", `${context}.expectedSemanticEquation`),
+              side: "rhs" as const,
+            },
+          }),
     };
   }
 
@@ -689,7 +881,7 @@ const parsePracticeHints = (value: unknown, context: string): readonly PracticeH
     };
   });
 
-const parsePractice = (raw: unknown): PracticeContent => {
+const parsePractice = (raw: unknown, problem: ProblemDefinition): PracticeContent => {
   const record = requireRecord(raw, "practice");
   const steps = requireArray(record, "steps", "practice").map((item, index): PracticeStep => {
     const stepRecord = requireRecord(item, `practice.steps[${index}]`);
@@ -728,7 +920,7 @@ const parsePractice = (raw: unknown): PracticeContent => {
       ...(stepRecord.canvasState === undefined
         ? {}
         : { canvasState: parseCanvasState(stepRecord.canvasState, `practice.steps[${index}].canvasState`) }),
-      interaction: parsePracticeInteraction(stepRecord.interaction, `practice.steps[${index}].interaction`),
+      interaction: parsePracticeInteraction(stepRecord.interaction, problem, `practice.steps[${index}].interaction`),
       feedback: {
         correct: parseContentBlocks(feedback.correct, `practice.steps[${index}].feedback.correct`),
         genericIncorrect: parseContentBlocks(feedback.genericIncorrect, `practice.steps[${index}].feedback.genericIncorrect`),
@@ -805,6 +997,29 @@ const validatePracticeComponentReferences = (problem: ProblemDefinition, practic
       }
     });
   });
+};
+
+const validateSolutionSemanticEquationReferences = (
+  problem: ProblemDefinition,
+  solution: SolutionContent,
+) => {
+  const semanticEquationIds = new Set(problem.semanticEquations.map((equation) => equation.id));
+  solution.equations.forEach((equation) =>
+    requireId(semanticEquationIds, equation.id, `solution.equations "${equation.id}"`),
+  );
+};
+
+const validateExploreSemanticReferences = (
+  problem: ProblemDefinition,
+  explore: ExploreContent,
+) => {
+  const quantityIds = new Set(problem.unknownReactions.map((reaction) => reaction.id));
+  validateIdArrayReferences(
+    explore.observedQuantityIds,
+    quantityIds,
+    "problem.explore.observedQuantityIds",
+    "semantic quantity id",
+  );
 };
 
 const getProblemCanvasObjectIds = (problem: ProblemDefinition): ReadonlySet<string> =>
@@ -898,9 +1113,11 @@ export const parseLoadedProblemContent = (
 ): LoadedProblemContent => {
   const { problem, explore } = parseProblem(rawProblem);
   const solution = parseSolution(rawSolution);
-  const practice = parsePractice(rawPractice);
+  const practice = parsePractice(rawPractice, problem);
   const diagram = parseDiagram(rawDiagram, problem);
-  validateSolverConfigEquationIds(problem.solverConfig, new Set(solution.equations.map((equation) => equation.id)));
+  validateSolutionSemanticEquationReferences(problem, solution);
+  validateExploreSemanticReferences(problem, explore);
+  validateSolverConfigEquationIds(problem.solverConfig, new Set(problem.semanticEquations.map((equation) => equation.id)));
   validatePracticeComponentReferences(problem, practice);
   validateCanvasObjectReferences(problem, diagram, solution, practice);
 

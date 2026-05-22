@@ -5,6 +5,7 @@ import type { PracticeContent } from "../../mechanics/practice/types";
 export type ExploreContent = Readonly<{
   noticeTitle?: string;
   notices: readonly string[];
+  observedQuantityIds?: readonly string[];
 }>;
 
 export type DiagramStageLabels = Readonly<{

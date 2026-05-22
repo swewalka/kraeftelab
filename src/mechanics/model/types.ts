@@ -77,6 +77,7 @@ export type ParameterDefinition = Readonly<{
 export type SolverEquation = Readonly<{
   id: string;
   symbolic: string;
+  residual?: number;
 }>;
 
 export type EquilibriumEquation = Readonly<{

@@ -53,36 +53,36 @@ Exit criteria:
 
 ## Phase 1 - Semantic Equation Foundation
 
-- [ ] Introduce a minimum semantic equation model with:
+- [x] Introduce a minimum semantic equation model with:
   - equation id and purpose (`sumForceX`, `sumForceY`, `sumMoment`, derived result)
   - free-body/body scope
   - optional moment point
   - left and right sides
   - terms with signs, factors, units, quantity ids, parameter ids, and mechanics object ids
   - symbolic display generated from structured data where practical
-- [ ] Add a small expression representation and normalizer for M02 beginner statics expressions.
+- [x] Add a small expression representation and normalizer for M02 beginner statics expressions.
   Scope should cover variables, numeric constants, unary signs, sums, products, ratios, parentheses,
   and `sin`/`cos` of angle parameters. Do not build a general CAS.
-- [ ] Add numeric evaluation for semantic expressions using problem parameters and solved
+- [x] Add numeric evaluation for semantic expressions using problem parameters and solved
   quantities, so Explore can reuse the same equations.
-- [ ] Change solver results from beam-specific reaction arrays plus string equations toward a
+- [x] Change solver results from beam-specific reaction arrays plus string equations toward a
   semantic result shape containing quantities, equations, and evaluated values.
-- [ ] Keep a compatibility adapter for existing beam rendering/content while migration is in
+- [x] Keep a compatibility adapter for existing beam rendering/content while migration is in
   progress.
-- [ ] Migrate Practice equation-builder expected answers from fragile string/factor matching toward
+- [x] Migrate Practice equation-builder expected answers from fragile string/factor matching toward
   semantic equation or semantic term references.
-- [ ] Decouple authored feedback ids from validator implementation details such as normalized
+- [x] Decouple authored feedback ids from validator implementation details such as normalized
   factor strings.
-- [ ] Validate that solution equation ids, Practice expected equations, and Explore observed
+- [x] Validate that solution equation ids, Practice expected equations, and Explore observed
   quantities reference registered semantic equations or quantities.
-- [ ] Update `ARCHITECTURE.md` and `CONTENT_SCHEMA.md` when the semantic equation contract lands.
+- [x] Update `ARCHITECTURE.md` and `CONTENT_SCHEMA.md` when the semantic equation contract lands.
 
 Exit criteria:
 
-- [ ] Both existing beam problems still solve, render, and validate Practice answers.
-- [ ] Existing beam solution equations are available as semantic equations, not only display
+- [x] Both existing beam problems still solve, render, and validate Practice answers.
+- [x] Existing beam solution equations are available as semantic equations, not only display
   strings.
-- [ ] Registration fails when content references missing semantic equation, term, quantity, or
+- [x] Registration fails when content references missing semantic equation, term, quantity, or
   mechanics ids.
 
 ## Phase 2 - Planar Mechanics Domain Model
@@ -278,7 +278,7 @@ Exit criteria:
 
 ## Architecture Decisions To Make Early
 
-- [ ] Final shape of semantic equations: whether authored equations are source of truth, generated
+- [x] Final shape of semantic equations: whether authored equations are source of truth, generated
   from solver config, or a hybrid with validation both ways.
 - [ ] Diagram migration path: generic planar diagram scene immediately, or beam adapter plus generic
   scene in parallel until target diagrams land.

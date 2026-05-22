@@ -433,6 +433,8 @@
             "id": "byLPositive",
             "latex": "+ B_y \\cdot L",
             "semantic": {
+              "equationId": "sum-moment-a",
+              "termId": "moment-a-reaction-by",
               "variable": "B_y",
               "sign": "+",
               "factor": "L",
@@ -443,6 +445,8 @@
             "id": "byLNegative",
             "latex": "- B_y \\cdot L",
             "semantic": {
+              "equationId": "sum-moment-a",
+              "termId": "moment-a-reaction-by",
               "variable": "B_y",
               "sign": "-",
               "factor": "L",
@@ -453,6 +457,8 @@
             "id": "fHalfPositive",
             "latex": "+ F \\cdot \\frac{L}{2}",
             "semantic": {
+              "equationId": "sum-moment-a",
+              "termId": "moment-a-load",
               "variable": "F",
               "sign": "+",
               "factor": "L/2",
@@ -463,6 +469,8 @@
             "id": "fHalfNegative",
             "latex": "- F \\cdot \\frac{L}{2}",
             "semantic": {
+              "equationId": "sum-moment-a",
+              "termId": "moment-a-load",
               "variable": "F",
               "sign": "-",
               "factor": "L/2",
@@ -500,6 +508,10 @@
             }
           }
         ],
+        "expectedSemanticEquation": {
+          "equationId": "sum-moment-a",
+          "termIds": ["moment-a-reaction-by", "moment-a-load"]
+        },
         "expectedEquation": {
           "equationType": "sumMoment",
           "aboutPoint": "A",
@@ -532,7 +544,7 @@
         "genericIncorrect": "Keep only the nonzero moment terms about A, with signs from the chosen convention.",
         "mistakes": [
           {
-            "id": "missing:B_y:+:l",
+            "id": "missingTerm:moment-a-reaction-by",
             "content": [
               {
                 "type": "paragraph",
@@ -545,7 +557,7 @@
             ]
           },
           {
-            "id": "missing:F:-:l/2",
+            "id": "missingTerm:moment-a-load",
             "content": [
               {
                 "type": "paragraph",
@@ -558,15 +570,15 @@
             ]
           },
           {
-            "id": "wrongSign:F",
+            "id": "wrongSign:moment-a-load",
             "text": "Wrong sign for F: F rotates clockwise around A and is negative."
           },
           {
-            "id": "wrongSign:B_y",
+            "id": "wrongSign:moment-a-reaction-by",
             "text": "Wrong sign for B_y: B_y rotates counterclockwise around A and is positive."
           },
           {
-            "id": "wrongFactor:F",
+            "id": "wrongFactor:moment-a-load",
             "content": [
               {
                 "type": "paragraph",
@@ -647,6 +659,10 @@
         "type": "expression-input",
         "variable": "B_y",
         "expectedExpression": "F/2",
+        "expectedSemanticEquation": {
+          "equationId": "result-reaction-by",
+          "side": "rhs"
+        },
         "acceptedExpressions": [
           "F / 2",
           "0.5F",
@@ -766,6 +782,8 @@
             "id": "ayPositive",
             "latex": "+ A_y",
             "semantic": {
+              "equationId": "sum-force-y",
+              "termId": "force-y-reaction-ay",
               "variable": "A_y",
               "direction": "y",
               "sign": "+"
@@ -775,6 +793,8 @@
             "id": "byPositive",
             "latex": "+ B_y",
             "semantic": {
+              "equationId": "sum-force-y",
+              "termId": "force-y-reaction-by",
               "variable": "B_y",
               "direction": "y",
               "sign": "+"
@@ -784,6 +804,8 @@
             "id": "fPositive",
             "latex": "+ F",
             "semantic": {
+              "equationId": "sum-force-y",
+              "termId": "force-y-load",
               "variable": "F",
               "direction": "y",
               "sign": "+"
@@ -793,6 +815,8 @@
             "id": "fNegative",
             "latex": "- F",
             "semantic": {
+              "equationId": "sum-force-y",
+              "termId": "force-y-load",
               "variable": "F",
               "direction": "y",
               "sign": "-"
@@ -808,6 +832,10 @@
             }
           }
         ],
+        "expectedSemanticEquation": {
+          "equationId": "sum-force-y",
+          "termIds": ["force-y-reaction-ay", "force-y-reaction-by", "force-y-load"]
+        },
         "expectedEquation": {
           "equationType": "sumFy",
           "terms": [
@@ -854,7 +882,7 @@
         ],
         "mistakes": [
           {
-            "id": "missing:A_y:+:",
+            "id": "missingTerm:force-y-reaction-ay",
             "content": [
               {
                 "type": "paragraph",
@@ -867,7 +895,7 @@
             ]
           },
           {
-            "id": "missing:B_y:+:",
+            "id": "missingTerm:force-y-reaction-by",
             "content": [
               {
                 "type": "paragraph",
@@ -880,11 +908,11 @@
             ]
           },
           {
-            "id": "missing:F:-:",
+            "id": "missingTerm:force-y-load",
             "text": "Missing -F: the external force points downward."
           },
           {
-            "id": "wrongSign:F",
+            "id": "wrongSign:force-y-load",
             "text": "F points downward, so it enters the vertical equilibrium equation with a negative sign."
           },
           {
@@ -956,6 +984,10 @@
         "type": "expression-input",
         "variable": "A_y",
         "expectedExpression": "F/2",
+        "expectedSemanticEquation": {
+          "equationId": "result-reaction-ay",
+          "side": "rhs"
+        },
         "acceptedExpressions": [
           "F / 2",
           "0.5F",

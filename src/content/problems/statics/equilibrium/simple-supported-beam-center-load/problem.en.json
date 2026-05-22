@@ -45,6 +45,116 @@
     { "id": "reactionAy", "label": "A_y", "supportId": "supportA", "component": "y", "direction": { "x": 0, "y": 1 } },
     { "id": "reactionBy", "label": "B_y", "supportId": "supportB", "component": "y", "direction": { "x": 0, "y": 1 } }
   ],
+  "semanticEquations": [
+    {
+      "id": "sum-force-x",
+      "purpose": "sumForceX",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": {
+        "terms": [
+          {
+            "id": "force-x-reaction-ax",
+            "sign": "+",
+            "unit": "N",
+            "quantityId": "reactionAx",
+            "mechanicsObjectIds": ["reactionAx"]
+          }
+        ]
+      },
+      "rhs": "0"
+    },
+    {
+      "id": "sum-moment-a",
+      "purpose": "sumMoment",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "momentPointId": "pointA",
+      "unit": "N*m",
+      "lhs": {
+        "terms": [
+          {
+            "id": "moment-a-reaction-by",
+            "sign": "+",
+            "unit": "N*m",
+            "quantityId": "reactionBy",
+            "factor": "beamLength",
+            "mechanicsObjectIds": ["reactionBy", "pointB"],
+            "latex": "B_y \\cdot L"
+          },
+          {
+            "id": "moment-a-load",
+            "sign": "-",
+            "unit": "N*m",
+            "parameterId": "loadMagnitude",
+            "factor": "beamLength/2",
+            "mechanicsObjectIds": ["centerLoad", "pointLoad"],
+            "latex": "F \\cdot \\frac{L}{2}"
+          }
+        ]
+      },
+      "rhs": "0"
+    },
+    {
+      "id": "sum-force-y",
+      "purpose": "sumForceY",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": {
+        "terms": [
+          {
+            "id": "force-y-reaction-ay",
+            "sign": "+",
+            "unit": "N",
+            "quantityId": "reactionAy",
+            "mechanicsObjectIds": ["reactionAy"]
+          },
+          {
+            "id": "force-y-reaction-by",
+            "sign": "+",
+            "unit": "N",
+            "quantityId": "reactionBy",
+            "mechanicsObjectIds": ["reactionBy"]
+          },
+          {
+            "id": "force-y-load",
+            "sign": "-",
+            "unit": "N",
+            "parameterId": "loadMagnitude",
+            "mechanicsObjectIds": ["centerLoad"],
+            "latex": "F"
+          }
+        ]
+      },
+      "rhs": "0"
+    },
+    {
+      "id": "result-reaction-ax",
+      "purpose": "derivedResult",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": "reactionAx",
+      "rhs": "0",
+      "displayLatex": "A_x = 0"
+    },
+    {
+      "id": "result-reaction-by",
+      "purpose": "derivedResult",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": "reactionBy",
+      "rhs": "loadMagnitude/2",
+      "displayLatex": "B_y = \\frac{F}{2}"
+    },
+    {
+      "id": "result-reaction-ay",
+      "purpose": "derivedResult",
+      "scope": { "kind": "body", "bodyId": "beam" },
+      "unit": "N",
+      "lhs": "reactionAy",
+      "rhs": "loadMagnitude/2",
+      "displayLatex": "A_y = \\frac{F}{2}"
+    }
+  ],
   "solverConfig": {
     "beamLengthParameterId": "beamLength",
     "loadId": "centerLoad",

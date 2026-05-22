@@ -1,4 +1,5 @@
 import type { SolverEquation } from "../../model/types";
+import type { SemanticQuantityValue } from "../../semantic/types";
 
 export type ReactionResult = Readonly<{
   id: string;
@@ -10,5 +11,6 @@ export type ReactionResult = Readonly<{
 export type SolverResult = Readonly<{
   problemId: string;
   reactions: readonly ReactionResult[];
+  quantities: readonly SemanticQuantityValue[];
   equations: readonly SolverEquation[];
 }>;

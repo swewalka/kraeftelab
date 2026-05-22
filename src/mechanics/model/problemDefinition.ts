@@ -8,6 +8,7 @@ import type {
   ForceDecomposition,
 } from "./types";
 import type { ProblemSolverConfig } from "./solverConfig";
+import type { SemanticEquation } from "../semantic/types";
 
 export type ProblemDefinition = Readonly<{
   id: string;
@@ -24,5 +25,6 @@ export type ProblemDefinition = Readonly<{
   loads: readonly LoadDefinition[];
   forceDecompositions: readonly ForceDecomposition[];
   unknownReactions: readonly UnknownReaction[];
+  semanticEquations: readonly SemanticEquation[];
   solverConfig: ProblemSolverConfig;
 }>;

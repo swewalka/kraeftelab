@@ -8,6 +8,7 @@ Problem content is localized, but mechanics-critical ids and numeric data must m
 Required top-level problem fields:
 - `id`, `title`, `topic`, `problemType`, `solverKey`, `diagramKey`, `statement`
 - `parameters`, `points`, `bodies`, `supports`, `loads`, `unknownReactions`
+- `semanticEquations`
 - `solverConfig`
 
 Optional top-level problem fields:
@@ -38,6 +39,38 @@ Each component must define:
 
 The parser checks that the stored load vector matches the declared decomposition.
 
+## Semantic equations
+
+`semanticEquations` are authored mechanics-critical equations. They are the shared symbolic source
+for Solve equation display, Practice expected equation terms, solver residual checks, and future
+Explore observations.
+
+Each semantic equation must define:
+- `id`
+- `purpose`: `sumForceX`, `sumForceY`, `sumMoment`, or `derivedResult`
+- `scope`: `{ "kind": "wholeSystem" }` or `{ "kind": "body", "bodyId": "..." }`
+- `unit`: `dimensionless`, `m`, `N`, `N*m`, or `deg`
+- `lhs` and `rhs`, each either an expression string/object or an object with `terms`
+
+`sumMoment` equations must also define `momentPointId`.
+
+Expression strings support the Phase 1 beginner-statics subset: variables, numeric constants,
+unary signs, `+`, `-`, `*`, `/`, parentheses, and `sin(...)`/`cos(...)` of angle parameters.
+Expression variable names must reference known parameter ids, unknown reaction ids, or
+force-decomposition component ids.
+
+Equilibrium terms must define:
+- `id`
+- `sign`: `+` or `-`
+- `unit`, matching the parent equation unit
+- at least one of `quantityId`, `parameterId`, or `componentId`
+- optional `factor`, using the expression subset above
+- optional `mechanicsObjectIds`
+- optional `latex` display override
+
+Current Phase 1 quantity ids are unknown reaction ids. `componentId` is also validated against
+declared force-decomposition component ids.
+
 ## Solver config
 
 `solverConfig` is parsed according to `solverKey`. The current supported solver key is
@@ -53,7 +86,7 @@ Beam reaction solver config must define:
 - `equationIds.sumForceX`, `equationIds.sumMomentAboutLeftSupport`, `equationIds.sumForceY`
 
 Solver config references are validated during content registration, including equation ids from
-the solution content.
+the semantic equation list. Solution equation ids must also reference semantic equations.
 
 ## Solution content
 
@@ -100,23 +133,39 @@ and force-component references in the diagram config must resolve to the parsed 
 
 ## Practice semantics
 
-Equation-builder terms may include `semantic.componentId`. When present, the component id must
-reference a declared force-decomposition component, and the term factor must include that
-component's factor unless the term is explicitly a zero factor.
+Equation-builder interactions may define `expectedSemanticEquation` with an `equationId` and
+ordered `termIds`. The parser resolves those semantic terms into the current expected-equation
+shape used by the Practice UI and validator.
+
+Equation-builder terms may include `semantic.equationId` and `semantic.termId` when they represent
+or intentionally invert an authored semantic term. Terms may also include `semantic.componentId`.
+When a component id is present, it must reference a declared force-decomposition component, and the
+term factor must include that component's factor unless the term is explicitly a zero factor.
+
+Expression-input interactions may define `expectedSemanticEquation` with a derived-result equation
+id and `side: "rhs"` while still keeping `expectedExpression` and `acceptedExpressions` for the
+limited text-input validator.
 
 Practice checking still uses the existing interaction validators. Expression-input validation is
 not symbolic algebra and still depends on normalized strings plus accepted expressions.
+
+## Explore
+
+The current Explore schema is still limited to static notices. It may also define
+`observedQuantityIds` as a mechanics-critical placeholder for future Explore observations; each id
+must reference a registered semantic quantity such as an unknown reaction.
 
 ## Locale alignment
 
 Problem registration compares `en` and `de` mechanics-critical structure. Keep these aligned:
 - ids and numeric values for parameters, points, bodies, supports, loads, reactions, and
   force decompositions
-- solver config and generated equation ids
+- semantic equations, solver config, and generated equation ids
 - solution equation ids, step ids, and canvas object id arrays, including `visibleObjects` and
   `hiddenBaseObjects`
-- practice step ids, interaction ids, expected equation semantics, correct ids, and canvas object
-  id arrays, including `visibleObjects`, `hiddenBaseObjects`, and `revealObjects`
+- practice step ids, interaction ids, semantic equation/term references, expected equation
+  semantics, correct ids, and canvas object id arrays, including `visibleObjects`,
+  `hiddenBaseObjects`, and `revealObjects`
 - diagram object references such as load ids, reaction ids, component ids, point ids, and dimension
   endpoint ids
 

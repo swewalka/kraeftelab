@@ -64,6 +64,7 @@ const interactionSnapshot = (interaction: LoadedProblemContent["practice"]["step
     variable: interaction.variable,
     expectedExpression: interaction.expectedExpression,
     acceptedExpressions: interaction.acceptedExpressions ?? [],
+    expectedSemanticEquation: interaction.expectedSemanticEquation,
   };
 };
 
@@ -162,6 +163,7 @@ const mechanicsSnapshot = (content: LoadedProblemContent) => ({
       component: reaction.component,
       direction: reaction.direction,
     })),
+    semanticEquations: content.problem.semanticEquations,
     solverConfig: content.problem.solverConfig,
   },
   solution: {
@@ -182,6 +184,9 @@ const mechanicsSnapshot = (content: LoadedProblemContent) => ({
         revealObjects: step.successResult?.revealObjects ?? [],
       },
     })),
+  },
+  explore: {
+    observedQuantityIds: content.explore.observedQuantityIds ?? [],
   },
   diagram: {
     diagramKey: content.diagram.diagramKey,

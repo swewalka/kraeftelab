@@ -32,12 +32,17 @@ milestone requires a cleaner path toward `PRODUCT_VISION.md`.
   mechanics-alignment checks.
 - Core mechanics types live under `src/mechanics/model`; reusable calculations live under
   `src/mechanics/core`.
+- Authored semantic equations live in problem definitions and are parsed through
+  `src/mechanics/semantic`. The two existing beam problems now expose semantic equilibrium and
+  derived-result equations.
 - The only registered solver is the beam reaction solver for
-  `simply-supported-beam-reactions`.
+  `simply-supported-beam-reactions`; it remains a beam compatibility solver, but its displayed
+  equations and residual checks now use authored semantic equations.
 - The only registered diagram renderer is the beam diagram renderer.
 - Canvas state uses authored `visibleObjects`, optional `hiddenBaseObjects`, and annotations.
 - Registration-time validation checks solver config, force decomposition contracts, diagram
-  references, and authored canvas object ids.
+  references, semantic equation references, Practice semantic equation/term references, locale
+  alignment, and authored canvas object ids.
 
 ## Current Limitations
 
@@ -50,7 +55,8 @@ milestone requires a cleaner path toward `PRODUCT_VISION.md`.
 - The current diagram framework is still centered on a straight beam renderer.
 - Practice expression input is not symbolic algebra; it depends on normalized strings and accepted
   expressions.
-- There is no semantic equation model yet.
+- The semantic equation model is intentionally minimal and does not yet replace the beam-specific
+  solver with a generic planar equilibrium solver.
 - There is no real interactive Explore mode yet.
 - There is no freeform workspace, user authoring flow, backend, accounts, or persistence.
 

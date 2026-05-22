@@ -57,11 +57,29 @@ const normalizeFactor = (factor?: string): string => {
 
 const normalizeComponentId = (componentId?: string): string => componentId ?? "";
 
-const termKey = (term: Pick<EquationTerm["semantic"], "variable" | "sign" | "factor" | "componentId">): string =>
-  `${term.variable}:${term.sign}:${normalizeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
+const semanticIdentity = (
+  term: Pick<EquationTerm["semantic"], "equationId" | "termId" | "variable" | "factor" | "componentId">,
+): string =>
+  term.equationId !== undefined && term.termId !== undefined
+    ? `${term.equationId}:${term.termId}`
+    : `${term.variable}:${normalizeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
 
-const expectedTermKey = (term: ExpectedEquation["terms"][number]): string =>
-  `${term.variable}:${term.sign}:${normalizeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
+const expectedSemanticIdentity = (term: ExpectedEquation["terms"][number]): string =>
+  term.equationId !== undefined && term.termId !== undefined
+    ? `${term.equationId}:${term.termId}`
+    : `${term.variable}:${normalizeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
+
+const semanticTermKey = (term: EquationTerm): string =>
+  `${semanticIdentity(term.semantic)}:${term.semantic.sign}:${normalizeFactor(term.semantic.factor)}`;
+
+const expectedSemanticTermKey = (term: ExpectedEquation["terms"][number]): string =>
+  `${expectedSemanticIdentity(term)}:${term.sign}:${normalizeFactor(term.factor)}`;
+
+const feedbackTermId = (term: Pick<EquationTerm["semantic"], "termId" | "variable">): string =>
+  term.termId ?? term.variable;
+
+const expectedFeedbackTermId = (term: ExpectedEquation["terms"][number]): string =>
+  term.termId ?? term.variable;
 
 const validateEquation = (
   interaction: EquationBuilderInteraction,
@@ -73,17 +91,20 @@ const validateEquation = (
     const term = termsById.get(termId);
     return term === undefined ? [] : [term];
   });
-  const selectedKeys = new Set(selectedTerms.map((term) => termKey(term.semantic)));
-  const expectedKeys = new Set(interaction.expectedEquation.terms.map(expectedTermKey));
+  const selectedKeys = new Set(selectedTerms.map((term) => semanticTermKey(term)));
+  const expectedKeys = new Set(interaction.expectedEquation.terms.map(expectedSemanticTermKey));
   const mistakeIds: string[] = [];
 
   for (const expectedTerm of interaction.expectedEquation.terms) {
-    const expectedKey = expectedTermKey(expectedTerm);
+    const expectedKey = expectedSemanticTermKey(expectedTerm);
     if (selectedKeys.has(expectedKey)) {
       continue;
     }
 
-    const sameVariable = selectedTerms.filter((term) => term.semantic.variable === expectedTerm.variable);
+    const sameIdentity = selectedTerms.filter((term) => semanticIdentity(term.semantic) === expectedSemanticIdentity(expectedTerm));
+    const sameVariable = sameIdentity.length > 0
+      ? sameIdentity
+      : selectedTerms.filter((term) => term.semantic.variable === expectedTerm.variable);
     const wrongSign = sameVariable.find(
       (term) =>
         normalizeFactor(term.semantic.factor) === normalizeFactor(expectedTerm.factor) &&
@@ -96,23 +117,26 @@ const validateEquation = (
     );
 
     if (wrongSign) {
-      mistakeIds.push(`wrongSign:${expectedTerm.variable}`);
+      mistakeIds.push(`wrongSign:${expectedFeedbackTermId(expectedTerm)}`, `wrongSign:${expectedTerm.variable}`);
     } else if (wrongFactor) {
-      mistakeIds.push(`wrongFactor:${expectedTerm.variable}`);
+      mistakeIds.push(`wrongFactor:${expectedFeedbackTermId(expectedTerm)}`, `wrongFactor:${expectedTerm.variable}`);
     } else {
-      mistakeIds.push(`missing:${expectedTerm.variable}:${expectedTerm.sign}:${normalizeFactor(expectedTerm.factor)}`);
+      mistakeIds.push(
+        `missingTerm:${expectedFeedbackTermId(expectedTerm)}`,
+        `missing:${expectedTerm.variable}:${expectedTerm.sign}:${normalizeFactor(expectedTerm.factor)}`,
+      );
     }
   }
 
   for (const selectedTerm of selectedTerms) {
-    if (expectedKeys.has(termKey(selectedTerm.semantic))) {
+    if (expectedKeys.has(semanticTermKey(selectedTerm))) {
       continue;
     }
     const factor = normalizeFactor(selectedTerm.semantic.factor);
     if (factor === "0") {
-      mistakeIds.push(`zeroTerm:${selectedTerm.semantic.variable}`);
-    } else if (!interaction.expectedEquation.terms.some((term) => term.variable === selectedTerm.semantic.variable)) {
-      mistakeIds.push(`extra:${selectedTerm.semantic.variable}`);
+      mistakeIds.push(`zeroTerm:${feedbackTermId(selectedTerm.semantic)}`, `zeroTerm:${selectedTerm.semantic.variable}`);
+    } else if (!interaction.expectedEquation.terms.some((term) => expectedSemanticIdentity(term) === semanticIdentity(selectedTerm.semantic))) {
+      mistakeIds.push(`extraTerm:${feedbackTermId(selectedTerm.semantic)}`, `extra:${selectedTerm.semantic.variable}`);
     }
   }
 

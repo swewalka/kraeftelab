@@ -234,6 +234,8 @@
             "id": "axPositive",
             "latex": "+ A_x",
             "semantic": {
+              "equationId": "sum-force-x",
+              "termId": "force-x-reaction-ax",
               "variable": "A_x",
               "direction": "x",
               "sign": "+"
@@ -243,6 +245,8 @@
             "id": "axNegative",
             "latex": "- A_x",
             "semantic": {
+              "equationId": "sum-force-x",
+              "termId": "force-x-reaction-ax",
               "variable": "A_x",
               "direction": "x",
               "sign": "-"
@@ -252,6 +256,8 @@
             "id": "fCosPositive",
             "latex": "+ F\\cos(\\alpha)",
             "semantic": {
+              "equationId": "sum-force-x",
+              "termId": "force-x-load-component",
               "variable": "F",
               "direction": "x",
               "sign": "+",
@@ -263,6 +269,8 @@
             "id": "fCosNegative",
             "latex": "- F\\cos(\\alpha)",
             "semantic": {
+              "equationId": "sum-force-x",
+              "termId": "force-x-load-component",
               "variable": "F",
               "direction": "x",
               "sign": "-",
@@ -282,6 +290,10 @@
             }
           }
         ],
+        "expectedSemanticEquation": {
+          "equationId": "sum-force-x",
+          "termIds": ["force-x-reaction-ax", "force-x-load-component"]
+        },
         "expectedEquation": {
           "equationType": "sumFx",
           "terms": [
@@ -321,11 +333,11 @@
         "genericIncorrect": "Only x-direction terms belong in horizontal force equilibrium.",
         "mistakes": [
           {
-            "id": "wrongSign:F",
+            "id": "wrongSign:force-x-load-component",
             "text": "The horizontal component points to the right, so it is positive."
           },
           {
-            "id": "wrongSign:A_x",
+            "id": "wrongSign:force-x-reaction-ax",
             "text": "Use A_x as an unknown term with a positive assumed direction."
           },
           {
@@ -333,11 +345,11 @@
             "text": "Use the horizontal component, not the vertical component."
           },
           {
-            "id": "missing:A_x:+:",
+            "id": "missingTerm:force-x-reaction-ax",
             "text": "A_x must be included in horizontal equilibrium."
           },
           {
-            "id": "missing:F:+:cos(alpha)",
+            "id": "missingTerm:force-x-load-component",
             "text": "The horizontal component is F cos(alpha)."
           }
         ]
@@ -649,6 +661,8 @@
             "id": "byLPositive",
             "latex": "+ B_y\\cdot L",
             "semantic": {
+              "equationId": "sum-moment-a",
+              "termId": "moment-a-reaction-by",
               "variable": "B_y",
               "sign": "+",
               "factor": "L",
@@ -659,6 +673,8 @@
             "id": "byLNegative",
             "latex": "- B_y\\cdot L",
             "semantic": {
+              "equationId": "sum-moment-a",
+              "termId": "moment-a-reaction-by",
               "variable": "B_y",
               "sign": "-",
               "factor": "L",
@@ -669,6 +685,8 @@
             "id": "fSinAPositive",
             "latex": "+ F\\sin(\\alpha)\\cdot a",
             "semantic": {
+              "equationId": "sum-moment-a",
+              "termId": "moment-a-load-y",
               "variable": "F",
               "sign": "+",
               "factor": "sin(alpha)*a",
@@ -680,6 +698,8 @@
             "id": "fSinANegative",
             "latex": "- F\\sin(\\alpha)\\cdot a",
             "semantic": {
+              "equationId": "sum-moment-a",
+              "termId": "moment-a-load-y",
               "variable": "F",
               "sign": "-",
               "factor": "sin(alpha)*a",
@@ -719,6 +739,10 @@
             }
           }
         ],
+        "expectedSemanticEquation": {
+          "equationId": "sum-moment-a",
+          "termIds": ["moment-a-reaction-by", "moment-a-load-y"]
+        },
         "expectedEquation": {
           "equationType": "sumMoment",
           "aboutPoint": "A",
@@ -752,15 +776,15 @@
         "genericIncorrect": "Keep only nonzero moment terms about A, with signs from the chosen convention.",
         "mistakes": [
           {
-            "id": "wrongSign:F",
+            "id": "wrongSign:moment-a-load-y",
             "text": "The vertical load component rotates clockwise about A, so it is negative."
           },
           {
-            "id": "wrongSign:B_y",
+            "id": "wrongSign:moment-a-reaction-by",
             "text": "B_y rotates counterclockwise about A, so it is positive."
           },
           {
-            "id": "wrongFactor:F",
+            "id": "wrongFactor:moment-a-load-y",
             "text": "Use the vertical component and the lever arm a."
           },
           {
@@ -825,6 +849,10 @@
         "type": "expression-input",
         "variable": "B_y",
         "expectedExpression": "F*sin(alpha)*a/L",
+        "expectedSemanticEquation": {
+          "equationId": "result-reaction-by",
+          "side": "rhs"
+        },
         "acceptedExpressions": [
           "F sin(alpha) a / L",
           "F*a*sin(alpha)/L",
@@ -910,6 +938,8 @@
             "id": "ayPositive",
             "latex": "+ A_y",
             "semantic": {
+              "equationId": "sum-force-y",
+              "termId": "force-y-reaction-ay",
               "variable": "A_y",
               "direction": "y",
               "sign": "+"
@@ -919,6 +949,8 @@
             "id": "byPositive",
             "latex": "+ B_y",
             "semantic": {
+              "equationId": "sum-force-y",
+              "termId": "force-y-reaction-by",
               "variable": "B_y",
               "direction": "y",
               "sign": "+"
@@ -928,6 +960,8 @@
             "id": "fSinPositive",
             "latex": "+ F\\sin(\\alpha)",
             "semantic": {
+              "equationId": "sum-force-y",
+              "termId": "force-y-load-component",
               "variable": "F",
               "direction": "y",
               "sign": "+",
@@ -939,6 +973,8 @@
             "id": "fSinNegative",
             "latex": "- F\\sin(\\alpha)",
             "semantic": {
+              "equationId": "sum-force-y",
+              "termId": "force-y-load-component",
               "variable": "F",
               "direction": "y",
               "sign": "-",
@@ -958,6 +994,10 @@
             }
           }
         ],
+        "expectedSemanticEquation": {
+          "equationId": "sum-force-y",
+          "termIds": ["force-y-reaction-ay", "force-y-reaction-by", "force-y-load-component"]
+        },
         "expectedEquation": {
           "equationType": "sumFy",
           "terms": [
@@ -993,7 +1033,7 @@
         "genericIncorrect": "Only vertical forces belong in vertical force equilibrium.",
         "mistakes": [
           {
-            "id": "wrongSign:F",
+            "id": "wrongSign:force-y-load-component",
             "text": "The vertical component points downward, so it enters with a negative sign."
           },
           {
@@ -1001,15 +1041,15 @@
             "text": "Use the vertical component, not the horizontal component."
           },
           {
-            "id": "missing:A_y:+:",
+            "id": "missingTerm:force-y-reaction-ay",
             "text": "A_y must be included."
           },
           {
-            "id": "missing:B_y:+:",
+            "id": "missingTerm:force-y-reaction-by",
             "text": "B_y must be included."
           },
           {
-            "id": "missing:F:-:sin(alpha)",
+            "id": "missingTerm:force-y-load-component",
             "text": "The downward vertical contribution is -F sin(alpha)."
           }
         ]
@@ -1066,6 +1106,10 @@
         "type": "expression-input",
         "variable": "A_y",
         "expectedExpression": "F*sin(alpha)*(L-a)/L",
+        "expectedSemanticEquation": {
+          "equationId": "result-reaction-ay",
+          "side": "rhs"
+        },
         "acceptedExpressions": [
           "F sin(alpha) (L - a) / L",
           "F*sin(alpha) - F*sin(alpha)*a/L",
