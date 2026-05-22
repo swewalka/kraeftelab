@@ -5,6 +5,7 @@ import type {
   PracticeStep,
   ValidationResult,
 } from "./types";
+import { normalizePracticeFactor } from "./factors";
 
 const toStringArray = (answer: unknown): readonly string[] => {
   if (!Array.isArray(answer)) {
@@ -48,13 +49,6 @@ const compareIdSets = (
   };
 };
 
-const normalizeFactor = (factor?: string): string => {
-  if (factor === undefined || factor.length === 0) {
-    return "";
-  }
-  return factor.replaceAll(" ", "").replaceAll("·", "*").toLowerCase();
-};
-
 const normalizeComponentId = (componentId?: string): string => componentId ?? "";
 
 const semanticIdentity = (
@@ -62,18 +56,18 @@ const semanticIdentity = (
 ): string =>
   term.equationId !== undefined && term.termId !== undefined
     ? `${term.equationId}:${term.termId}`
-    : `${term.variable}:${normalizeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
+    : `${term.variable}:${normalizePracticeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
 
 const expectedSemanticIdentity = (term: ExpectedEquation["terms"][number]): string =>
   term.equationId !== undefined && term.termId !== undefined
     ? `${term.equationId}:${term.termId}`
-    : `${term.variable}:${normalizeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
+    : `${term.variable}:${normalizePracticeFactor(term.factor)}:${normalizeComponentId(term.componentId)}`;
 
 const semanticTermKey = (term: EquationTerm): string =>
-  `${semanticIdentity(term.semantic)}:${term.semantic.sign}:${normalizeFactor(term.semantic.factor)}`;
+  `${semanticIdentity(term.semantic)}:${term.semantic.sign}:${normalizePracticeFactor(term.semantic.factor)}`;
 
 const expectedSemanticTermKey = (term: ExpectedEquation["terms"][number]): string =>
-  `${expectedSemanticIdentity(term)}:${term.sign}:${normalizeFactor(term.factor)}`;
+  `${expectedSemanticIdentity(term)}:${term.sign}:${normalizePracticeFactor(term.factor)}`;
 
 const feedbackTermId = (term: Pick<EquationTerm["semantic"], "termId" | "variable">): string =>
   term.termId ?? term.variable;
@@ -107,13 +101,13 @@ const validateEquation = (
       : selectedTerms.filter((term) => term.semantic.variable === expectedTerm.variable);
     const wrongSign = sameVariable.find(
       (term) =>
-        normalizeFactor(term.semantic.factor) === normalizeFactor(expectedTerm.factor) &&
+        normalizePracticeFactor(term.semantic.factor) === normalizePracticeFactor(expectedTerm.factor) &&
         term.semantic.sign !== expectedTerm.sign,
     );
     const wrongFactor = sameVariable.find(
       (term) =>
         term.semantic.sign === expectedTerm.sign &&
-        normalizeFactor(term.semantic.factor) !== normalizeFactor(expectedTerm.factor),
+        normalizePracticeFactor(term.semantic.factor) !== normalizePracticeFactor(expectedTerm.factor),
     );
 
     if (wrongSign) {
@@ -123,7 +117,7 @@ const validateEquation = (
     } else {
       mistakeIds.push(
         `missingTerm:${expectedFeedbackTermId(expectedTerm)}`,
-        `missing:${expectedTerm.variable}:${expectedTerm.sign}:${normalizeFactor(expectedTerm.factor)}`,
+        `missing:${expectedTerm.variable}:${expectedTerm.sign}:${normalizePracticeFactor(expectedTerm.factor)}`,
       );
     }
   }
@@ -132,7 +126,7 @@ const validateEquation = (
     if (expectedKeys.has(semanticTermKey(selectedTerm))) {
       continue;
     }
-    const factor = normalizeFactor(selectedTerm.semantic.factor);
+    const factor = normalizePracticeFactor(selectedTerm.semantic.factor);
     if (factor === "0") {
       mistakeIds.push(`zeroTerm:${feedbackTermId(selectedTerm.semantic)}`, `zeroTerm:${selectedTerm.semantic.variable}`);
     } else if (!interaction.expectedEquation.terms.some((term) => expectedSemanticIdentity(term) === semanticIdentity(selectedTerm.semantic))) {

@@ -135,12 +135,16 @@ and force-component references in the diagram config must resolve to the parsed 
 
 Equation-builder interactions may define `expectedSemanticEquation` with an `equationId` and
 ordered `termIds`. The parser resolves those semantic terms into the current expected-equation
-shape used by the Practice UI and validator.
+shape used by the Practice UI and validator. Generated validator factors are plain ASCII practice
+expressions rendered from semantic expression data, not sanitized LaTeX; for example `beamLength/2`
+becomes `L/2` and `sin(loadAngle)*loadPosition` becomes `sin(alpha)*a`.
 
 Equation-builder terms may include `semantic.equationId` and `semantic.termId` when they represent
 or intentionally invert an authored semantic term. Terms may also include `semantic.componentId`.
 When a component id is present, it must reference a declared force-decomposition component, and the
 term factor must include that component's factor unless the term is explicitly a zero factor.
+For semantic expected equations, registration also requires a matching available term with the same
+semantic ids, sign, component id, and normalized factor.
 
 Expression-input interactions may define `expectedSemanticEquation` with a derived-result equation
 id and `side: "rhs"` while still keeping `expectedExpression` and `acceptedExpressions` for the

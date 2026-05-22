@@ -76,6 +76,10 @@ object ids, reaction ids, force-decomposition component ids, or renderer object 
 
 Practice equation-builder interactions may reference semantic equation and term ids through
 `expectedSemanticEquation`. The parser resolves those ids into the current UI-compatible expected
-terms, and validation reports stable mistake ids such as `missingTerm:<termId>`,
-`wrongSign:<termId>`, and `wrongFactor:<termId>`. Legacy explicit term semantics remain available
-for distractors while M02 migration is in progress.
+terms using a plain machine-readable semantic expression renderer, not display LaTeX. Validator
+factors therefore use stable ASCII practice labels such as `L/2` and `sin(alpha)*a` while UI labels
+may keep rendered LaTeX. Registration checks that every semantic expected term has a matching
+available selectable term with the same semantic ids, sign, component id, and normalized factor.
+Validation reports stable mistake ids such as `missingTerm:<termId>`, `wrongSign:<termId>`, and
+`wrongFactor:<termId>`. Legacy explicit term semantics remain available for distractors while M02
+migration is in progress.

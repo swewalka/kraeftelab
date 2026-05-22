@@ -186,6 +186,28 @@ const normalizeNode = (node: SemanticExpressionNode): string => {
   return `(${normalizeNode(node.left)}${node.operator}${normalizeNode(node.right)})`;
 };
 
+const binaryPrecedence = (operator: "+" | "-" | "*" | "/"): number =>
+  operator === "+" || operator === "-" ? 1 : 2;
+
+const shouldParenthesizePlainChild = (
+  child: SemanticExpressionNode,
+  parentOperator: "+" | "-" | "*" | "/",
+  side: "left" | "right",
+): boolean => {
+  if (child.type !== "binary") {
+    return false;
+  }
+  const parentPrecedence = binaryPrecedence(parentOperator);
+  const childPrecedence = binaryPrecedence(child.operator);
+  if (childPrecedence < parentPrecedence) {
+    return true;
+  }
+  if (childPrecedence > parentPrecedence) {
+    return false;
+  }
+  return side === "right" && (parentOperator === "-" || parentOperator === "/");
+};
+
 export const parseSemanticExpression = (source: string): SemanticExpression => {
   const trimmed = source.trim();
   if (trimmed.length === 0) {
@@ -269,6 +291,38 @@ export const renderSemanticExpression = (
     const joiner = node.operator === "*" ? " \\cdot " : ` ${node.operator} `;
     const rendered = `${renderNode(node.left, node.operator)}${joiner}${renderNode(node.right, node.operator)}`;
     return parentOperator === "*" || parentOperator === "/" ? `(${rendered})` : rendered;
+  };
+
+  return renderNode(expression.ast);
+};
+
+export const renderPlainSemanticExpression = (
+  expression: SemanticExpression,
+  labelsBySymbol: ReadonlyMap<string, string>,
+): string => {
+  const renderNode = (
+    node: SemanticExpressionNode,
+    parentOperator?: "+" | "-" | "*" | "/",
+    side: "left" | "right" = "left",
+  ): string => {
+    if (node.type === "constant") {
+      return Number.isInteger(node.value) ? String(node.value) : String(node.value);
+    }
+    if (node.type === "symbol") {
+      return labelsBySymbol.get(node.id) ?? node.id;
+    }
+    if (node.type === "unary") {
+      const rendered = `-${renderNode(node.argument)}`;
+      return parentOperator === "*" || parentOperator === "/" ? `(${rendered})` : rendered;
+    }
+    if (node.type === "function") {
+      return `${node.name}(${renderNode(node.argument)})`;
+    }
+
+    const rendered = `${renderNode(node.left, node.operator, "left")}${node.operator}${renderNode(node.right, node.operator, "right")}`;
+    return parentOperator !== undefined && shouldParenthesizePlainChild(node, parentOperator, side)
+      ? `(${rendered})`
+      : rendered;
   };
 
   return renderNode(expression.ast);

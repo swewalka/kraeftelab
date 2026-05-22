@@ -25,8 +25,9 @@ import {
   findSemanticEquationTerm,
   parseSemanticEquations,
 } from "../../mechanics/semantic/parsing";
-import { renderSemanticExpression } from "../../mechanics/semantic/expression";
+import { renderPlainSemanticExpression } from "../../mechanics/semantic/expression";
 import type { SemanticEquation, SemanticEquationTerm } from "../../mechanics/semantic/types";
+import { normalizePracticeFactor, normalizePracticeLabel } from "../../mechanics/practice/factors";
 import type {
   DiagramContent,
   ExploreContent,
@@ -557,15 +558,6 @@ const getSemanticVariableLabel = (
   return component?.latex ?? id;
 };
 
-const sanitizePracticeFactor = (latex: string): string =>
-  latex
-    .replaceAll("\\cdot", "*")
-    .replaceAll("\\alpha", "alpha")
-    .replaceAll("\\", "")
-    .replaceAll("{", "")
-    .replaceAll("}", "")
-    .replaceAll(" ", "");
-
 const practiceFactorFromSemanticTerm = (
   term: SemanticEquationTerm,
   problem: ProblemDefinition,
@@ -574,9 +566,9 @@ const practiceFactorFromSemanticTerm = (
     return undefined;
   }
   const labels = new Map<string, string>();
-  problem.parameters.forEach((parameter) => labels.set(parameter.id, parameter.label));
-  problem.unknownReactions.forEach((reaction) => labels.set(reaction.id, reaction.label));
-  return sanitizePracticeFactor(renderSemanticExpression(term.factor, labels));
+  problem.parameters.forEach((parameter) => labels.set(parameter.id, normalizePracticeLabel(parameter.label)));
+  problem.unknownReactions.forEach((reaction) => labels.set(reaction.id, normalizePracticeLabel(reaction.label)));
+  return renderPlainSemanticExpression(term.factor, labels);
 };
 
 const expectedTermFromSemanticTerm = (
@@ -947,8 +939,6 @@ const parsePractice = (raw: unknown, problem: ProblemDefinition): PracticeConten
   };
 };
 
-const normalizeFactor = (factor: string): string => factor.replaceAll(" ", "").replaceAll("·", "*").toLowerCase();
-
 const validatePracticeComponentReferences = (problem: ProblemDefinition, practice: PracticeContent) => {
   const componentsById = new Map(
     problem.forceDecompositions.flatMap((decomposition) => [
@@ -974,8 +964,8 @@ const validatePracticeComponentReferences = (problem: ProblemDefinition, practic
       if (term.semantic.direction !== undefined && term.semantic.direction !== component.axis) {
         throw new Error(`practice step "${step.id}" term "${term.id}" component axis does not match semantic direction.`);
       }
-      const termFactor = term.semantic.factor === undefined ? undefined : normalizeFactor(term.semantic.factor);
-      const componentFactor = normalizeFactor(component.factor);
+      const termFactor = term.semantic.factor === undefined ? undefined : normalizePracticeFactor(term.semantic.factor);
+      const componentFactor = normalizePracticeFactor(component.factor);
       if (termFactor !== undefined && termFactor !== "0" && !termFactor.includes(componentFactor)) {
         throw new Error(`practice step "${step.id}" term "${term.id}" factor does not match force component "${componentId}".`);
       }
@@ -990,10 +980,43 @@ const validatePracticeComponentReferences = (problem: ProblemDefinition, practic
       if (!component) {
         throw new Error(`practice step "${step.id}" expected term ${index} references missing force component "${componentId}".`);
       }
-      const termFactor = term.factor === undefined ? undefined : normalizeFactor(term.factor);
-      const componentFactor = normalizeFactor(component.factor);
+      const termFactor = term.factor === undefined ? undefined : normalizePracticeFactor(term.factor);
+      const componentFactor = normalizePracticeFactor(component.factor);
       if (termFactor !== undefined && termFactor !== "0" && !termFactor.includes(componentFactor)) {
         throw new Error(`practice step "${step.id}" expected term ${index} factor does not match force component "${componentId}".`);
+      }
+    });
+  });
+};
+
+const matchesExpectedSemanticTerm = (
+  selectedTerm: EquationTerm,
+  expectedTerm: ExpectedEquation["terms"][number],
+): boolean =>
+  selectedTerm.semantic.equationId === expectedTerm.equationId &&
+  selectedTerm.semantic.termId === expectedTerm.termId &&
+  selectedTerm.semantic.sign === expectedTerm.sign &&
+  selectedTerm.semantic.componentId === expectedTerm.componentId &&
+  normalizePracticeFactor(selectedTerm.semantic.factor) === normalizePracticeFactor(expectedTerm.factor);
+
+const validatePracticeExpectedSemanticTerms = (practice: PracticeContent) => {
+  practice.steps.forEach((step) => {
+    const interaction = step.interaction;
+    if (interaction.type !== "equation-builder" || interaction.expectedEquation.semanticEquationId === undefined) {
+      return;
+    }
+
+    interaction.expectedEquation.terms.forEach((expectedTerm) => {
+      if (expectedTerm.equationId === undefined || expectedTerm.termId === undefined) {
+        throw new Error(`practice step "${step.id}" semantic expected equation contains a term without semantic ids.`);
+      }
+      const hasMatchingSelectableTerm = interaction.availableTerms.some((selectedTerm) =>
+        matchesExpectedSemanticTerm(selectedTerm, expectedTerm),
+      );
+      if (!hasMatchingSelectableTerm) {
+        throw new Error(
+          `practice step "${step.id}" expected semantic term "${expectedTerm.termId}" has no matching available term with sign "${expectedTerm.sign}" and factor "${expectedTerm.factor ?? ""}".`,
+        );
       }
     });
   });
@@ -1119,6 +1142,7 @@ export const parseLoadedProblemContent = (
   validateExploreSemanticReferences(problem, explore);
   validateSolverConfigEquationIds(problem.solverConfig, new Set(problem.semanticEquations.map((equation) => equation.id)));
   validatePracticeComponentReferences(problem, practice);
+  validatePracticeExpectedSemanticTerms(practice);
   validateCanvasObjectReferences(problem, diagram, solution, practice);
 
   return {
