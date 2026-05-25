@@ -5,14 +5,24 @@ import type { CanvasState } from "../../mechanics/model/canvasState";
 import { getDiagramObjectReferenceSet } from "../../mechanics/diagram/diagramObjectRegistry";
 import type {
   BodyDefinition,
+  BodyGeometryReference,
+  CoordinateSystemDefinition,
+  ForceActionDefinition,
   ForceDecomposition,
   ForceDecompositionComponent,
+  ForceLineOfAction,
+  FreeBodyScopeDefinition,
+  JointDefinition,
   LoadDefinition,
+  MechanicsUnit,
   ParameterDefinition,
   PointDefinition,
+  QuantityDefinition,
+  RopeDefinition,
   SupportDefinition,
   UnknownReaction,
 } from "../../mechanics/model/types";
+import { defaultCoordinateSystem } from "../../mechanics/model/types";
 import {
   assertVectorMatchesForceDecomposition,
   resolveForceDecomposition,
@@ -21,6 +31,7 @@ import {
   parseSolverConfig,
   validateSolverConfigEquationIds,
 } from "../../mechanics/solvers/solverConfigRegistry";
+import { validatePlanarEquilibriumSolverConfig } from "../../mechanics/solvers/equilibrium2D/planarEquilibriumValidation";
 import {
   findSemanticEquationTerm,
   parseSemanticEquations,
@@ -159,6 +170,13 @@ const requireId = (ids: ReadonlySet<string>, id: string, context: string) => {
   }
 };
 
+const parseMechanicsUnit = (value: string, context: string): MechanicsUnit => {
+  if (value !== "dimensionless" && value !== "m" && value !== "N" && value !== "N*m" && value !== "deg") {
+    throw new Error(`${context} must be "dimensionless", "m", "N", "N*m", or "deg".`);
+  }
+  return value;
+};
+
 const parsePoint = (value: unknown, context: string): PointDefinition => {
   const record = requireRecord(value, context);
   return {
@@ -169,12 +187,34 @@ const parsePoint = (value: unknown, context: string): PointDefinition => {
   };
 };
 
+const parseCoordinateSystem = (value: unknown): CoordinateSystemDefinition => {
+  if (value === undefined) {
+    return defaultCoordinateSystem;
+  }
+
+  const record = requireRecord(value, "problem.coordinateSystem");
+  const positiveX = requireString(record, "positiveX", "problem.coordinateSystem");
+  const positiveY = requireString(record, "positiveY", "problem.coordinateSystem");
+  const positiveMoment = requireString(record, "positiveMoment", "problem.coordinateSystem");
+  const angleUnit = requireString(record, "angleUnit", "problem.coordinateSystem");
+  if (positiveX !== "right") {
+    throw new Error('problem.coordinateSystem.positiveX must be "right".');
+  }
+  if (positiveY !== "up") {
+    throw new Error('problem.coordinateSystem.positiveY must be "up".');
+  }
+  if (positiveMoment !== "counterclockwise") {
+    throw new Error('problem.coordinateSystem.positiveMoment must be "counterclockwise".');
+  }
+  if (angleUnit !== "deg") {
+    throw new Error('problem.coordinateSystem.angleUnit must be "deg".');
+  }
+  return { positiveX, positiveY, positiveMoment, angleUnit };
+};
+
 const parseParameter = (value: unknown, context: string): ParameterDefinition => {
   const record = requireRecord(value, context);
-  const unit = requireString(record, "unit", context);
-  if (unit !== "m" && unit !== "N" && unit !== "deg") {
-    throw new Error(`${context}.unit must be "m", "N", or "deg".`);
-  }
+  const unit = parseMechanicsUnit(requireString(record, "unit", context), `${context}.unit`);
 
   return {
     id: requireString(record, "id", context),
@@ -185,20 +225,67 @@ const parseParameter = (value: unknown, context: string): ParameterDefinition =>
   };
 };
 
+const parseBodyGeometry = (value: unknown, context: string): BodyGeometryReference => {
+  const record = requireRecord(value, context);
+  const kind = requireString(record, "kind", context);
+  if (kind === "lineSegment") {
+    return {
+      kind,
+      startPointId: requireString(record, "startPointId", context),
+      endPointId: requireString(record, "endPointId", context),
+    };
+  }
+  if (kind === "polyline") {
+    const pointIds = parseStringArray(record.pointIds, `${context}.pointIds`);
+    if (pointIds.length < 2) {
+      throw new Error(`${context}.pointIds must contain at least two point ids.`);
+    }
+    return { kind, pointIds };
+  }
+  if (kind === "disc") {
+    const radius = record.radius === undefined ? undefined : requireNumber(record, "radius", context);
+    const radiusParameterId =
+      record.radiusParameterId === undefined ? undefined : requireString(record, "radiusParameterId", context);
+    if (radius === undefined && radiusParameterId === undefined) {
+      throw new Error(`${context} requires radius or radiusParameterId.`);
+    }
+    if (radius !== undefined && radius <= 0) {
+      throw new Error(`${context}.radius must be positive.`);
+    }
+    return {
+      kind,
+      centerPointId: requireString(record, "centerPointId", context),
+      ...(radius === undefined ? {} : { radius }),
+      ...(radiusParameterId === undefined ? {} : { radiusParameterId }),
+    };
+  }
+  throw new Error(`${context}.kind must be "lineSegment", "polyline", or "disc".`);
+};
+
 const parseBody = (value: unknown, context: string): BodyDefinition => {
   const record = requireRecord(value, context);
   const kind = requireString(record, "kind", context);
-  if (kind !== "rigidBeam") {
-    throw new Error(`${context}.kind must be "rigidBeam".`);
-  }
-
-  return {
+  const base = {
     id: requireString(record, "id", context),
     label: requireString(record, "label", context),
-    kind,
-    startPointId: requireString(record, "startPointId", context),
-    endPointId: requireString(record, "endPointId", context),
   };
+  if (kind === "rigidBeam") {
+    return {
+      ...base,
+      kind,
+      startPointId: requireString(record, "startPointId", context),
+      endPointId: requireString(record, "endPointId", context),
+    };
+  }
+  if (kind === "rigidBody") {
+    return {
+      ...base,
+      kind,
+      geometry: parseBodyGeometry(record.geometry, `${context}.geometry`),
+    };
+  }
+
+  throw new Error(`${context}.kind must be "rigidBeam" or "rigidBody".`);
 };
 
 const parseSupport = (value: unknown, context: string): SupportDefinition => {
@@ -289,8 +376,16 @@ const parseForceDecompositionComponent = (
 const parseForceDecomposition = (value: unknown, context: string): ForceDecomposition => {
   const record = requireRecord(value, context);
   const angleReference = requireString(record, "angleReference", context);
-  if (angleReference !== "positive-x") {
-    throw new Error(`${context}.angleReference must be "positive-x".`);
+  if (
+    angleReference !== "positive-x" &&
+    angleReference !== "negative-x" &&
+    angleReference !== "positive-y" &&
+    angleReference !== "negative-y" &&
+    angleReference !== "authored-line-of-action"
+  ) {
+    throw new Error(
+      `${context}.angleReference must be "positive-x", "negative-x", "positive-y", "negative-y", or "authored-line-of-action".`,
+    );
   }
 
   const components = requireRecord(record.components, `${context}.components`);
@@ -306,6 +401,245 @@ const parseForceDecomposition = (value: unknown, context: string): ForceDecompos
     },
   };
 };
+
+const parseQuantity = (value: unknown, context: string): QuantityDefinition => {
+  const record = requireRecord(value, context);
+  const rawRole = record.role === undefined ? "unknown" : requireString(record, "role", context);
+  if (rawRole !== "unknown" && rawRole !== "known" && rawRole !== "derived") {
+    throw new Error(`${context}.role must be "unknown", "known", or "derived".`);
+  }
+  const role: QuantityDefinition["role"] = rawRole;
+  const parsed = {
+    id: requireString(record, "id", context),
+    label: requireString(record, "label", context),
+    unit: parseMechanicsUnit(requireString(record, "unit", context), `${context}.unit`),
+    role,
+  };
+  if (role === "known" && record.value === undefined) {
+    throw new Error(`${context}.value is required for known quantities.`);
+  }
+  return record.value === undefined ? parsed : { ...parsed, value: requireNumber(record, "value", context) };
+};
+
+const parseFreeBodyScope = (value: unknown, context: string): FreeBodyScopeDefinition => {
+  const record = requireRecord(value, context);
+  const base = {
+    id: requireString(record, "id", context),
+    label: requireString(record, "label", context),
+  };
+  const kind = requireString(record, "kind", context);
+  if (kind === "wholeSystem") {
+    return { ...base, kind };
+  }
+  if (kind === "body") {
+    return { ...base, kind, bodyId: requireString(record, "bodyId", context) };
+  }
+  if (kind === "bodyGroup") {
+    const bodyIds = parseStringArray(record.bodyIds, `${context}.bodyIds`);
+    if (bodyIds.length === 0) {
+      throw new Error(`${context}.bodyIds must contain at least one body id.`);
+    }
+    return { ...base, kind, bodyIds };
+  }
+  throw new Error(`${context}.kind must be "wholeSystem", "body", or "bodyGroup".`);
+};
+
+const parseJoint = (value: unknown, context: string): JointDefinition => {
+  const record = requireRecord(value, context);
+  const kind = requireString(record, "kind", context);
+  if (kind !== "hinge") {
+    throw new Error(`${context}.kind must be "hinge".`);
+  }
+  const bodyIds = parseStringArray(record.bodyIds, `${context}.bodyIds`);
+  if (bodyIds.length < 2) {
+    throw new Error(`${context}.bodyIds must contain at least two body ids.`);
+  }
+  return {
+    id: requireString(record, "id", context),
+    label: requireString(record, "label", context),
+    kind,
+    pointId: requireString(record, "pointId", context),
+    bodyIds,
+    quantityIds: parseStringArray(record.quantityIds ?? [], `${context}.quantityIds`),
+  };
+};
+
+const parseRope = (value: unknown, context: string): RopeDefinition => {
+  const record = requireRecord(value, context);
+  const kind = requireString(record, "kind", context);
+  if (kind !== "rope") {
+    throw new Error(`${context}.kind must be "rope".`);
+  }
+  const pointIds = parseStringArray(record.pointIds, `${context}.pointIds`);
+  if (pointIds.length < 2) {
+    throw new Error(`${context}.pointIds must contain at least two point ids.`);
+  }
+  return {
+    id: requireString(record, "id", context),
+    label: requireString(record, "label", context),
+    kind,
+    pointIds,
+    bodyIds: parseStringArray(record.bodyIds ?? [], `${context}.bodyIds`),
+    quantityId: requireString(record, "quantityId", context),
+  };
+};
+
+const parseForceLineOfAction = (value: unknown, context: string): ForceLineOfAction => {
+  const record = requireRecord(value, context);
+  const kind = requireString(record, "kind", context);
+  if (kind === "vector") {
+    return { kind, direction: parseVector(record.direction, `${context}.direction`) };
+  }
+  if (kind === "betweenPoints") {
+    return {
+      kind,
+      startPointId: requireString(record, "startPointId", context),
+      endPointId: requireString(record, "endPointId", context),
+    };
+  }
+  throw new Error(`${context}.kind must be "vector" or "betweenPoints".`);
+};
+
+const parseForceAction = (value: unknown, context: string): ForceActionDefinition => {
+  const record = requireRecord(value, context);
+  const kind = requireString(record, "kind", context);
+  if (
+    kind !== "supportReaction" &&
+    kind !== "pointLoad" &&
+    kind !== "hingeReaction" &&
+    kind !== "ropeTension" &&
+    kind !== "beltContact" &&
+    kind !== "rodForce" &&
+    kind !== "weight" &&
+    kind !== "appliedCouple"
+  ) {
+    throw new Error(
+      `${context}.kind must be "supportReaction", "pointLoad", "hingeReaction", "ropeTension", "beltContact", "rodForce", "weight", or "appliedCouple".`,
+    );
+  }
+  const ownership = requireString(record, "ownership", context);
+  if (ownership !== "external" && ownership !== "internal") {
+    throw new Error(`${context}.ownership must be "external" or "internal".`);
+  }
+  const component = record.component === undefined ? undefined : requireString(record, "component", context);
+  if (component !== undefined && component !== "x" && component !== "y") {
+    throw new Error(`${context}.component must be "x" or "y".`);
+  }
+
+  return {
+    id: requireString(record, "id", context),
+    label: requireString(record, "label", context),
+    kind,
+    ownership,
+    ...(record.bodyId === undefined ? {} : { bodyId: requireString(record, "bodyId", context) }),
+    ...(record.pointId === undefined ? {} : { pointId: requireString(record, "pointId", context) }),
+    ...(record.quantityId === undefined ? {} : { quantityId: requireString(record, "quantityId", context) }),
+    ...(record.loadId === undefined ? {} : { loadId: requireString(record, "loadId", context) }),
+    ...(record.supportId === undefined ? {} : { supportId: requireString(record, "supportId", context) }),
+    ...(record.jointId === undefined ? {} : { jointId: requireString(record, "jointId", context) }),
+    ...(record.ropeId === undefined ? {} : { ropeId: requireString(record, "ropeId", context) }),
+    ...(component === undefined ? {} : { component }),
+    ...(record.lineOfAction === undefined
+      ? {}
+      : { lineOfAction: parseForceLineOfAction(record.lineOfAction, `${context}.lineOfAction`) }),
+    ...(record.oppositeActionId === undefined
+      ? {}
+      : { oppositeActionId: requireString(record, "oppositeActionId", context) }),
+  };
+};
+
+const validateBodyReferences = (
+  body: BodyDefinition,
+  pointIds: ReadonlySet<string>,
+  parameterIds: ReadonlySet<string>,
+) => {
+  if (body.kind === "rigidBeam") {
+    requireId(pointIds, body.startPointId, `body "${body.id}".startPointId`);
+    requireId(pointIds, body.endPointId, `body "${body.id}".endPointId`);
+    return;
+  }
+
+  const geometry = body.geometry;
+  if (geometry.kind === "lineSegment") {
+    requireId(pointIds, geometry.startPointId, `body "${body.id}".geometry.startPointId`);
+    requireId(pointIds, geometry.endPointId, `body "${body.id}".geometry.endPointId`);
+    return;
+  }
+  if (geometry.kind === "polyline") {
+    geometry.pointIds.forEach((pointId, index) =>
+      requireId(pointIds, pointId, `body "${body.id}".geometry.pointIds[${index}]`),
+    );
+    return;
+  }
+
+  requireId(pointIds, geometry.centerPointId, `body "${body.id}".geometry.centerPointId`);
+  if (geometry.radiusParameterId !== undefined) {
+    requireId(parameterIds, geometry.radiusParameterId, `body "${body.id}".geometry.radiusParameterId`);
+  }
+};
+
+const validateFreeBodyScopeReferences = (
+  scope: FreeBodyScopeDefinition,
+  bodyIds: ReadonlySet<string>,
+) => {
+  if (scope.kind === "body") {
+    requireId(bodyIds, scope.bodyId, `free body scope "${scope.id}".bodyId`);
+  }
+  if (scope.kind === "bodyGroup") {
+    scope.bodyIds.forEach((bodyId, index) =>
+      requireId(bodyIds, bodyId, `free body scope "${scope.id}".bodyIds[${index}]`),
+    );
+  }
+};
+
+const validateForceLineOfActionReferences = (
+  lineOfAction: ForceLineOfAction | undefined,
+  pointIds: ReadonlySet<string>,
+  context: string,
+) => {
+  if (lineOfAction?.kind !== "betweenPoints") {
+    return;
+  }
+  requireId(pointIds, lineOfAction.startPointId, `${context}.startPointId`);
+  requireId(pointIds, lineOfAction.endPointId, `${context}.endPointId`);
+};
+
+const getQuantityIds = (
+  unknownReactions: readonly UnknownReaction[],
+  quantities: readonly QuantityDefinition[],
+): ReadonlySet<string> =>
+  new Set([...unknownReactions.map((reaction) => reaction.id), ...quantities.map((quantity) => quantity.id)]);
+
+const getProblemMechanicsObjectIds = (
+  points: readonly PointDefinition[],
+  bodies: readonly BodyDefinition[],
+  supports: readonly SupportDefinition[],
+  loads: readonly LoadDefinition[],
+  forceDecompositions: readonly ForceDecomposition[],
+  unknownReactions: readonly UnknownReaction[],
+  quantities: readonly QuantityDefinition[],
+  freeBodyScopes: readonly FreeBodyScopeDefinition[],
+  joints: readonly JointDefinition[],
+  ropes: readonly RopeDefinition[],
+  forceActions: readonly ForceActionDefinition[],
+): ReadonlySet<string> =>
+  new Set([
+    ...points.map((point) => point.id),
+    ...bodies.map((body) => body.id),
+    ...supports.map((support) => support.id),
+    ...loads.map((load) => load.id),
+    ...unknownReactions.map((reaction) => reaction.id),
+    ...quantities.map((quantity) => quantity.id),
+    ...freeBodyScopes.map((scope) => scope.id),
+    ...joints.map((joint) => joint.id),
+    ...ropes.map((rope) => rope.id),
+    ...forceActions.map((forceAction) => forceAction.id),
+    ...forceDecompositions.flatMap((decomposition) => [
+      decomposition.id,
+      decomposition.components.x.id,
+      decomposition.components.y.id,
+    ]),
+  ]);
 
 const parseExplore = (value: unknown): ExploreContent => {
   if (value === undefined) {
@@ -356,6 +690,36 @@ const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: Expl
       : requireArray(record, "forceDecompositions", "problem").map((item, index) =>
           parseForceDecomposition(item, `problem.forceDecompositions[${index}]`),
         );
+  const quantities =
+    record.quantities === undefined
+      ? []
+      : requireArray(record, "quantities", "problem").map((item, index) =>
+          parseQuantity(item, `problem.quantities[${index}]`),
+        );
+  const freeBodyScopes =
+    record.freeBodyScopes === undefined
+      ? []
+      : requireArray(record, "freeBodyScopes", "problem").map((item, index) =>
+          parseFreeBodyScope(item, `problem.freeBodyScopes[${index}]`),
+        );
+  const joints =
+    record.joints === undefined
+      ? []
+      : requireArray(record, "joints", "problem").map((item, index) =>
+          parseJoint(item, `problem.joints[${index}]`),
+        );
+  const ropes =
+    record.ropes === undefined
+      ? []
+      : requireArray(record, "ropes", "problem").map((item, index) =>
+          parseRope(item, `problem.ropes[${index}]`),
+        );
+  const forceActions =
+    record.forceActions === undefined
+      ? []
+      : requireArray(record, "forceActions", "problem").map((item, index) =>
+          parseForceAction(item, `problem.forceActions[${index}]`),
+        );
   const unknownReactions = requireArray(record, "unknownReactions", "problem").map((item, index) =>
     parseUnknownReaction(item, `problem.unknownReactions[${index}]`),
   );
@@ -370,6 +734,11 @@ const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: Expl
     forceDecompositions.flatMap((decomposition) => [decomposition.components.x, decomposition.components.y]),
     "problem.forceDecompositions.components",
   );
+  ensureUniqueIds(quantities, "problem.quantities");
+  ensureUniqueIds(freeBodyScopes, "problem.freeBodyScopes");
+  ensureUniqueIds(joints, "problem.joints");
+  ensureUniqueIds(ropes, "problem.ropes");
+  ensureUniqueIds(forceActions, "problem.forceActions");
   ensureUniqueIds(unknownReactions, "problem.unknownReactions");
 
   const pointIds = new Set(points.map((point) => point.id));
@@ -377,16 +746,67 @@ const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: Expl
   const supportIds = new Set(supports.map((support) => support.id));
   const loadIds = new Set(loads.map((load) => load.id));
   const parameterIds = new Set(parameters.map((parameter) => parameter.id));
+  const quantityIds = getQuantityIds(unknownReactions, quantities);
+  const jointIds = new Set(joints.map((joint) => joint.id));
+  const ropeIds = new Set(ropes.map((rope) => rope.id));
+  const forceActionIds = new Set(forceActions.map((forceAction) => forceAction.id));
 
-  bodies.forEach((body) => {
-    requireId(pointIds, body.startPointId, `body "${body.id}"`);
-    requireId(pointIds, body.endPointId, `body "${body.id}"`);
-  });
+  bodies.forEach((body) => validateBodyReferences(body, pointIds, parameterIds));
   supports.forEach((support) => {
     requireId(pointIds, support.pointId, `support "${support.id}"`);
     requireId(bodyIds, support.bodyId, `support "${support.id}"`);
   });
   loads.forEach((load) => requireId(bodyIds, load.bodyId, `load "${load.id}"`));
+  freeBodyScopes.forEach((scope) => validateFreeBodyScopeReferences(scope, bodyIds));
+  joints.forEach((joint) => {
+    requireId(pointIds, joint.pointId, `joint "${joint.id}".pointId`);
+    joint.bodyIds.forEach((bodyId, index) => requireId(bodyIds, bodyId, `joint "${joint.id}".bodyIds[${index}]`));
+    joint.quantityIds.forEach((quantityId, index) =>
+      requireId(quantityIds, quantityId, `joint "${joint.id}".quantityIds[${index}]`),
+    );
+  });
+  ropes.forEach((rope) => {
+    rope.pointIds.forEach((pointId, index) => requireId(pointIds, pointId, `rope "${rope.id}".pointIds[${index}]`));
+    rope.bodyIds.forEach((bodyId, index) => requireId(bodyIds, bodyId, `rope "${rope.id}".bodyIds[${index}]`));
+    requireId(quantityIds, rope.quantityId, `rope "${rope.id}".quantityId`);
+  });
+  forceActions.forEach((forceAction) => {
+    if (forceAction.bodyId !== undefined) {
+      requireId(bodyIds, forceAction.bodyId, `force action "${forceAction.id}".bodyId`);
+    }
+    if (forceAction.pointId !== undefined) {
+      requireId(pointIds, forceAction.pointId, `force action "${forceAction.id}".pointId`);
+    }
+    if (forceAction.quantityId !== undefined) {
+      requireId(quantityIds, forceAction.quantityId, `force action "${forceAction.id}".quantityId`);
+    }
+    if (forceAction.loadId !== undefined) {
+      requireId(loadIds, forceAction.loadId, `force action "${forceAction.id}".loadId`);
+    }
+    if (forceAction.supportId !== undefined) {
+      requireId(supportIds, forceAction.supportId, `force action "${forceAction.id}".supportId`);
+    }
+    if (forceAction.jointId !== undefined) {
+      requireId(jointIds, forceAction.jointId, `force action "${forceAction.id}".jointId`);
+    }
+    if (forceAction.ropeId !== undefined) {
+      requireId(ropeIds, forceAction.ropeId, `force action "${forceAction.id}".ropeId`);
+    }
+    if (forceAction.oppositeActionId !== undefined) {
+      requireId(forceActionIds, forceAction.oppositeActionId, `force action "${forceAction.id}".oppositeActionId`);
+      const opposite = forceActions.find((candidate) => candidate.id === forceAction.oppositeActionId);
+      if (opposite?.oppositeActionId !== undefined && opposite.oppositeActionId !== forceAction.id) {
+        throw new Error(
+          `force action "${forceAction.id}".oppositeActionId references "${forceAction.oppositeActionId}", but the opposite action points to "${opposite.oppositeActionId}".`,
+        );
+      }
+    }
+    validateForceLineOfActionReferences(
+      forceAction.lineOfAction,
+      pointIds,
+      `force action "${forceAction.id}".lineOfAction`,
+    );
+  });
   forceDecompositions.forEach((decomposition) => {
     requireId(loadIds, decomposition.forceId, `force decomposition "${decomposition.id}"`);
     requireId(parameterIds, decomposition.magnitudeParameterId, `force decomposition "${decomposition.id}"`);
@@ -418,12 +838,18 @@ const parseProblem = (raw: unknown): { problem: ProblemDefinition; explore: Expl
     solverKey: requireString(record, "solverKey", "problem"),
     diagramKey: requireString(record, "diagramKey", "problem"),
     statement: requireString(record, "statement", "problem"),
+    coordinateSystem: parseCoordinateSystem(record.coordinateSystem),
     parameters,
     points,
     bodies,
     supports,
     loads,
     forceDecompositions,
+    quantities,
+    freeBodyScopes,
+    joints,
+    ropes,
+    forceActions,
     unknownReactions,
   } satisfies Omit<ProblemDefinition, "solverConfig" | "semanticEquations">;
 
@@ -548,6 +974,10 @@ const getSemanticVariableLabel = (
   if (reaction) {
     return reaction.label;
   }
+  const quantity = problem.quantities.find((candidate) => candidate.id === id);
+  if (quantity) {
+    return quantity.label;
+  }
   const parameter = problem.parameters.find((candidate) => candidate.id === id);
   if (parameter) {
     return parameter.label.replaceAll("\\", "").replaceAll("{", "").replaceAll("}", "");
@@ -568,6 +998,7 @@ const practiceFactorFromSemanticTerm = (
   const labels = new Map<string, string>();
   problem.parameters.forEach((parameter) => labels.set(parameter.id, normalizePracticeLabel(parameter.label)));
   problem.unknownReactions.forEach((reaction) => labels.set(reaction.id, normalizePracticeLabel(reaction.label)));
+  problem.quantities.forEach((quantity) => labels.set(quantity.id, normalizePracticeLabel(quantity.label)));
   return renderPlainSemanticExpression(term.factor, labels);
 };
 
@@ -1036,7 +1467,7 @@ const validateExploreSemanticReferences = (
   problem: ProblemDefinition,
   explore: ExploreContent,
 ) => {
-  const quantityIds = new Set(problem.unknownReactions.map((reaction) => reaction.id));
+  const quantityIds = getQuantityIds(problem.unknownReactions, problem.quantities);
   validateIdArrayReferences(
     explore.observedQuantityIds,
     quantityIds,
@@ -1046,17 +1477,19 @@ const validateExploreSemanticReferences = (
 };
 
 const getProblemCanvasObjectIds = (problem: ProblemDefinition): ReadonlySet<string> =>
-  new Set([
-    ...problem.points.map((point) => point.id),
-    ...problem.bodies.map((body) => body.id),
-    ...problem.supports.map((support) => support.id),
-    ...problem.loads.map((load) => load.id),
-    ...problem.unknownReactions.map((reaction) => reaction.id),
-    ...problem.forceDecompositions.flatMap((decomposition) => [
-      decomposition.components.x.id,
-      decomposition.components.y.id,
-    ]),
-  ]);
+  getProblemMechanicsObjectIds(
+    problem.points,
+    problem.bodies,
+    problem.supports,
+    problem.loads,
+    problem.forceDecompositions,
+    problem.unknownReactions,
+    problem.quantities,
+    problem.freeBodyScopes,
+    problem.joints,
+    problem.ropes,
+    problem.forceActions,
+  );
 
 const validateIdArrayReferences = (
   ids: readonly string[] | undefined,
@@ -1141,6 +1574,7 @@ export const parseLoadedProblemContent = (
   validateSolutionSemanticEquationReferences(problem, solution);
   validateExploreSemanticReferences(problem, explore);
   validateSolverConfigEquationIds(problem.solverConfig, new Set(problem.semanticEquations.map((equation) => equation.id)));
+  validatePlanarEquilibriumSolverConfig(problem);
   validatePracticeComponentReferences(problem, practice);
   validatePracticeExpectedSemanticTerms(practice);
   validateCanvasObjectReferences(problem, diagram, solution, practice);

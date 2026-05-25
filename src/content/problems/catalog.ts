@@ -3,6 +3,7 @@ import { simpleSupportedBeamAngledLoad } from "./statics/equilibrium/simple-supp
 import { defaultLocale, type Locale } from "../../i18n/types";
 import type { LoadedProblemContent } from "./types";
 import { validateLocalizedProblemPair } from "./localeValidation";
+import { runMechanicsContractChecks } from "./contractChecks";
 
 const registerLocalizedProblem = <T extends Readonly<{ en: LoadedProblemContent; de: LoadedProblemContent }>>(content: T): T => {
   validateLocalizedProblemPair(content.en, content.de);
@@ -11,6 +12,8 @@ const registerLocalizedProblem = <T extends Readonly<{ en: LoadedProblemContent;
 
 const centerLoad = registerLocalizedProblem(simpleSupportedBeamCenterLoad);
 const angledLoad = registerLocalizedProblem(simpleSupportedBeamAngledLoad);
+
+runMechanicsContractChecks();
 
 export const problemCatalog: Readonly<Record<Locale, readonly LoadedProblemContent[]>> = {
   en: [centerLoad.en, angledLoad.en],

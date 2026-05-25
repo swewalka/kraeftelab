@@ -13,6 +13,9 @@ const getReactionLabel = (problem: ProblemDefinition, reactionId: string): strin
 
 export const solveBeamReactions = (problem: ProblemDefinition): SolverResult => {
   const config = problem.solverConfig;
+  if (config.solverKey !== "simply-supported-beam-reactions") {
+    throw new Error(`Beam reaction solver received solverKey "${config.solverKey}".`);
+  }
   const values = getBeamEquationValues(problem, config);
   const quantities = [
     {
@@ -38,6 +41,7 @@ export const solveBeamReactions = (problem: ProblemDefinition): SolverResult => 
     parameters: problem.parameters,
     unknownReactions: problem.unknownReactions,
     forceDecompositions: problem.forceDecompositions,
+    quantityDefinitions: problem.quantities,
     quantities,
   });
   assertSemanticEquationResiduals(semanticEquationEvaluations);

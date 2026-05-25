@@ -12,10 +12,74 @@ Required top-level problem fields:
 - `solverConfig`
 
 Optional top-level problem fields:
+- `coordinateSystem`
 - `forceDecompositions`
+- `quantities`
+- `freeBodyScopes`
+- `joints`
+- `ropes`
+- `forceActions`
 - `explore`
 
-Parameter units currently supported by the parser are `m`, `N`, and `deg`.
+Parameter units currently supported by the parser are `dimensionless`, `m`, `N`, `N*m`, and `deg`.
+
+If omitted, `coordinateSystem` defaults to the M02 planar convention:
+
+```json
+{
+  "positiveX": "right",
+  "positiveY": "up",
+  "positiveMoment": "counterclockwise",
+  "angleUnit": "deg"
+}
+```
+
+## Phase 2 planar mechanics fields
+
+The Phase 2 fields are additive. Existing beam content may continue to use `rigidBeam`,
+`unknownReactions`, `beam-diagram`, and `simply-supported-beam-reactions` until Phase 6 migration.
+New M02 target content should use the generalized fields where needed.
+
+Bodies may use the legacy beam shape:
+
+```json
+{ "id": "beam", "label": "Beam", "kind": "rigidBeam", "startPointId": "A", "endPointId": "B" }
+```
+
+or the generalized body shape:
+
+```json
+{
+  "id": "idlerPulley",
+  "label": "Pulley",
+  "kind": "rigidBody",
+  "geometry": { "kind": "disc", "centerPointId": "M", "radiusParameterId": "r" }
+}
+```
+
+Supported `rigidBody.geometry.kind` values are `lineSegment`, `polyline`, and `disc`.
+
+`quantities` define reusable mechanics quantities beyond support reactions. Each quantity defines
+`id`, `label`, `unit`, optional `role` (`unknown`, `known`, or `derived`; default `unknown`), and
+optional numeric `value`.
+
+`freeBodyScopes` may define `wholeSystem`, `body`, or `bodyGroup` scopes. Semantic equations may
+also reference authored scopes with `scopeId` on any scope kind, for example
+`{ "kind": "body", "bodyId": "...", "scopeId": "..." }` or
+`{ "kind": "bodyGroup", "bodyIds": [...], "scopeId": "..." }`.
+
+`joints` currently support `kind: "hinge"` with `pointId`, connected `bodyIds`, and optional
+`quantityIds` for hinge components.
+
+`ropes` currently support `kind: "rope"` with path `pointIds`, related `bodyIds`, and a shared
+tension `quantityId`.
+
+`forceActions` describe forces on specific free-body diagrams. Each action defines `id`, `label`,
+`kind`, and `ownership` (`external` or `internal`). Optional references include `bodyId`,
+`pointId`, `quantityId`, `loadId`, `supportId`, `jointId`, `ropeId`, `component`, `lineOfAction`,
+and `oppositeActionId`. `lineOfAction` may be a vector direction or a line between two points.
+`oppositeActionId` must reference an existing force action; if the opposite action also declares an
+opposite, it must point back.
 
 ## Force decompositions
 
@@ -26,7 +90,8 @@ Each decomposition must define:
 - `forceId`
 - `magnitudeParameterId` with unit `N`
 - `angleParameterId` with unit `deg`
-- `angleReference`, currently only `positive-x`
+- `angleReference`: `positive-x`, `negative-x`, `positive-y`, `negative-y`, or
+  `authored-line-of-action`
 - `components.x` and `components.y`
 
 Each component must define:
@@ -48,7 +113,10 @@ Explore observations.
 Each semantic equation must define:
 - `id`
 - `purpose`: `sumForceX`, `sumForceY`, `sumMoment`, or `derivedResult`
-- `scope`: `{ "kind": "wholeSystem" }` or `{ "kind": "body", "bodyId": "..." }`
+- `scope`: `{ "kind": "wholeSystem", "scopeId": "..." }`,
+  `{ "kind": "body", "bodyId": "...", "scopeId": "..." }`, or
+  `{ "kind": "bodyGroup", "bodyIds": [...], "scopeId": "..." }`; `scopeId` is optional in
+  general, but required for equations used by the generic planar solver
 - `unit`: `dimensionless`, `m`, `N`, `N*m`, or `deg`
 - `lhs` and `rhs`, each either an expression string/object or an object with `terms`
 
@@ -56,8 +124,8 @@ Each semantic equation must define:
 
 Expression strings support the Phase 1 beginner-statics subset: variables, numeric constants,
 unary signs, `+`, `-`, `*`, `/`, parentheses, and `sin(...)`/`cos(...)` of angle parameters.
-Expression variable names must reference known parameter ids, unknown reaction ids, or
-force-decomposition component ids.
+Expression variable names must reference known parameter ids, unknown reaction ids, generic
+quantity ids, or force-decomposition component ids.
 
 Equilibrium terms must define:
 - `id`
@@ -68,13 +136,15 @@ Equilibrium terms must define:
 - optional `mechanicsObjectIds`
 - optional `latex` display override
 
-Current Phase 1 quantity ids are unknown reaction ids. `componentId` is also validated against
-declared force-decomposition component ids.
+`quantityId` may reference a legacy `unknownReaction` or a generic Phase 2 `quantity`.
+`mechanicsObjectIds` may reference points, bodies, supports, loads, reactions, generic quantities,
+free-body scopes, joints, ropes, force actions, force decompositions, or force-decomposition
+component ids. `componentId` is validated against declared force-decomposition component ids.
 
 ## Solver config
 
-`solverConfig` is parsed according to `solverKey`. The current supported solver key is
-`simply-supported-beam-reactions`.
+`solverConfig` is parsed according to `solverKey`. Supported solver keys are
+`simply-supported-beam-reactions` and `planar-equilibrium`.
 
 Beam reaction solver config must define:
 - `beamLengthParameterId` with unit `m`
@@ -84,6 +154,21 @@ Beam reaction solver config must define:
 - optional `loadDecompositionId`
 - `horizontalReactionId`, `leftVerticalReactionId`, `rightVerticalReactionId`
 - `equationIds.sumForceX`, `equationIds.sumMomentAboutLeftSupport`, `equationIds.sumForceY`
+
+Generic planar equilibrium solver config must define:
+- `equationIds`: ordered semantic `sumForceX`, `sumForceY`, or `sumMoment` equation ids used to
+  build the linear system
+- `unknownQuantityIds`: ordered unknown reaction or generic quantity ids
+- `scopeIds`: authored free-body scope ids selected by the solve recipe
+- `checkEquationIds`: semantic equations evaluated after solving, including derived-result checks
+- optional `resultQuantityIds`: quantities exposed in solver output; defaults to solved unknowns
+
+For `planar-equilibrium`, `equationIds.length` must equal `unknownQuantityIds.length`.
+Solve equations must use units `N` or `N*m`, must not be `derivedResult`, must carry a `scopeId`
+included in `scopeIds`, and must be linear in the declared unknowns. Known parameters, known
+quantities, and force-decomposition components may appear as constants or coefficients. Products
+of unknown-dependent expressions, trigonometric functions of unknowns, division by unknowns, and
+singular systems fail registration.
 
 Solver config references are validated during content registration, including equation ids from
 the semantic equation list. Solution equation ids must also reference semantic equations.
@@ -121,8 +206,9 @@ formulas belong in explanation and practice feedback content, not in canvas arro
 state.
 
 `visibleObjects` and `revealObjects` are validated during content registration. Each id must match
-a declared problem object id, reaction id, force-decomposition component id, or renderer diagram
-object id. `hiddenBaseObjects` is stricter: each id must match a renderer-defined base object id.
+a declared problem object id, reaction id, generic quantity id, Phase 2 planar mechanics id,
+force-decomposition component id, or renderer diagram object id. `hiddenBaseObjects` is stricter:
+each id must match a renderer-defined base object id.
 
 Beam diagram configs may define `angleMarkers` for arc-based angle annotations. Each marker uses a
 diagram object id, anchor point id, label, radius, start/end angles in canvas degrees, label offset,
@@ -157,13 +243,15 @@ not symbolic algebra and still depends on normalized strings plus accepted expre
 
 The current Explore schema is still limited to static notices. It may also define
 `observedQuantityIds` as a mechanics-critical placeholder for future Explore observations; each id
-must reference a registered semantic quantity such as an unknown reaction.
+must reference a registered semantic quantity such as an unknown reaction or generic quantity.
 
 ## Locale alignment
 
 Problem registration compares `en` and `de` mechanics-critical structure. Keep these aligned:
 - ids and numeric values for parameters, points, bodies, supports, loads, reactions, and
   force decompositions
+- coordinate system and Phase 2 planar entities: quantities, free-body scopes, joints, ropes, and
+  force actions
 - semantic equations, solver config, and generated equation ids
 - solution equation ids, step ids, and canvas object id arrays, including `visibleObjects` and
   `hiddenBaseObjects`

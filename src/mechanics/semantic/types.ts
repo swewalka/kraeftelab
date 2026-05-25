@@ -3,8 +3,9 @@ export type SemanticUnit = "dimensionless" | "m" | "N" | "N*m" | "deg";
 export type SemanticEquationPurpose = "sumForceX" | "sumForceY" | "sumMoment" | "derivedResult";
 
 export type SemanticEquationScope =
-  | Readonly<{ kind: "wholeSystem" }>
-  | Readonly<{ kind: "body"; bodyId: string }>;
+  | Readonly<{ kind: "wholeSystem"; scopeId?: string }>
+  | Readonly<{ kind: "body"; bodyId: string; scopeId?: string }>
+  | Readonly<{ kind: "bodyGroup"; bodyIds: readonly string[]; scopeId?: string }>;
 
 export type SemanticExpressionNode =
   | Readonly<{ type: "constant"; value: number }>

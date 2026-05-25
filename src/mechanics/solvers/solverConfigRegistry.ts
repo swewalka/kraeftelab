@@ -6,7 +6,7 @@ type JsonRecord = Record<string, unknown>;
 
 type SolverConfigProblemContext = Pick<
   ProblemDefinition,
-  "forceDecompositions" | "loads" | "parameters" | "solverKey" | "unknownReactions"
+  "forceDecompositions" | "freeBodyScopes" | "loads" | "parameters" | "quantities" | "solverKey" | "unknownReactions"
 >;
 
 const isRecord = (value: unknown): value is JsonRecord =>
@@ -25,6 +25,34 @@ const requireString = (record: JsonRecord, key: string, context: string): string
     throw new Error(`${context}.${key} must be a non-empty string.`);
   }
   return value;
+};
+
+const parseStringArray = (value: unknown, context: string): readonly string[] => {
+  if (!Array.isArray(value)) {
+    throw new Error(`${context} must be an array.`);
+  }
+  return value.map((item, index) => {
+    if (typeof item !== "string" || item.length === 0) {
+      throw new Error(`${context}[${index}] must be a non-empty string.`);
+    }
+    return item;
+  });
+};
+
+const parseOptionalStringArray = (
+  record: JsonRecord,
+  key: string,
+  context: string,
+): readonly string[] | undefined => record[key] === undefined ? undefined : parseStringArray(record[key], `${context}.${key}`);
+
+const ensureUniqueIds = (ids: readonly string[], context: string) => {
+  const seen = new Set<string>();
+  ids.forEach((id, index) => {
+    if (seen.has(id)) {
+      throw new Error(`${context}[${index}] duplicates id "${id}".`);
+    }
+    seen.add(id);
+  });
 };
 
 const requireParameter = (
@@ -101,12 +129,70 @@ const parseBeamReactionSolverConfig = (
   return parsed;
 };
 
+const parsePlanarEquilibriumSolverConfig = (
+  value: unknown,
+  problem: SolverConfigProblemContext,
+): ProblemSolverConfig => {
+  const record = requireRecord(value, "solverConfig");
+  const equationIds = parseStringArray(record.equationIds, "solverConfig.equationIds");
+  const unknownQuantityIds = parseStringArray(record.unknownQuantityIds, "solverConfig.unknownQuantityIds");
+  const scopeIds = parseStringArray(record.scopeIds, "solverConfig.scopeIds");
+  const checkEquationIds = parseStringArray(record.checkEquationIds, "solverConfig.checkEquationIds");
+  const resultQuantityIds = parseOptionalStringArray(record, "resultQuantityIds", "solverConfig");
+
+  ensureUniqueIds(equationIds, "solverConfig.equationIds");
+  ensureUniqueIds(unknownQuantityIds, "solverConfig.unknownQuantityIds");
+  ensureUniqueIds(scopeIds, "solverConfig.scopeIds");
+  ensureUniqueIds(checkEquationIds, "solverConfig.checkEquationIds");
+  if (resultQuantityIds !== undefined) {
+    ensureUniqueIds(resultQuantityIds, "solverConfig.resultQuantityIds");
+  }
+  if (equationIds.length !== unknownQuantityIds.length) {
+    throw new Error(
+      `solverConfig.equationIds length ${equationIds.length} must match solverConfig.unknownQuantityIds length ${unknownQuantityIds.length}.`,
+    );
+  }
+
+  const reactionQuantityIds = new Set(problem.unknownReactions.map((reaction) => reaction.id));
+  const quantitiesById = new Map(problem.quantities.map((quantity) => [quantity.id, quantity]));
+  const quantityIds = new Set([...reactionQuantityIds, ...quantitiesById.keys()]);
+  const scopeIdSet = new Set(problem.freeBodyScopes.map((scope) => scope.id));
+  unknownQuantityIds.forEach((id, index) => {
+    const context = `solverConfig.unknownQuantityIds[${index}]`;
+    if (reactionQuantityIds.has(id)) {
+      return;
+    }
+    const quantity = quantitiesById.get(id);
+    if (quantity === undefined) {
+      requireId(quantityIds, id, context);
+      return;
+    }
+    if (quantity.role !== "unknown") {
+      throw new Error(`${context} references ${quantity.role} quantity "${id}", but planar-equilibrium unknowns must have role "unknown".`);
+    }
+  });
+  scopeIds.forEach((id, index) => requireId(scopeIdSet, id, `solverConfig.scopeIds[${index}]`));
+  resultQuantityIds?.forEach((id, index) => requireId(quantityIds, id, `solverConfig.resultQuantityIds[${index}]`));
+
+  return {
+    solverKey: "planar-equilibrium",
+    equationIds,
+    unknownQuantityIds,
+    scopeIds,
+    checkEquationIds,
+    ...(resultQuantityIds === undefined ? {} : { resultQuantityIds }),
+  };
+};
+
 export const parseSolverConfig = (
   value: unknown,
   problem: SolverConfigProblemContext,
 ): ProblemSolverConfig => {
   if (problem.solverKey === "simply-supported-beam-reactions") {
     return parseBeamReactionSolverConfig(value, problem);
+  }
+  if (problem.solverKey === "planar-equilibrium") {
+    return parsePlanarEquilibriumSolverConfig(value, problem);
   }
 
   throw new Error(`No solver config parser registered for solverKey "${problem.solverKey}".`);
@@ -124,5 +210,12 @@ export const validateSolverConfigEquationIds = (
       "solverConfig.equationIds.sumMomentAboutLeftSupport",
     );
     requireId(equationIds, config.equationIds.sumForceY, "solverConfig.equationIds.sumForceY");
+    return;
   }
+  config.equationIds.forEach((equationId, index) =>
+    requireId(equationIds, equationId, `solverConfig.equationIds[${index}]`),
+  );
+  config.checkEquationIds.forEach((equationId, index) =>
+    requireId(equationIds, equationId, `solverConfig.checkEquationIds[${index}]`),
+  );
 };

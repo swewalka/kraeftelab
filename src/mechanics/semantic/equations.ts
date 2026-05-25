@@ -1,4 +1,4 @@
-import type { ForceDecomposition, ParameterDefinition, UnknownReaction } from "../model/types";
+import type { ForceDecomposition, ParameterDefinition, QuantityDefinition, UnknownReaction } from "../model/types";
 import { resolveForceDecomposition } from "../core/forceDecomposition";
 import { evaluateSemanticExpression, renderSemanticExpression } from "./expression";
 import type {
@@ -13,6 +13,7 @@ type SemanticRuntimeContext = Readonly<{
   parameters: readonly ParameterDefinition[];
   unknownReactions: readonly UnknownReaction[];
   forceDecompositions: readonly ForceDecomposition[];
+  quantityDefinitions?: readonly QuantityDefinition[];
   quantities: readonly SemanticQuantityValue[];
 }>;
 
@@ -21,6 +22,11 @@ const signMultiplier = (sign: "+" | "-"): number => sign === "+" ? 1 : -1;
 export const buildSemanticValueMap = (context: SemanticRuntimeContext): ReadonlyMap<string, number> => {
   const values = new Map<string, number>();
   context.parameters.forEach((parameter) => values.set(parameter.id, parameter.value));
+  context.quantityDefinitions?.forEach((quantity) => {
+    if (quantity.value !== undefined) {
+      values.set(quantity.id, quantity.value);
+    }
+  });
   context.quantities.forEach((quantity) => values.set(quantity.id, quantity.value));
   context.forceDecompositions.forEach((decomposition) => {
     const resolved = resolveForceDecomposition(decomposition, context.parameters);
@@ -34,6 +40,7 @@ export const buildSemanticLabelMap = (context: SemanticRuntimeContext): Readonly
   const labels = new Map<string, string>();
   context.parameters.forEach((parameter) => labels.set(parameter.id, parameter.label));
   context.unknownReactions.forEach((reaction) => labels.set(reaction.id, reaction.label));
+  context.quantityDefinitions?.forEach((quantity) => labels.set(quantity.id, quantity.label));
   context.quantities.forEach((quantity) => labels.set(quantity.id, quantity.label));
   context.forceDecompositions.forEach((decomposition) => {
     labels.set(decomposition.components.x.id, decomposition.components.x.latex);

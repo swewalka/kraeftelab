@@ -1,9 +1,14 @@
 import type {
   BodyDefinition,
   ForceDecomposition,
+  ForceActionDefinition,
+  FreeBodyScopeDefinition,
+  JointDefinition,
   LoadDefinition,
   ParameterDefinition,
   PointDefinition,
+  QuantityDefinition,
+  RopeDefinition,
   SupportDefinition,
   UnknownReaction,
 } from "../model/types";
@@ -26,6 +31,11 @@ export type SemanticProblemContext = Readonly<{
   loads: readonly LoadDefinition[];
   parameters: readonly ParameterDefinition[];
   forceDecompositions: readonly ForceDecomposition[];
+  quantities: readonly QuantityDefinition[];
+  freeBodyScopes: readonly FreeBodyScopeDefinition[];
+  joints: readonly JointDefinition[];
+  ropes: readonly RopeDefinition[];
+  forceActions: readonly ForceActionDefinition[];
   unknownReactions: readonly UnknownReaction[];
 }>;
 
@@ -100,6 +110,34 @@ const requireId = (ids: ReadonlySet<string>, id: string, context: string) => {
   }
 };
 
+const haveSameIds = (left: readonly string[], right: readonly string[]): boolean => {
+  if (left.length !== right.length) {
+    return false;
+  }
+  const rightIds = new Set(right);
+  return left.every((id) => rightIds.has(id));
+};
+
+const parseOptionalScopeId = (
+  record: JsonRecord,
+  expectedKind: FreeBodyScopeDefinition["kind"],
+  problemContext: SemanticProblemContext,
+  context: string,
+) => {
+  const scopeId = record.scopeId === undefined ? undefined : requireString(record, "scopeId", context);
+  if (scopeId === undefined) {
+    return undefined;
+  }
+  const scope = problemContext.freeBodyScopes.find((candidate) => candidate.id === scopeId);
+  if (!scope) {
+    throw new Error(`${context}.scopeId references missing id "${scopeId}".`);
+  }
+  if (scope.kind !== expectedKind) {
+    throw new Error(`${context}.scopeId must reference a ${expectedKind} free-body scope.`);
+  }
+  return { scopeId, scope };
+};
+
 const getComponentIds = (context: SemanticProblemContext): ReadonlySet<string> =>
   new Set(
     context.forceDecompositions.flatMap((decomposition) => [
@@ -116,6 +154,12 @@ export const getSemanticMechanicsObjectIds = (context: SemanticProblemContext): 
     ...context.supports.map((support) => support.id),
     ...context.loads.map((load) => load.id),
     ...context.unknownReactions.map((reaction) => reaction.id),
+    ...context.quantities.map((quantity) => quantity.id),
+    ...context.freeBodyScopes.map((scope) => scope.id),
+    ...context.joints.map((joint) => joint.id),
+    ...context.ropes.map((rope) => rope.id),
+    ...context.forceActions.map((forceAction) => forceAction.id),
+    ...context.forceDecompositions.map((decomposition) => decomposition.id),
     ...componentIds,
   ]);
 };
@@ -124,6 +168,7 @@ const getSemanticSymbolIds = (context: SemanticProblemContext): ReadonlySet<stri
   new Set([
     ...context.parameters.map((parameter) => parameter.id),
     ...context.unknownReactions.map((reaction) => reaction.id),
+    ...context.quantities.map((quantity) => quantity.id),
     ...getComponentIds(context),
   ]);
 
@@ -137,14 +182,34 @@ const parseScope = (value: unknown, problemContext: SemanticProblemContext, cont
   const record = requireRecord(value, context);
   const kind = requireString(record, "kind", context);
   if (kind === "wholeSystem") {
-    return { kind };
+    const scoped = parseOptionalScopeId(record, "wholeSystem", problemContext, context);
+    return scoped === undefined ? { kind } : { kind, scopeId: scoped.scopeId };
   }
   if (kind === "body") {
     const bodyId = requireString(record, "bodyId", context);
     requireId(new Set(problemContext.bodies.map((body) => body.id)), bodyId, `${context}.bodyId`);
-    return { kind, bodyId };
+    const scoped = parseOptionalScopeId(record, "body", problemContext, context);
+    if (scoped !== undefined && scoped.scope.kind === "body" && scoped.scope.bodyId !== bodyId) {
+      throw new Error(`${context}.scopeId must reference a body free-body scope with matching bodyId.`);
+    }
+    return scoped === undefined ? { kind, bodyId } : { kind, bodyId, scopeId: scoped.scopeId };
   }
-  throw new Error(`${context}.kind must be "wholeSystem" or "body".`);
+  if (kind === "bodyGroup") {
+    const bodyIds = parseStringArray(record.bodyIds, `${context}.bodyIds`);
+    if (bodyIds.length === 0) {
+      throw new Error(`${context}.bodyIds must contain at least one body id.`);
+    }
+    const knownBodyIds = new Set(problemContext.bodies.map((body) => body.id));
+    bodyIds.forEach((bodyId, index) => requireId(knownBodyIds, bodyId, `${context}.bodyIds[${index}]`));
+    const scoped = parseOptionalScopeId(record, "bodyGroup", problemContext, context);
+    if (scoped !== undefined) {
+      if (scoped.scope.kind === "bodyGroup" && !haveSameIds(scoped.scope.bodyIds, bodyIds)) {
+        throw new Error(`${context}.scopeId must reference a bodyGroup with matching bodyIds.`);
+      }
+    }
+    return scoped === undefined ? { kind, bodyIds } : { kind, bodyIds, scopeId: scoped.scopeId };
+  }
+  throw new Error(`${context}.kind must be "wholeSystem", "body", or "bodyGroup".`);
 };
 
 const parseTerm = (
@@ -172,7 +237,10 @@ const parseTerm = (
     throw new Error(`${context} must reference quantityId, parameterId, or componentId.`);
   }
 
-  const quantityIds = new Set(problemContext.unknownReactions.map((reaction) => reaction.id));
+  const quantityIds = new Set([
+    ...problemContext.unknownReactions.map((reaction) => reaction.id),
+    ...problemContext.quantities.map((quantity) => quantity.id),
+  ]);
   const parameterIds = new Set(problemContext.parameters.map((parameter) => parameter.id));
   const componentIds = getComponentIds(problemContext);
   if (quantityId !== undefined) {

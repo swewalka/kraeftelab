@@ -13,4 +13,13 @@ export type BeamReactionSolverConfig = Readonly<{
   equationIds: BeamReactionEquationIds;
 }>;
 
-export type ProblemSolverConfig = BeamReactionSolverConfig;
+export type PlanarEquilibriumSolverConfig = Readonly<{
+  solverKey: "planar-equilibrium";
+  equationIds: readonly string[];
+  unknownQuantityIds: readonly string[];
+  scopeIds: readonly string[];
+  checkEquationIds: readonly string[];
+  resultQuantityIds?: readonly string[];
+}>;
+
+export type ProblemSolverConfig = BeamReactionSolverConfig | PlanarEquilibriumSolverConfig;

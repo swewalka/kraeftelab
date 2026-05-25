@@ -127,6 +127,7 @@ const mechanicsSnapshot = (content: LoadedProblemContent) => ({
     problemType: content.problem.problemType,
     solverKey: content.problem.solverKey,
     diagramKey: content.problem.diagramKey,
+    coordinateSystem: content.problem.coordinateSystem,
     parameters: content.problem.parameters.map((parameter) => ({
       id: parameter.id,
       value: parameter.value,
@@ -140,8 +141,12 @@ const mechanicsSnapshot = (content: LoadedProblemContent) => ({
     bodies: content.problem.bodies.map((body) => ({
       id: body.id,
       kind: body.kind,
-      startPointId: body.startPointId,
-      endPointId: body.endPointId,
+      ...(body.kind === "rigidBeam"
+        ? {
+            startPointId: body.startPointId,
+            endPointId: body.endPointId,
+          }
+        : { geometry: body.geometry }),
     })),
     supports: content.problem.supports.map((support) => ({
       id: support.id,
@@ -157,6 +162,16 @@ const mechanicsSnapshot = (content: LoadedProblemContent) => ({
       vector: load.vector,
     })),
     forceDecompositions: content.problem.forceDecompositions,
+    quantities: content.problem.quantities.map((quantity) => ({
+      id: quantity.id,
+      unit: quantity.unit,
+      role: quantity.role,
+      value: quantity.value,
+    })),
+    freeBodyScopes: content.problem.freeBodyScopes,
+    joints: content.problem.joints,
+    ropes: content.problem.ropes,
+    forceActions: content.problem.forceActions,
     unknownReactions: content.problem.unknownReactions.map((reaction) => ({
       id: reaction.id,
       supportId: reaction.supportId,

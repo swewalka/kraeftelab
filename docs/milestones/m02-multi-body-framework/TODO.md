@@ -87,7 +87,7 @@ Exit criteria:
 
 ## Phase 2 - Planar Mechanics Domain Model
 
-- [ ] Expand the model beyond `rigidBeam` into reusable planar entities:
+- [x] Expand the model beyond `rigidBeam` into reusable planar entities:
   - rigid bodies with authored geometry references
   - points and attachment points
   - supports and support reactions
@@ -95,49 +95,60 @@ Exit criteria:
   - ropes/cables with shared tension and authored line of action
   - belt/contact-style tangential forces
   - point forces and narrow couple/moment support if required by the target problems
-- [ ] Model coordinate systems and sign conventions explicitly enough for non-beam equilibrium:
+- [x] Model coordinate systems and sign conventions explicitly enough for non-beam equilibrium:
   positive x, positive y, positive moment direction, and angle references.
-- [ ] Represent free-body scopes: whole system, individual body, or authored body group.
-- [ ] Represent internal/external force ownership so a hinge or rope force can appear correctly on
+- [x] Represent free-body scopes: whole system, individual body, or authored body group.
+- [x] Represent internal/external force ownership so a hinge or rope force can appear correctly on
   different free-body diagrams.
-- [ ] Extend parameter/unit support only as needed for M02, including moment equation units and
+- [x] Extend parameter/unit support only as needed for M02, including moment equation units and
   angle/length/force formatting.
-- [ ] Update parsing and locale validation for the expanded mechanics schema.
-- [ ] Update canvas object id collection so bodies, joints, ropes, contact forces, reactions,
+- [x] Update parsing and locale validation for the expanded mechanics schema.
+- [x] Update canvas object id collection so bodies, joints, ropes, contact forces, reactions,
   semantic quantities, and renderer objects can all be validated consistently.
-- [ ] Migrate existing beam content to the generalized schema or provide a clearly documented
+- [x] Migrate existing beam content to the generalized schema or provide a clearly documented
   compatibility path with a removal plan.
+
+Phase 2 contract-first slice note: existing beam content remains on the compatibility path. Final
+confidence against the exact ladder and belt/idler authored problem files will come when target
+draft content is introduced in later phases.
 
 Exit criteria:
 
-- [ ] The existing beam problems and both target problem specs can be expressed with the same
+- [x] The existing beam problems and both target problem specs can be expressed with the same
   mechanics model.
-- [ ] The model does not require target-problem-only fields for ladder hinges, rope tension, pulley
+- [x] The model does not require target-problem-only fields for ladder hinges, rope tension, pulley
   contacts, or belt directions.
 
 ## Phase 3 - Equilibrium Solver Architecture
 
-- [ ] Implement a generic planar equilibrium solver recipe for authored free-body scopes:
+- [x] Implement a generic planar equilibrium solver recipe for authored free-body scopes:
   `sumForceX`, `sumForceY`, and `sumMoment` equations over declared unknown quantities.
-- [ ] Replace the current fixed `solveThreeByThree` limitation with a small generic linear solver
+- [x] Replace the current fixed `solveThreeByThree` limitation with a small generic linear solver
   for the statically determinate M02 systems.
-- [ ] Allow solver configs to declare equation order, unknown order, selected free-body scopes, and
+- [x] Allow solver configs to declare equation order, unknown order, selected free-body scopes, and
   derived quantities without embedding curated teaching prose in solver code.
-- [ ] Generate or validate semantic equations from solver configs so solver output, Solve,
+- [x] Generate or validate semantic equations from solver configs so solver output, Solve,
   Practice, and Explore share ids.
-- [ ] Keep symbolic output variable-based. Numeric substitutions belong to Explore and checks.
-- [ ] Validate solver configs at registration time with useful errors for missing ids, wrong units,
+- [x] Keep symbolic output variable-based. Numeric substitutions belong to Explore and checks.
+- [x] Validate solver configs at registration time with useful errors for missing ids, wrong units,
   singular systems, unsupported force directions, or inconsistent body scopes.
-- [ ] Decide whether the old beam solver becomes a thin adapter over the planar equilibrium solver
+- [x] Decide whether the old beam solver becomes a thin adapter over the planar equilibrium solver
   or remains as a deprecated compatibility solver until M02 closes.
+
+Decision: keep `simply-supported-beam-reactions` as a deprecated compatibility solver through
+Phases 3-5. Phase 3 should build the generic planar equilibrium solver for new M02-compatible
+solver configs and validate it against draft ladder and belt/idler equation sets. Do not migrate
+the existing beam solver/config in Phase 3 unless a narrow compatibility hook is required to keep
+the catalog working. Full beam migration is owned by Phase 6.
 
 Exit criteria:
 
-- [ ] Existing beam reactions are produced by the new semantic solver path or a documented adapter.
-- [ ] Draft ladder and belt/idler equation sets can be solved numerically from their authored
-  mechanics data.
-- [ ] Solver results expose all values needed by Solve final formulas, Practice checks, Explore
-  observations, and diagram labels.
+- [x] Existing beam reactions still pass through the deprecated compatibility solver, with the
+  deprecation and Phase 6 migration path documented.
+- [x] Draft ladder and belt/idler equation sets can be solved numerically by the generic planar
+  solver from their authored mechanics data.
+- [x] Solver results expose all values needed by Solve final formulas, Practice checks, Explore
+  observations, and diagram labels for generic planar solver configs.
 
 ## Phase 4 - Diagram And Canvas Framework
 
@@ -150,6 +161,8 @@ Exit criteria:
 - [ ] Keep reusable Konva primitives for arrows, dimensions, angles, labels, support symbols, and
   selection hit targets.
 - [ ] Add a generic planar diagram adapter while preserving the current beam diagram behavior.
+- [ ] Keep existing beam diagrams on the beam renderer compatibility path until Phase 6; Phase 4
+  should not migrate beam content unless required for regression safety.
 - [ ] Let canvas state select authored view/free-body context when needed, then use
   `visibleObjects` and `hiddenBaseObjects` for step-specific teaching visibility.
 - [ ] Ensure diagram object ids can reference mechanics ids and semantic quantity ids without
@@ -161,7 +174,8 @@ Exit criteria:
 
 Exit criteria:
 
-- [ ] Beam diagrams remain visually equivalent after the adapter migration.
+- [ ] Beam diagrams remain visually equivalent on the compatibility renderer while the generic
+  planar renderer is introduced for M02 target diagrams.
 - [ ] Ladder and belt/idler diagrams can be authored without custom one-off React renderers.
 - [ ] Registration catches missing diagram references before the app renders.
 
@@ -177,22 +191,27 @@ Exit criteria:
 - [ ] Build an Explore state path that clones or derives problem parameters, reruns the semantic
   solver, and updates numeric observations and diagram geometry/forces.
 - [ ] Keep Explore equation/result display separate from symbolic Solve and Practice panels.
-- [ ] Implement Explore for the center-load beam first as the lowest-risk vertical slice.
-- [ ] Implement Explore for the angled-load beam next, including variation of load magnitude,
-  angle, and load position within valid bounds.
+- [ ] Define the Explore framework against semantic equations and solver outputs without requiring
+  immediate beam content migration; the existing beam problems may keep their compatibility solver
+  until Phase 6.
+- [ ] Optionally use a beam Explore prototype only if it does not force early migration of beam
+  solver, diagram, or content contracts.
 - [ ] Implement Explore for ladder and belt/idler after their solver and diagram contracts are
   stable.
 - [ ] Add locale validation for mechanics-critical Explore controls and observed quantity ids.
 
 Exit criteria:
 
-- [ ] Both existing beam problems have real interactive Explore mode.
+- [ ] The Explore framework is ready for Phase 6 beam migration and can consume semantic solver
+  outputs for generic planar configs.
 - [ ] Explore values come from the semantic solver/equation layer, not duplicated formulas in UI
   components.
 - [ ] Invalid parameter combinations are prevented or reported in the Explore schema.
 
 ## Phase 6 - Existing Beam Migration And Regression
 
+- [ ] Migrate the existing beam problems from the deprecated compatibility solver path to the final
+  M02 solver/config path, or document any intentionally retained adapter as temporary closure debt.
 - [ ] Convert the center-load beam content to the final M02 semantic equation, diagram, Practice,
   and Explore contracts.
 - [ ] Convert the angled-load beam content to the final M02 semantic equation, diagram, Practice,
@@ -207,6 +226,8 @@ Exit criteria:
 
 - [ ] The two M01 beam problems meet M02 acceptance criteria: Solve, Practice, real Explore,
   semantic equations, validated canvas states, and no hidden beam-only solver assumptions.
+- [ ] `simply-supported-beam-reactions` is either removed or explicitly documented as a temporary
+  compatibility layer with no hidden ownership of M02 target behavior.
 
 ## Phase 7 - Target Problem Implementation
 
@@ -282,8 +303,10 @@ Exit criteria:
   from solver config, or a hybrid with validation both ways.
 - [ ] Diagram migration path: generic planar diagram scene immediately, or beam adapter plus generic
   scene in parallel until target diagrams land.
-- [ ] Solver migration path: beam solver adapter over generic equilibrium solver, or deprecated beam
+- [x] Solver migration path: beam solver adapter over generic equilibrium solver, or deprecated beam
   solver kept only until existing content migration completes.
+  - Decision: keep the beam solver deprecated and compatible through Phases 3-5; migrate or retire
+    it in Phase 6.
 - [ ] Explore control scope: numeric-only for first implementation, with logical toggles deferred
   unless the target problems require them.
 
